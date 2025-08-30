@@ -1,0 +1,11 @@
+# Core AWS SDK
+boto3>=1.26.0
+botocore>=1.29.0
+
+# Future Strands library integration
+# strands>=1.0.0  # Uncomment when ready to use
+
+# Development and testing (optional)
+# pytest>=7.0.0
+# black>=22.0.0
+# flake8>=5.0.0
