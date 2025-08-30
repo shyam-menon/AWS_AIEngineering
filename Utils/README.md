@@ -1,6 +1,6 @@
 # AI Usage and Billing Utilities
 
-This folder contains utilities to help you monitor and track your AI model usa### 6. `usage_examples.py` - Complete Usage Examplese and costs when working with AWS Bedrock.
+This folder contains utilities to help you monitor and track your AWS costs
 
 ## Overview
 
