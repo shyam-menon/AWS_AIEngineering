@@ -15,7 +15,6 @@ import argparse
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from decimal import Decimal
-import pandas as pd
 
 
 class AWSBillingMonitor:

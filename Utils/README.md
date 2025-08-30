@@ -82,7 +82,7 @@ python aws_cost_dashboard.py --monitor
 python aws_cost_dashboard.py --snapshot
 ```
 
-### 5. `token_tracker.py` - Real-Time Session Tracker
+### 4. `aws_cost_alerts.py` - Cost Alert System
 A proactive alert system that monitors your spending against budget limits and provides recommendations.
 
 **Features:**
@@ -103,6 +103,11 @@ python aws_cost_alerts.py --budget 50 --save-log
 # Quick check with different budget
 python aws_cost_alerts.py --budget 100
 ```
+
+### 5. `token_tracker.py` - Real-Time Session Tracker
+python aws_cost_alerts.py --budget 50 --save-log
+
+### 5. `token_tracker.py` - Real-Time Session Tracker
 A lightweight utility for tracking token usage and costs during your current coding session.
 
 **Features:**
@@ -276,9 +281,13 @@ For a 100-token prompt with 200-token response:
 ```
 Utils/
 ├── README.md                    # This file
-├── ai_usage_monitor.py         # Comprehensive monitoring
-├── token_tracker.py            # Session tracking
-├── bedrock_with_tracking.py    # Integrated client
+├── aws_billing_monitor.py      # Comprehensive AWS billing across all services
+├── aws_cost_dashboard.py       # Quick daily cost dashboard
+├── aws_cost_alerts.py          # Budget monitoring and alerts
+├── ai_usage_monitor.py         # AI-specific usage monitoring
+├── token_tracker.py            # Real-time session tracking
+├── bedrock_with_tracking.py    # Integrated Bedrock client
+├── usage_examples.py           # Complete usage examples
 ├── ai_session_log.json         # Default session file
 └── demo_session.json           # Demo tracking data
 ```
