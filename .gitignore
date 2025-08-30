@@ -73,6 +73,12 @@ Thumbs.db
 .aws/
 *.pem
 
+# Session and monitoring logs (keep existing examples)
+*session_*.json
+cost_alert_log_*.json
+aws_billing_report_*.json
+daily_cost_snapshot_*.json
+
 # Logs
 *.log
 logs/

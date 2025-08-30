@@ -1,0 +1,48 @@
+{
+  "session_start": "2025-08-30T11:13:03.400501",
+  "requests": [
+    {
+      "timestamp": "2025-08-30T11:13:03.401505",
+      "model_id": "amazon.nova-lite-v1:0",
+      "input_tokens": 15,
+      "output_tokens": 200,
+      "total_tokens": 215,
+      "input_cost": 0.0009,
+      "output_cost": 0.048,
+      "total_cost": 0.0489,
+      "prompt_preview": "Explain the differences between supervised and unsupervised learning",
+      "response_preview": "[Model response would be here]"
+    },
+    {
+      "timestamp": "2025-08-30T11:13:03.410040",
+      "model_id": "anthropic.claude-3-5-haiku-20241022-v1:0",
+      "input_tokens": 15,
+      "output_tokens": 200,
+      "total_tokens": 215,
+      "input_cost": 0.00375,
+      "output_cost": 0.25,
+      "total_cost": 0.25375,
+      "prompt_preview": "Explain the differences between supervised and unsupervised learning",
+      "response_preview": "[Model response would be here]"
+    },
+    {
+      "timestamp": "2025-08-30T11:13:03.418583",
+      "model_id": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "input_tokens": 15,
+      "output_tokens": 200,
+      "total_tokens": 215,
+      "input_cost": 0.045,
+      "output_cost": 3.0,
+      "total_cost": 3.045,
+      "prompt_preview": "Explain the differences between supervised and unsupervised learning",
+      "response_preview": "[Model response would be here]"
+    }
+  ],
+  "summary": {
+    "total_input_tokens": 45,
+    "total_output_tokens": 600,
+    "total_cost": 3.34765,
+    "request_count": 3,
+    "last_updated": "2025-08-30T11:13:03.418583"
+  }
+}

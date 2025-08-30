@@ -20,6 +20,12 @@ AWS_AIEngineering/
 │   ├── chapter_09_security/                  # Guardrails, testing, ethics, security
 │   ├── chapter_10_forward_looking/           # Voice/vision agents, robotics, computer use
 │   └── chapter_11_complete_integration/      # Production customer support agent
+├── Utils/                       # Cost monitoring and usage tracking utilities
+│   ├── ai_usage_monitor.py     # Comprehensive AWS usage monitoring
+│   ├── token_tracker.py        # Real-time session tracking
+│   ├── bedrock_with_tracking.py # Integrated Bedrock client with tracking
+│   ├── usage_examples.py       # Usage examples and best practices
+│   └── README.md              # Utilities documentation
 ├── examples/                    # Legacy examples (still available)
 │   ├── ec2/                    # EC2 service examples
 │   ├── bedrock/                # AWS Bedrock examples  
@@ -87,6 +93,18 @@ python examples\bedrock\bedrock_json_output.py --mode examples
 
 # Specialized AI applications
 python examples\bedrock\nova_lite_apps.py --help
+
+# Monitor AI usage and costs
+python Utils\ai_usage_monitor.py --days 7
+
+# Monitor ALL AWS service costs  
+python Utils\aws_billing_monitor.py --days 7 --quiet
+
+# Quick cost dashboard
+python Utils\aws_cost_dashboard.py
+
+# Track tokens in real-time
+python Utils\usage_examples.py
 ```
 
 ## 📚 Examples Overview
@@ -104,6 +122,14 @@ python examples\bedrock\nova_lite_apps.py --help
 ### 🔗 Strands Library Examples
 *Coming soon - examples demonstrating Strands library integration*
 
+### 💰 AI Usage and Cost Monitoring
+- **`ai_usage_monitor.py`** - Comprehensive monitoring with CloudWatch and Cost Explorer
+- **`aws_billing_monitor.py`** - Complete AWS billing across ALL services (EC2, S3, Bedrock, etc.)
+- **`aws_cost_dashboard.py`** - Quick daily cost dashboard with alerts
+- **`token_tracker.py`** - Real-time session tracking and cost calculation
+- **`bedrock_with_tracking.py`** - Integrated Bedrock client with automatic tracking
+- **`usage_examples.py`** - Complete usage examples and best practices
+
 ## 🎯 Use Cases
 
 ### Infrastructure Management
@@ -116,6 +142,12 @@ python examples\bedrock\nova_lite_apps.py --help
 - Business analysis and strategy
 - Creative writing and storytelling
 
+### Cost Management & Monitoring
+- Track AI token usage in real-time
+- Monitor costs across different models (Nova Lite vs Claude)
+- Set budget alerts and cost optimization
+- Session-based tracking for project management
+
 ### Hybrid Workflows
 - Combine AWS services with AI capabilities
 - Automated reporting with natural language summaries
@@ -125,6 +157,7 @@ python examples\bedrock\nova_lite_apps.py --help
 
 - **[Nova Lite Guide](docs/NOVA_LITE_GUIDE.md)** - Complete guide for Amazon Nova Lite
 - **[AWS Configuration](docs/aws_config_examples.txt)** - AWS credentials setup examples
+- **[Utils Documentation](Utils/README.md)** - AI usage monitoring and cost tracking guide
 
 ## 🛠️ Requirements
 

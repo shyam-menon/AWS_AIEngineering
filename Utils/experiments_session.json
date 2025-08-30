@@ -1,0 +1,24 @@
+{
+  "session_start": "2025-08-30T11:13:03.432595",
+  "requests": [
+    {
+      "timestamp": "2025-08-30T11:13:03.441592",
+      "model_id": "anthropic.claude-3-5-haiku-20241022-v1:0",
+      "input_tokens": 30,
+      "output_tokens": 150,
+      "total_tokens": 180,
+      "input_cost": 0.0075,
+      "output_cost": 0.1875,
+      "total_cost": 0.195,
+      "prompt_preview": "Test prompt engineering",
+      "response_preview": "Here are some prompt engineering techniques..."
+    }
+  ],
+  "summary": {
+    "total_input_tokens": 30,
+    "total_output_tokens": 150,
+    "total_cost": 0.195,
+    "request_count": 1,
+    "last_updated": "2025-08-30T11:13:03.441592"
+  }
+}

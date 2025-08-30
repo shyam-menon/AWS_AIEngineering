@@ -1,0 +1,24 @@
+{
+  "session_start": "2025-08-30T11:13:03.431596",
+  "requests": [
+    {
+      "timestamp": "2025-08-30T11:13:03.436592",
+      "model_id": "amazon.nova-lite-v1:0",
+      "input_tokens": 50,
+      "output_tokens": 200,
+      "total_tokens": 250,
+      "input_cost": 0.003,
+      "output_cost": 0.048,
+      "total_cost": 0.051000000000000004,
+      "prompt_preview": "Generate API documentation",
+      "response_preview": "Here's the API documentation..."
+    }
+  ],
+  "summary": {
+    "total_input_tokens": 50,
+    "total_output_tokens": 200,
+    "total_cost": 0.051000000000000004,
+    "request_count": 1,
+    "last_updated": "2025-08-30T11:13:03.436592"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "session_start": "2025-08-30T11:13:03.430597",
+  "requests": [
+    {
+      "timestamp": "2025-08-30T11:13:03.432595",
+      "model_id": "amazon.nova-lite-v1:0",
+      "input_tokens": 20,
+      "output_tokens": 80,
+      "total_tokens": 100,
+      "input_cost": 0.0012,
+      "output_cost": 0.0192,
+      "total_cost": 0.020399999999999998,
+      "prompt_preview": "What is AWS?",
+      "response_preview": "AWS is Amazon Web Services..."
+    }
+  ],
+  "summary": {
+    "total_input_tokens": 20,
+    "total_output_tokens": 80,
+    "total_cost": 0.020399999999999998,
+    "request_count": 1,
+    "last_updated": "2025-08-30T11:13:03.432595"
+  }
+}

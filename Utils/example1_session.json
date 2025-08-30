@@ -1,0 +1,36 @@
+{
+  "session_start": "2025-08-30T11:12:58.662325",
+  "requests": [
+    {
+      "timestamp": "2025-08-30T11:12:58.662325",
+      "model_id": "amazon.nova-lite-v1:0",
+      "input_tokens": 15,
+      "output_tokens": 45,
+      "total_tokens": 60,
+      "input_cost": 0.0009,
+      "output_cost": 0.010799999999999999,
+      "total_cost": 0.011699999999999999,
+      "prompt_preview": "What is machine learning?",
+      "response_preview": "Machine learning is a subset of artificial intelligence..."
+    },
+    {
+      "timestamp": "2025-08-30T11:12:58.664326",
+      "model_id": "amazon.nova-lite-v1:0",
+      "input_tokens": 25,
+      "output_tokens": 120,
+      "total_tokens": 145,
+      "input_cost": 0.0015,
+      "output_cost": 0.0288,
+      "total_cost": 0.0303,
+      "prompt_preview": "Explain neural networks in simple terms",
+      "response_preview": "Neural networks are computing systems inspired by biological neural networks..."
+    }
+  ],
+  "summary": {
+    "total_input_tokens": 40,
+    "total_output_tokens": 165,
+    "total_cost": 0.041999999999999996,
+    "request_count": 2,
+    "last_updated": "2025-08-30T11:12:58.664326"
+  }
+}
