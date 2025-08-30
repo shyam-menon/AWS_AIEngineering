@@ -1,19 +1,53 @@
-# AWS Boto3 and Strands Library Examples
+# AWS AI Engineering with Strands Agents
 
-A collection of practical examples demonstrating how to use AWS Boto3 SDK and Strands library for various AWS services and AI/ML workflows.
+A comprehensive course and collection of practical examples demonstrating how to build, deploy, and manage sophisticated AI applications using Amazon Web Services (AWS) and the Strands Agents framework.
 
-## 📁 Repository Structure
+## 📚 Course Structure
+
+This repository is organized into **11 chapters** that take you from fundamentals to production deployment:
 
 ```
-AWS_Boto/
-├── examples/
-│   ├── ec2/                 # EC2 service examples
-│   ├── bedrock/             # AWS Bedrock (AI/ML) examples
-│   └── strands/             # Strands library examples
-├── docs/                    # Documentation and guides
-├── requirements.txt         # Python dependencies
-└── README.md               # This file
+AWS_AIEngineering/
+├── chapters/                    # Chapter-wise course content
+│   ├── chapter_01_coding_ml_fundamentals/    # Python, AWS basics, ML fundamentals
+│   ├── chapter_02_llm_apis/                  # LLM APIs, AWS Bedrock, structured outputs
+│   ├── chapter_03_model_adaptation/          # Prompt engineering, tool use, fine-tuning
+│   ├── chapter_04_storage_for_retrieval/     # Vector databases, graph databases, hybrid retrieval
+│   ├── chapter_05_rag_agentic_rag/          # RAG systems, agentic patterns, MCP
+│   ├── chapter_06_ai_agents/                 # AI agents, Strands framework, multi-agent systems
+│   ├── chapter_07_infrastructure/            # AWS infrastructure, deployment, scaling
+│   ├── chapter_08_observability_evaluation/  # Monitoring, evaluation, observability
+│   ├── chapter_09_security/                  # Guardrails, testing, ethics, security
+│   ├── chapter_10_forward_looking/           # Voice/vision agents, robotics, computer use
+│   └── chapter_11_complete_integration/      # Production customer support agent
+├── examples/                    # Legacy examples (still available)
+│   ├── ec2/                    # EC2 service examples
+│   ├── bedrock/                # AWS Bedrock examples  
+│   └── strands/                # Strands library examples
+├── docs/                       # Documentation and guides
+│   └── Course.md              # Complete course documentation (9400+ lines)
+├── requirements.txt            # Python dependencies
+└── README.md                  # This file
 ```
+
+## 🎯 Learning Path
+
+### **Beginner Track** (Chapters 1-3)
+- Chapter 1: **Coding & ML Fundamentals** - Python, AWS basics, EC2
+- Chapter 2: **LLM APIs** - Bedrock, model interaction, structured outputs  
+- Chapter 3: **Model Adaptation** - Prompt engineering, conversations, tool use
+
+### **Intermediate Track** (Chapters 4-7)
+- Chapter 4: **Storage for Retrieval** - Vector databases, knowledge bases
+- Chapter 5: **RAG & Agentic RAG** - Retrieval systems, agentic patterns
+- Chapter 6: **AI Agents** - Strands framework, multi-agent systems
+- Chapter 7: **Infrastructure** - Production deployment, scaling
+
+### **Advanced Track** (Chapters 8-11)
+- Chapter 8: **Observability & Evaluation** - Monitoring, evaluation frameworks
+- Chapter 9: **Security** - Guardrails, testing, ethical considerations
+- Chapter 10: **Forward Looking** - Emerging technologies, future trends
+- Chapter 11: **Complete Integration** - Production customer support agent
 
 ## 🚀 Quick Start
 

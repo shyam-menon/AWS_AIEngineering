@@ -1,0 +1,41 @@
+# AWS Configuration Examples
+
+## Example .aws/credentials file
+# Location: ~/.aws/credentials (Linux/Mac) or %USERPROFILE%\.aws\credentials (Windows)
+[default]
+aws_access_key_id = AKIAIOSFODNN7EXAMPLE
+aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+
+[dev-profile]
+aws_access_key_id = AKIAI44QH8DHBEXAMPLE
+aws_secret_access_key = je7MtGbClwBF/2Zp9Utk/h3yCo8nvbEXAMPLEKEY
+
+## Example .aws/config file
+# Location: ~/.aws/config (Linux/Mac) or %USERPROFILE%\.aws\config (Windows)
+[default]
+region = us-east-1
+output = json
+
+[profile dev-profile]
+region = us-west-2
+output = table
+
+## Environment Variables (Linux/Mac)
+export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+export AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+export AWS_DEFAULT_REGION=us-east-1
+
+## Environment Variables (Windows PowerShell)
+$env:AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"
+$env:AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+$env:AWS_DEFAULT_REGION="us-east-1"
+
+## Environment Variables (Windows Command Prompt)
+set AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+set AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+set AWS_DEFAULT_REGION=us-east-1
+
+## To use a specific profile with the application:
+# Set the AWS_PROFILE environment variable
+export AWS_PROFILE=dev-profile  # Linux/Mac
+$env:AWS_PROFILE="dev-profile"  # Windows PowerShell
