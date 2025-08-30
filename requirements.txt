@@ -2,8 +2,10 @@
 boto3>=1.26.0
 botocore>=1.29.0
 
-# Future Strands library integration
-# strands>=1.0.0  # Uncomment when ready to use
+# Strands Agents Framework
+strands-agents>=1.0.0
+strands-agents-tools>=0.2.0
+strands-agents-builder>=1.0.0
 
 # Development and testing (optional)
 # pytest>=7.0.0

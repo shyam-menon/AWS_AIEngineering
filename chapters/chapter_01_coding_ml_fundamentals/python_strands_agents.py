@@ -16,12 +16,13 @@ Date: August 2025
 # The actual strands library may need to be installed separately
 
 try:
-    from strands import Agent
+    from strands import Agent, tool
+    from strands_tools import calculator, current_time
     STRANDS_AVAILABLE = True
 except ImportError:
     STRANDS_AVAILABLE = False
     print("⚠️  Strands library not installed. Running in demonstration mode.")
-    print("   To install: pip install strands")
+    print("   To install: pip install strands-agents strands-agents-tools")
     print()
 
 
@@ -67,13 +68,39 @@ def basic_agent_example():
     print()
     
     if STRANDS_AVAILABLE:
-        # Create a real Strands agent
-        agent = Agent()
-        print("✅ Created Strands Agent")
+        # Create a real Strands agent with tools
+        try:
+            agent = Agent(tools=[calculator, current_time])
+            print("✅ Created Strands Agent with calculator and current_time tools")
+            
+            # Basic interaction - just like the quickstart
+            print("\n1. Basic Agent Interaction:")
+            response = agent("Hello, world!")
+            print(f"   User: Hello, world!")
+            print(f"   Agent: {response}")
+            print()
+            
+            # Test with tool usage
+            print("2. Agent with Tool Usage:")
+            tool_response = agent("What time is it and what is 25 * 48?")
+            print(f"   User: What time is it and what is 25 * 48?")
+            print(f"   Agent: {tool_response}")
+            print()
+            
+        except Exception as e:
+            print(f"⚠️  Error creating real Strands agent: {e}")
+            print("   This might be due to missing AWS credentials or model access.")
+            print("   Falling back to mock agent demonstration...")
+            _create_mock_agent_demo()
     else:
-        # Use mock agent for demonstration
-        agent = MockAgent()
-        print("🔧 Created Mock Agent (for demonstration)")
+        _create_mock_agent_demo()
+
+
+def _create_mock_agent_demo():
+    """Create mock agent demonstration when Strands is not available."""
+    # Use mock agent for demonstration
+    agent = MockAgent()
+    print("🔧 Created Mock Agent (for demonstration)")
     
     print()
     
@@ -106,15 +133,32 @@ def advanced_agent_features():
     
     # Custom agent with specific capabilities
     if STRANDS_AVAILABLE:
-        # Real Strands agent with custom configuration
-        ai_tutor = Agent()  # Would have custom config in real implementation
-        print("✅ Created AI Tutor Agent")
+        try:
+            # Real Strands agent with custom configuration
+            ai_tutor = Agent()  # Would have custom config in real implementation
+            print("✅ Created AI Tutor Agent")
+            
+            # Try a simple interaction first
+            response = ai_tutor("Hello! I'm a student learning AI engineering.")
+            print("✅ AI Tutor agent working successfully!")
+            print(f"   Sample response: {response[:100]}...")
+            
+        except Exception as e:
+            print(f"⚠️  Error with real Strands AI Tutor: {e}")
+            print("   This is likely due to AWS Bedrock model access.")
+            print("   Falling back to mock agent demonstration...")
+            _create_mock_ai_tutor_demo()
     else:
-        ai_tutor = MockAgent(
-            name="AI Engineering Tutor",
-            description="Specialized agent for AI engineering education"
-        )
-        print("🔧 Created Mock AI Engineering Tutor")
+        _create_mock_ai_tutor_demo()
+
+
+def _create_mock_ai_tutor_demo():
+    """Create mock AI tutor demonstration."""
+    ai_tutor = MockAgent(
+        name="AI Engineering Tutor",
+        description="Specialized agent for AI engineering education"
+    )
+    print("🔧 Created Mock AI Engineering Tutor")
     
     print()
     
@@ -138,6 +182,59 @@ def agent_with_tools():
     print("=== STRANDS AGENT WITH TOOLS ===")
     print()
     
+    if STRANDS_AVAILABLE:
+        try:
+            # Define a custom tool using the @tool decorator (from the quickstart)
+            @tool
+            def letter_counter(word: str, letter: str) -> int:
+                """
+                Count occurrences of a specific letter in a word.
+                
+                Args:
+                    word (str): The input word to search in
+                    letter (str): The specific letter to count
+                
+                Returns:
+                    int: The number of occurrences of the letter in the word
+                """
+                if not isinstance(word, str) or not isinstance(letter, str):
+                    return 0
+                
+                if len(letter) != 1:
+                    raise ValueError("The 'letter' parameter must be a single character")
+                
+                return word.lower().count(letter.lower())
+            
+            # Create agent with multiple tools
+            agent = Agent(tools=[calculator, current_time, letter_counter])
+            print("✅ Created Strands Agent with calculator, current_time, and letter_counter tools")
+            print()
+            
+            # Test the agent with a multi-tool request (from the quickstart)
+            print("1. Multi-Tool Request (from Strands quickstart):")
+            message = """
+            I have 3 requests:
+            
+            1. What is the time right now?
+            2. Calculate 3111696 / 74088
+            3. Tell me how many letter R's are in the word "strawberry" 🍓
+            """
+            
+            print(f"   User: {message.strip()}")
+            response = agent(message)
+            print(f"   Agent: {response}")
+            print()
+            
+        except Exception as e:
+            print(f"⚠️  Error with real Strands agent tools: {e}")
+            print("   Falling back to mock AWS agent demonstration...")
+            _create_mock_aws_agent_demo()
+    else:
+        _create_mock_aws_agent_demo()
+
+
+def _create_mock_aws_agent_demo():
+    """Create mock AWS agent demonstration."""
     # Simulate an agent with AWS tools
     class AWSAgent:
         """Mock AWS-integrated agent."""
@@ -159,14 +256,9 @@ def agent_with_tools():
         def list_tools(self):
             return self.tools
     
-    if STRANDS_AVAILABLE:
-        # In real implementation, this would be a Strands agent with AWS tools
-        aws_agent = Agent()  # Would have tool configuration
-        print("✅ Created AWS-integrated Strands Agent")
-    else:
-        aws_agent = AWSAgent()
-        print("🔧 Created Mock AWS Agent")
-        print(f"   Available tools: {aws_agent.list_tools()}")
+    aws_agent = AWSAgent()
+    print("🔧 Created Mock AWS Agent")
+    print(f"   Available tools: {aws_agent.list_tools()}")
     
     print()
     
@@ -234,7 +326,21 @@ def agent_best_practices():
     print("=== STRANDS AGENT BEST PRACTICES ===")
     print()
     
-    print("1. Agent Design Principles:")
+    print("1. AWS Bedrock Setup Requirements:")
+    setup_steps = [
+        "Configure AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)",
+        "Enable Bedrock model access in AWS Console",
+        "Request access to Claude 4 Sonnet model",
+        "Verify region settings (default: us-east-1)",
+        "Check IAM permissions for Bedrock:InvokeModel",
+        "Test connectivity with simple Bedrock API calls"
+    ]
+    
+    for i, step in enumerate(setup_steps, 1):
+        print(f"   {i}. {step}")
+    print()
+    
+    print("2. Agent Design Principles:")
     principles = [
         "Single Responsibility: Each agent should have a clear, focused purpose",
         "Tool Integration: Agents should leverage appropriate tools and APIs",
@@ -248,7 +354,7 @@ def agent_best_practices():
         print(f"   {i}. {principle}")
     print()
     
-    print("2. AI Engineering Use Cases:")
+    print("3. AI Engineering Use Cases:")
     use_cases = [
         "Data Pipeline Automation: Agents that manage ETL processes",
         "Model Training Orchestration: Agents that coordinate training workflows",

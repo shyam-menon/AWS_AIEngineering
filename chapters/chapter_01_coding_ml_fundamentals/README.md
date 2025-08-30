@@ -79,6 +79,15 @@ python python_file_io.py
 python python_strands_agents.py
 ```
 
+### Strands Agents Examples
+```bash
+# Run Strands Agents framework examples
+python python_strands_agents.py
+
+# Run simple working Strands example (requires AWS Bedrock access)
+python simple_strands_example.py
+```
+
 ### AWS Infrastructure
 ```bash
 # List EC2 instances (requires AWS credentials)
@@ -88,6 +97,32 @@ python ec2_list.py
 ## Prerequisites
 - Basic programming knowledge
 - AWS account setup
+- Python 3.10+ installed
+- Strands Agents library: `pip install strands-agents strands-agents-tools`
+
+### AWS Bedrock Setup (for Strands Agents)
+To use Strands Agents with AWS Bedrock (default model provider):
+
+1. **Configure AWS Credentials**:
+   ```bash
+   # Option 1: Environment variables
+   export AWS_ACCESS_KEY_ID=your_access_key
+   export AWS_SECRET_ACCESS_KEY=your_secret_key
+   
+   # Option 2: AWS CLI
+   aws configure
+   ```
+
+2. **Enable Bedrock Model Access**:
+   - Go to AWS Bedrock Console
+   - Navigate to "Model access" 
+   - Request access to Claude 4 Sonnet model
+   - Wait for approval (can take a few minutes)
+
+3. **Verify Setup**:
+   ```bash
+   python simple_strands_example.py
+   ```
 - Python 3.8+ installed
 
 ## AI Development Context
