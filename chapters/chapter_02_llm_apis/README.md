@@ -131,7 +131,7 @@ Proceed to Chapter 3 to learn about Model Adaptation techniques.
 ## 🔗 Integration with Course
 - **Utils Directory**: Cost monitoring and tracking utilities
 - **Chapter 1**: Python fundamentals and ML basics
-- **Chapter 3**: Advanced prompt engineering (coming next)
+- **Chapter 3**: **Comprehensive prompt engineering principles and interactive demonstrations**
 
 ---
 

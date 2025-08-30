@@ -16,8 +16,8 @@ Working with Large Language Models and AWS Bedrock
 
 ### [Chapter 3: Model Adaptation](./chapter_03_model_adaptation/)
 Customizing LLMs through prompt engineering and tool use
-- **Topics**: Prompt engineering, tool use, fine-tuning, graph databases
-- **Code**: Advanced conversations, Nova Lite interactions
+- **Topics**: **Comprehensive prompt engineering principles**, tool use, fine-tuning, graph databases
+- **Code**: **Interactive prompt engineering demo**, advanced conversations, Nova Lite interactions
 
 ### [Chapter 4: Storage for Retrieval](./chapter_04_storage_for_retrieval/)
 Storage solutions for retrieval-based AI systems
