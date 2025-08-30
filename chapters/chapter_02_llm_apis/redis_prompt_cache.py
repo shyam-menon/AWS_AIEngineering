@@ -23,12 +23,16 @@ import pickle
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 
+# Optional Redis import
+REDIS_AVAILABLE = False
+redis = None
+
 try:
-    import redis
+    import redis  # type: ignore
     REDIS_AVAILABLE = True
 except ImportError:
-    REDIS_AVAILABLE = False
-    print("⚠️  Redis not available. Install with: pip install redis")
+    # Redis is optional - the code will handle this gracefully
+    pass
 
 
 class RedisPromptCache:
@@ -51,6 +55,7 @@ class RedisPromptCache:
             key_prefix: Prefix for all cache keys
         """
         if not REDIS_AVAILABLE:
+            print("⚠️  Redis not available. Install with: pip install redis")
             raise ImportError("Redis is required. Install with: pip install redis")
         
         self.ttl_seconds = ttl_seconds
@@ -58,6 +63,9 @@ class RedisPromptCache:
         
         # Connect to Redis
         try:
+            if not redis:
+                raise ImportError("Redis module not available")
+                
             self.redis_client = redis.Redis(
                 host=redis_host,
                 port=redis_port,
@@ -69,9 +77,13 @@ class RedisPromptCache:
             self.redis_client.ping()
             print(f"✅ Connected to Redis at {redis_host}:{redis_port}")
             
-        except redis.ConnectionError:
-            print(f"❌ Could not connect to Redis at {redis_host}:{redis_port}")
-            print("   Make sure Redis is running or use in-memory caching instead.")
+        except Exception as e:
+            # Handle both Redis connection errors and import errors
+            if redis and hasattr(redis, 'ConnectionError') and isinstance(e, redis.ConnectionError):
+                print(f"❌ Could not connect to Redis at {redis_host}:{redis_port}")
+                print("   Make sure Redis is running or use in-memory caching instead.")
+            else:
+                print(f"❌ Redis error: {e}")
             raise
         
         # Initialize Bedrock client
