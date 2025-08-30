@@ -16,6 +16,8 @@ This chapter covers the foundational skills needed for AI engineering, including
 - `python_functions.py` - Function definition, parameters, return values, scope
 - `python_oop.py` - Classes, objects, inheritance, polymorphism, encapsulation
 - `python_file_io.py` - Reading/writing files, JSON, CSV, error handling
+- `python_strands_agents.py` - Strands Agents framework for building AI agents
+- `run_chapter_demo.py` - Interactive demonstration of all concepts
 
 ### AWS & Infrastructure Basics
 - `requirements.txt` - Essential Python packages for AI development
@@ -57,6 +59,13 @@ This chapter covers the foundational skills needed for AI engineering, including
 - **Error handling**: FileNotFoundError, PermissionError
 - **Modern path handling**: pathlib for better file management
 
+### 6. Strands Agents Framework
+- **Agent creation**: Using the Strands open-source framework
+- **Agent interactions**: Basic communication patterns
+- **Tool integration**: Connecting agents with AWS services
+- **Multi-agent systems**: Collaborative agent workflows
+- **AI engineering applications**: Automation and workflow management
+
 ## Running the Examples
 
 ### Individual Examples
@@ -67,6 +76,7 @@ python python_control_flow.py
 python python_functions.py
 python python_oop.py
 python python_file_io.py
+python python_strands_agents.py
 ```
 
 ### AWS Infrastructure

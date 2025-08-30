@@ -108,8 +108,21 @@ def main():
     
     wait_for_user()
     
-    # 6. AWS Infrastructure (if available)
-    print_section_header("6. AWS INFRASTRUCTURE BASICS")
+    # 6. Strands Agents Framework
+    print_section_header("6. STRANDS AGENTS FRAMEWORK")
+    print("Building AI agents with the Strands open-source framework...")
+    
+    try:
+        import python_strands_agents
+        python_strands_agents.basic_agent_example()
+        python_strands_agents.practical_ai_engineering_example()
+    except ImportError as e:
+        print(f"⚠️  Could not import python_strands_agents: {e}")
+    
+    wait_for_user()
+    
+    # 7. AWS Infrastructure (if available)
+    print_section_header("7. AWS INFRASTRUCTURE BASICS")
     print("Connecting Python to AWS services...")
     
     try:
@@ -136,6 +149,7 @@ def main():
         "✅ Functions: definition, parameters, scope, lambda functions",
         "✅ OOP: classes, objects, inheritance, polymorphism, encapsulation",
         "✅ File I/O: reading/writing files, JSON, CSV, error handling",
+        "✅ Strands Agents: AI agent creation, interaction, and collaboration",
         "✅ AWS Basics: Boto3, EC2 interaction, infrastructure concepts"
     ]
     
@@ -152,6 +166,7 @@ def main():
         "🧩 Functions for modular AI pipeline components",
         "🏗️  Object-oriented design for model hierarchies",
         "💾 File I/O for datasets, checkpoints, and logging",
+        "🤖 AI agents for workflow automation and collaboration",
         "☁️  AWS integration for cloud-based AI workflows"
     ]
     
@@ -162,12 +177,13 @@ def main():
     print("You now have the Python foundation to build sophisticated AI applications.")
     
     print("\n📚 Quick Reference Commands:")
-    print("  python python_data_types.py    # Data types and structures")
-    print("  python python_control_flow.py  # Conditional statements and loops")
-    print("  python python_functions.py     # Function definition and usage")
-    print("  python python_oop.py           # Object-oriented programming")
-    print("  python python_file_io.py       # File input/output operations")
-    print("  python ec2_list.py             # AWS EC2 interaction")
+    print("  python python_data_types.py       # Data types and structures")
+    print("  python python_control_flow.py     # Conditional statements and loops")
+    print("  python python_functions.py        # Function definition and usage")
+    print("  python python_oop.py              # Object-oriented programming")
+    print("  python python_file_io.py          # File input/output operations")
+    print("  python python_strands_agents.py   # Strands Agents framework")
+    print("  python ec2_list.py                # AWS EC2 interaction")
 
 if __name__ == "__main__":
     try:
