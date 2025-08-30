@@ -4,9 +4,9 @@ This guide helps you configure AWS Bedrock to work with Strands Agents framework
 
 ## Overview
 
-Strands Agents uses AWS Bedrock as the default model provider with Claude 4 Sonnet. This requires:
+Strands Agents can use various AWS Bedrock models. This course uses Amazon Nova Lite as the primary model since it's widely accessible and cost-effective. This requires:
 1. AWS account with appropriate permissions
-2. Bedrock model access enabled
+2. Bedrock model access enabled for Nova Lite
 3. Proper AWS credentials configuration
 
 ## Step 1: AWS Credentials Configuration
@@ -53,7 +53,7 @@ If running on AWS services, use IAM roles instead of access keys.
 
 2. **Request Model Access**:
    - Click "Model access" in the left sidebar
-   - Find "Claude 4 Sonnet" (us.anthropic.claude-sonnet-4-20250514-v1:0)
+   - Find "Amazon Nova Lite" (amazon.nova-lite-v1:0)
    - Click "Request model access" 
    - Fill out the form with use case details
    - Submit the request
@@ -82,7 +82,7 @@ Ensure your AWS user/role has these permissions:
                 "bedrock:InvokeModelWithResponseStream"
             ],
             "Resource": [
-                "arn:aws:bedrock:*::foundation-model/us.anthropic.claude-sonnet-4-20250514-v1:0"
+                "arn:aws:bedrock:*::foundation-model/amazon.nova-lite-v1:0"
             ]
         }
     ]
@@ -134,13 +134,16 @@ The requested operation is not supported in this region.
 **Solution**: Use a supported region like us-east-1, us-west-2, or eu-west-1.
 
 ### Model Not Available
-If Claude 4 Sonnet is not available in your region, you can specify a different model:
+If Amazon Nova Lite is not available in your region, you can specify a different model:
 
 ```python
 from strands import Agent
 
 # Use Claude 3.5 Sonnet instead
 agent = Agent(model="anthropic.claude-3-5-sonnet-20241022-v2:0")
+
+# Or use Claude 3 Haiku for faster responses
+agent = Agent(model="anthropic.claude-3-haiku-20240307-v1:0")
 ```
 
 ## Alternative Model Providers

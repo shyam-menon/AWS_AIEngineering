@@ -101,6 +101,36 @@ class BedrockLLMClient:
         
         return self._invoke_model(model_id, body)
     
+    def invoke_nova_lite(self, prompt: str, max_tokens: int = 1000) -> str:
+        """
+        Invoke Amazon Nova Lite model (fast and cost-effective).
+        
+        Args:
+            prompt (str): The input prompt
+            max_tokens (int): Maximum tokens to generate
+            
+        Returns:
+            str: Generated response
+        """
+        model_id = "amazon.nova-lite-v1:0"
+        
+        body = {
+            "schemaVersion": "messages-v1",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [{"text": prompt}]
+                }
+            ],
+            "inferenceConfig": {
+                "maxTokens": max_tokens,
+                "temperature": 0.7,
+                "topP": 0.9
+            }
+        }
+        
+        return self._invoke_model(model_id, body)
+    
     def invoke_titan_text(self, prompt: str, max_tokens: int = 1000) -> str:
         """
         Invoke Amazon Titan Text model.
@@ -192,6 +222,8 @@ class BedrockLLMClient:
             # Parse response based on model type
             if "anthropic.claude" in model_id:
                 return response_body['content'][0]['text']
+            elif "amazon.nova-lite" in model_id:
+                return response_body['output']['message']['content'][0]['text']
             elif "amazon.titan" in model_id:
                 return response_body['results'][0]['outputText']
             elif "meta.llama2" in model_id:
@@ -217,9 +249,9 @@ def main():
     """Main function to run the Bedrock LLM application."""
     parser = argparse.ArgumentParser(description='AWS Bedrock LLM Invoker')
     parser.add_argument('--model', '-m', 
-                       choices=['claude-sonnet', 'claude-haiku', 'titan', 'llama2', 'mistral'],
-                       default='claude-haiku',
-                       help='LLM model to use (default: claude-haiku)')
+                       choices=['nova-lite', 'claude-sonnet', 'claude-haiku', 'titan', 'llama2', 'mistral'],
+                       default='nova-lite',
+                       help='LLM model to use (default: nova-lite)')
     parser.add_argument('--prompt', '-p', 
                        type=str,
                        help='Prompt to send to the model')
@@ -322,6 +354,7 @@ def invoke_model(client: BedrockLLMClient, model: str, prompt: str, max_tokens: 
         str: Model response
     """
     model_functions = {
+        'nova-lite': client.invoke_nova_lite,
         'claude-sonnet': client.invoke_claude_3_sonnet,
         'claude-haiku': client.invoke_claude_3_haiku,
         'titan': client.invoke_titan_text,

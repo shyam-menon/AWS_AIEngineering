@@ -2,8 +2,8 @@
 """
 Simple AWS Bedrock LLM Example
 
-A simple script demonstrating how to invoke Claude 3 Haiku model in AWS Bedrock.
-This is a minimal example for quick testing.
+A simple script demonstrating how to invoke Amazon Nova Lite model in AWS Bedrock.
+This is a minimal example for quick testing with Nova Lite.
 """
 
 import boto3
@@ -11,34 +11,38 @@ import json
 from botocore.exceptions import ClientError, NoCredentialsError
 
 
-def invoke_claude_simple(prompt, region='us-east-1'):
+def invoke_nova_lite(prompt, region='us-east-1'):
     """
-    Simple function to invoke Claude 3 Haiku model.
+    Simple function to invoke Amazon Nova Lite model.
     
     Args:
-        prompt (str): The question or prompt to send to Claude
+        prompt (str): The question or prompt to send to Nova Lite
         region (str): AWS region (default: us-east-1)
         
     Returns:
-        str: Claude's response
+        str: Nova Lite's response
     """
     try:
         # Create Bedrock Runtime client
         bedrock_runtime = boto3.client('bedrock-runtime', region_name=region)
         
-        # Model ID for Claude Opus 4.1 (accessible model)
-        model_id = "anthropic.claude-opus-4-1-20250805-v1:0"
+        # Model ID for Amazon Nova Lite (accessible model)
+        model_id = "amazon.nova-lite-v1:0"
         
-        # Prepare the request body
+        # Prepare the request body for Nova Lite
         body = {
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": 1000,
+            "schemaVersion": "messages-v1",
             "messages": [
                 {
                     "role": "user",
-                    "content": prompt
+                    "content": [{"text": prompt}]
                 }
-            ]
+            ],
+            "inferenceConfig": {
+                "maxTokens": 1000,
+                "temperature": 0.7,
+                "topP": 0.9
+            }
         }
         
         # Invoke the model
@@ -48,16 +52,16 @@ def invoke_claude_simple(prompt, region='us-east-1'):
             contentType='application/json'
         )
         
-        # Parse the response
+        # Parse the response for Nova Lite
         response_body = json.loads(response['body'].read())
-        return response_body['content'][0]['text']
+        return response_body['output']['message']['content'][0]['text']
         
     except NoCredentialsError:
         return "Error: AWS credentials not found. Please configure your credentials."
     except ClientError as e:
         error_code = e.response['Error']['Code']
         if error_code == 'AccessDeniedException':
-            return "Error: Access denied. Make sure Claude 3 Haiku is enabled in your Bedrock console."
+            return "Error: Access denied. Make sure Amazon Nova Lite is enabled in your Bedrock console."
         else:
             return f"AWS Error: {e}"
     except Exception as e:
@@ -66,8 +70,8 @@ def invoke_claude_simple(prompt, region='us-east-1'):
 
 def main():
     """Main function with example usage."""
-    print("Simple AWS Bedrock Claude 3 Haiku Example")
-    print("=" * 40)
+    print("Simple AWS Bedrock Amazon Nova Lite Example")
+    print("=" * 45)
     
     # Example prompts
     examples = [
@@ -83,14 +87,14 @@ def main():
         print(f"\n{i}. Prompt: {prompt}")
         print("-" * 30)
         
-        response = invoke_claude_simple(prompt)
+        response = invoke_nova_lite(prompt)
         print(f"Response: {response}")
         
         if i < len(examples):
             input("\nPress Enter to continue to next example...")
     
-    print("\n" + "=" * 40)
-    print("Interactive mode - Ask Claude anything!")
+    print("=" * 45)
+    print("Interactive mode - Ask Nova Lite anything!")
     print("Type 'quit' to exit")
     
     while True:
@@ -104,9 +108,9 @@ def main():
             if not user_prompt:
                 continue
                 
-            print("\nClaude is thinking...")
-            response = invoke_claude_simple(user_prompt)
-            print(f"\nClaude: {response}")
+            print("\nNova Lite is thinking...")
+            response = invoke_nova_lite(user_prompt)
+            print(f"\nNova Lite: {response}")
             
         except KeyboardInterrupt:
             print("\n\nGoodbye!")

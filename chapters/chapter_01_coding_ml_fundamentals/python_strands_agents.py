@@ -68,10 +68,13 @@ def basic_agent_example():
     print()
     
     if STRANDS_AVAILABLE:
-        # Create a real Strands agent with tools
+        # Create a real Strands agent with tools using Nova Lite
         try:
-            agent = Agent(tools=[calculator, current_time])
-            print("✅ Created Strands Agent with calculator and current_time tools")
+            agent = Agent(
+                tools=[calculator, current_time],
+                model="amazon.nova-lite-v1:0"
+            )
+            print("✅ Created Strands Agent with calculator and current_time tools (Nova Lite model)")
             
             # Basic interaction - just like the quickstart
             print("\n1. Basic Agent Interaction:")
@@ -134,9 +137,9 @@ def advanced_agent_features():
     # Custom agent with specific capabilities
     if STRANDS_AVAILABLE:
         try:
-            # Real Strands agent with custom configuration
-            ai_tutor = Agent()  # Would have custom config in real implementation
-            print("✅ Created AI Tutor Agent")
+            # Real Strands agent with custom configuration using Nova Lite
+            ai_tutor = Agent(model="amazon.nova-lite-v1:0")  # Nova Lite for faster responses
+            print("✅ Created AI Tutor Agent (Nova Lite model)")
             
             # Try a simple interaction first
             response = ai_tutor("Hello! I'm a student learning AI engineering.")
@@ -205,9 +208,12 @@ def agent_with_tools():
                 
                 return word.lower().count(letter.lower())
             
-            # Create agent with multiple tools
-            agent = Agent(tools=[calculator, current_time, letter_counter])
-            print("✅ Created Strands Agent with calculator, current_time, and letter_counter tools")
+            # Create agent with multiple tools using Nova Lite
+            agent = Agent(
+                tools=[calculator, current_time, letter_counter],
+                model="amazon.nova-lite-v1:0"
+            )
+            print("✅ Created Strands Agent with calculator, current_time, and letter_counter tools (Nova Lite model)")
             print()
             
             # Test the agent with a multi-tool request (from the quickstart)

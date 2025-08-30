@@ -43,14 +43,18 @@ try:
         return word.lower().count(letter.lower())
     
     # Create an agent with tools from the community-driven strands-tools package
-    # as well as our custom letter_counter tool
-    agent = Agent(tools=[calculator, current_time, letter_counter])
+    # as well as our custom letter_counter tool, using Amazon Nova Lite model
+    agent = Agent(
+        tools=[calculator, current_time, letter_counter],
+        model="amazon.nova-lite-v1:0"
+    )
     
-    print("✅ Agent created successfully!")
+    print("✅ Agent created successfully with Amazon Nova Lite!")
     print("🤖 Agent has access to:")
     print("   - Calculator (from strands-tools)")
     print("   - Current time (from strands-tools)")
     print("   - Letter counter (custom tool)")
+    print("   - Model: Amazon Nova Lite (amazon.nova-lite-v1:0)")
     print()
     
     # Ask the agent a question that uses the available tools
