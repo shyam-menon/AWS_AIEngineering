@@ -10,6 +10,10 @@ This chapter focuses on adapting and customizing LLMs for specific needs through
 
 ## Code Examples
 
+### Prompt Engineering
+- `prompt_engineering_example.py` - **Comprehensive demonstration of key prompt engineering principles**
+- `PROMPT_ENGINEERING_README.md` - Detailed guide and documentation
+
 ### Advanced Conversation Patterns
 - `bedrock_conversation.py` - Advanced conversation patterns and context management
 - `nova_lite_chat.py` - Interactive chat with Amazon Nova Lite
@@ -22,10 +26,11 @@ This chapter focuses on adapting and customizing LLMs for specific needs through
 
 ## Key Topics Covered
 1. **Prompt Engineering**: 
-   - System prompts and user prompts
-   - Few-shot learning examples
-   - Chain-of-thought reasoning
-   - Prompt templates and variables
+   - **Clarity and Specificity**: Clear, specific prompts for better results
+   - **Persona Assignment**: Role-based responses with appropriate tone
+   - **Few-shot Learning**: Using examples to improve task performance
+   - **Chain-of-Thought Reasoning**: Step-by-step thinking for complex tasks
+   - **Combined Techniques**: Integrating multiple principles for optimal results
 
 2. **Tool Use**:
    - Function calling patterns
@@ -42,11 +47,28 @@ This chapter focuses on adapting and customizing LLMs for specific needs through
    - Contextual information retrieval
    - Relationship modeling
 
+## Quick Start - Prompt Engineering
+
+Run the comprehensive prompt engineering demonstration:
+
+```bash
+cd chapters/chapter_03_model_adaptation
+python prompt_engineering_example.py
+```
+
+This will show you:
+- ✅ Before/after comparisons for each principle
+- 🎭 Different persona responses to the same task
+- 📚 Zero-shot vs. few-shot learning examples
+- 🔗 Direct vs. chain-of-thought reasoning
+- 🚀 All techniques combined for professional results
+
 ## Practical Exercises
 - Build conversational agents with memory
 - Implement tool-calling workflows
 - Create custom prompt templates
 - Design conversation flow patterns
+- **Practice prompt engineering principles with your own use cases**
 
 ## Next Steps
 Proceed to Chapter 4 to learn about Storage for Retrieval systems.
