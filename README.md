@@ -2,9 +2,17 @@
 
 A comprehensive course and collection of practical examples demonstrating how to build, deploy, and manage sophisticated AI applications using Amazon Web Services (AWS) and the Strands Agents framework.
 
+## 📖 Complete Course Documentation
+
+**📚 [Course.md](./Course.md) - Complete Course Guide (9,400+ lines)**
+
+The comprehensive course documentation covers all theoretical concepts, detailed explanations, and learning objectives. This README focuses on practical implementation and quick start guides.
+
 ## 📚 Course Structure
 
 This repository is organized into **11 chapters** that take you from fundamentals to production deployment:
+
+**📁 [Browse All Chapters](./chapters/)** | **📖 [Course.md](./Course.md)** | **💰 [Cost Monitoring](./Utils/)**
 
 ```
 AWS_AIEngineering/
@@ -39,21 +47,32 @@ AWS_AIEngineering/
 ## 🎯 Learning Path
 
 ### **Beginner Track** (Chapters 1-3)
-- Chapter 1: **Coding & ML Fundamentals** - Python, AWS basics, EC2
-- Chapter 2: **LLM APIs** - Bedrock, model interaction, structured outputs  
-- Chapter 3: **Model Adaptation** - Prompt engineering, conversations, tool use
+- Chapter 1: **[Coding & ML Fundamentals](./chapters/chapter_01_coding_ml_fundamentals/)** - Python, AWS basics, EC2 | [📖 Theory](./Course.md#chapter-1-coding--ml-fundamentals)
+- Chapter 2: **[LLM APIs](./chapters/chapter_02_llm_apis/)** - Bedrock, structured outputs, caching | [📖 Theory](./Course.md#chapter-2-llm-apis)
+- Chapter 3: **[Model Adaptation](./chapters/chapter_03_model_adaptation/)** - Prompt engineering, tool use | [📖 Theory](./Course.md#chapter-3-model-adaptation)
 
-### **Intermediate Track** (Chapters 4-7)
-- Chapter 4: **Storage for Retrieval** - Vector databases, knowledge bases
-- Chapter 5: **RAG & Agentic RAG** - Retrieval systems, agentic patterns
-- Chapter 6: **AI Agents** - Strands framework, multi-agent systems
-- Chapter 7: **Infrastructure** - Production deployment, scaling
+### **Intermediate Track** (Chapters 4-6)
+- Chapter 4: **[Storage for Retrieval](./chapters/chapter_04_storage_retrieval/)** - Vector databases, hybrid retrieval | [📖 Theory](./Course.md#chapter-4-storage-for-retrieval)
+- Chapter 5: **[RAG & Agentic RAG](./chapters/chapter_05_rag_agentic/)** - Advanced retrieval, MCP, Strands | [📖 Theory](./Course.md#chapter-5-rag--agentic-rag)
+- Chapter 6: **[AI Agents](./chapters/chapter_06_ai_agents/)** - Multi-agent systems, memory, human-in-loop | [📖 Theory](./Course.md#chapter-6-ai-agents)
 
-### **Advanced Track** (Chapters 8-11)
-- Chapter 8: **Observability & Evaluation** - Monitoring, evaluation frameworks
-- Chapter 9: **Security** - Guardrails, testing, ethical considerations
-- Chapter 10: **Forward Looking** - Emerging technologies, future trends
-- Chapter 11: **Complete Integration** - Production customer support agent
+### **Advanced Track** (Chapters 7-11)
+- Chapter 7: **[Infrastructure](./chapters/chapter_07_infrastructure/)** - AWS AgentCore, CI/CD, deployment | [📖 Theory](./Course.md#chapter-7-infrastructure)
+- Chapter 8: **[Observability & Evaluation](./chapters/chapter_08_observability_evaluation/)** - Monitoring, evaluation | [📖 Theory](./Course.md#chapter-8-observability--evaluation)
+- Chapter 9: **[Security](./chapters/chapter_09_security/)** - Guardrails, testing, ethics | [📖 Theory](./Course.md#chapter-9-security)
+- Chapter 10: **[Forward Looking](./chapters/chapter_10_forward_looking/)** - Voice/vision, robotics, computer use | [📖 Theory](./Course.md#chapter-10-forward-looking-elements)
+- Chapter 11: **[Complete Integration](./chapters/chapter_11_complete_integration/)** - Production customer support agent | [📖 Theory](./Course.md#chapter-11-complete-integration---building-a-production-customer-support-agent)
+
+### **Key Resources**
+- **💰 [Utils/](./Utils/)** - AI usage monitoring and cost tracking tools
+- **📚 [examples/](./examples/)** - Legacy examples (still available for reference)
+- **📋 [requirements.txt](./requirements.txt)** - Python dependencies
+
+### How to Use This Course
+1. **📖 Read Theory**: Start with [Course.md](./Course.md) for comprehensive understanding
+2. **💻 Practice Code**: Work through [chapter folders](./chapters/) for hands-on experience  
+3. **💰 Monitor Costs**: Use [Utils/](./Utils/) to track AI usage and AWS billing
+4. **🔄 Iterate**: Combine theory and practice for complete mastery
 
 ## 🚀 Quick Start
 
@@ -155,9 +174,23 @@ python Utils\usage_examples.py
 
 ## 📖 Documentation
 
-- **[Nova Lite Guide](docs/NOVA_LITE_GUIDE.md)** - Complete guide for Amazon Nova Lite
-- **[AWS Configuration](docs/aws_config_examples.txt)** - AWS credentials setup examples
-- **[Utils Documentation](Utils/README.md)** - AI usage monitoring and cost tracking guide
+### 📚 Primary Course Materials
+- **[Course.md](./Course.md)** - **Complete Course Guide (9,400+ lines)**
+  - Comprehensive theoretical content for all 11 chapters
+  - Detailed explanations and learning objectives
+  - References to official AWS and Strands documentation
+  - In-depth concepts and methodologies
+
+### 📁 Chapter-Specific Guides
+- **[Chapter 1 Guide](./chapters/chapter_01_coding_ml_fundamentals/README.md)** - Python, AWS basics, ML fundamentals
+- **[Chapter 2 Guide](./chapters/chapter_02_llm_apis/README.md)** - LLM APIs, Bedrock, caching, evaluation
+- **[Chapter 3 Guide](./chapters/chapter_03_model_adaptation/README.md)** - Prompt engineering, tool use
+- **[All Chapter Guides](./chapters/README.md)** - Complete chapter overview
+
+### 🛠️ Specialized Documentation
+- **[Nova Lite Guide](./docs/NOVA_LITE_GUIDE.md)** - Complete guide for Amazon Nova Lite
+- **[AWS Configuration](./docs/aws_config_examples.txt)** - AWS credentials setup examples
+- **[Utils Documentation](./Utils/README.md)** - AI usage monitoring and cost tracking guide
 
 ## 🛠️ Requirements
 

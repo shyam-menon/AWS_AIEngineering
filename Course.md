@@ -6,6 +6,21 @@ Welcome to the AI Engineering with AWS and Strands Agents guide! This comprehens
 
 This guide follows a structured curriculum that takes you from the fundamentals of coding and machine learning to advanced topics in AI agent design, infrastructure, and security. Each chapter provides in-depth explanations, practical code samples, and references to the official AWS documentation to help you master the concepts and apply them in real-world scenarios.
 
+## 🧭 Course Navigation
+
+**📖 Theory + 💻 Practice = 🚀 Mastery**
+
+- **📖 This Document (Course.md)** - Complete theoretical course content (9,400+ lines)
+- **💻 [Practical Code Examples](./chapters/)** - Hands-on implementations for each chapter
+- **💰 [Cost Monitoring Tools](./Utils/)** - AI usage tracking and AWS billing management
+- **📋 [Getting Started Guide](./README.md)** - Quick start and setup instructions
+
+### How to Use This Course
+1. **📖 Read Theory**: Study each chapter in this document for comprehensive understanding
+2. **💻 Practice Code**: Work through corresponding [chapter folders](./chapters/) for hands-on experience
+3. **💰 Monitor Usage**: Use [Utils/](./Utils/) tools to track costs and optimize spending
+4. **🔄 Iterate**: Combine theory and practice for complete mastery
+
 ## Official Documentation References
 
 This course is built upon and references the following official documentation:
@@ -43,37 +58,38 @@ Let's get started!
 
 ## Index
 
+- [🧭 Course Navigation](#-course-navigation)
 - [Official Documentation References](#official-documentation-references)
 - [Curriculum Overview](#curriculum-overview)
-- [Chapter 1: Coding & ML Fundamentals](#chapter-1-coding--ml-fundamentals)
+- [Chapter 1: Coding & ML Fundamentals](#chapter-1-coding--ml-fundamentals) | [📁 Code](./chapters/chapter_01_coding_ml_fundamentals/)
     - [Python for AI Development](#python-for-ai-development)
     - [Bash for AI Engineers](#bash-for-ai-engineers)
     - [Statistics for AI](#statistics-for-ai)
     - [Types of ML Models](#types-of-ml-models)
-- [Chapter 2: LLM APIs](#chapter-2-llm-apis)
+- [Chapter 2: LLM APIs](#chapter-2-llm-apis) | [📁 Code](./chapters/chapter_02_llm_apis/)
     - [Types of LLMs](#types-of-llms)
     - [Structured Outputs](#structured-outputs)
     - [Prompt Caching](#prompt-caching)
     - [Multi-modal Models](#multi-modal-models)
     - [AWS Bedrock: Comprehensive Foundation Model Platform](#aws-bedrock-comprehensive-foundation-model-platform)
-- [Chapter 3: Model Adaptation](#chapter-3-model-adaptation)
+- [Chapter 3: Model Adaptation](#chapter-3-model-adaptation) | [📁 Code](./chapters/chapter_03_model_adaptation/)
     - [Prompt Engineering](#prompt-engineering)
     - [Tool Use](#tool-use)
     - [Fine-tuning](#fine-tuning)
     - [Graph Databases](#graph-databases)
-- [Chapter 4: Storage for Retrieval](#chapter-4-storage-for-retrieval)
+- [Chapter 4: Storage for Retrieval](#chapter-4-storage-for-retrieval) | [📁 Code](./chapters/chapter_04_storage_retrieval/)
     - [Vector Databases](#vector-databases)
     - [Graph Databases for Retrieval](#graph-databases-for-retrieval)
     - [Hybrid Retrieval](#hybrid-retrieval)
     - [AWS Bedrock Knowledge Bases](#aws-bedrock-knowledge-bases)
-- [Chapter 5: RAG & Agentic RAG](#chapter-5-rag--agentic-rag)
+- [Chapter 5: RAG & Agentic RAG](#chapter-5-rag--agentic-rag) | [📁 Code](./chapters/chapter_05_rag_agentic/)
     - [Data Preparation](#data-preparation)
     - [Data Retrieval and Generation](#data-retrieval-and-generation)
     - [Reranking](#reranking)
     - [MCP (Model Context Protocol)](#mcp-model-context-protocol)
     - [Strands Agent Framework for RAG](#strands-agent-framework-for-rag)
     - [AWS Bedrock Knowledge Bases for RAG](#aws-bedrock-knowledge-bases-for-rag)
-- [Chapter 6: AI Agents](#chapter-6-ai-agents)
+- [Chapter 6: AI Agents](#chapter-6-ai-agents) | [📁 Code](./chapters/chapter_06_ai_agents/)
     - [AI Agent Design Patterns](#ai-agent-design-patterns)
     - [Multi-agent Systems](#multi-agent-systems)
     - [Memory](#memory)
@@ -81,30 +97,30 @@ Let's get started!
     - [A2A, ACP](#a2a-acp)
     - [Strands Agent Framework Usage](#strands-agent-framework-usage)
     - [Comprehensive Strands Agent Examples](#comprehensive-strands-agent-examples)
-- [Chapter 7: Infrastructure](#chapter-7-infrastructure)
+- [Chapter 7: Infrastructure](#chapter-7-infrastructure) | [📁 Code](./chapters/chapter_07_infrastructure/)
     - [AWS Bedrock](#aws-bedrock)
     - [AWS AgentCore](#aws-agentcore)
     - [CI/CD](#cicd)
     - [Model Routing](#model-routing)
     - [LLM Deployment](#llm-deployment)
     - [AWS AgentCore Runtime: Comprehensive Guide](#aws-agentcore-runtime-comprehensive-guide)
-- [Chapter 8: Observability & Evaluation](#chapter-8-observability--evaluation)
+- [Chapter 8: Observability & Evaluation](#chapter-8-observability--evaluation) | [📁 Code](./chapters/chapter_08_observability_evaluation/)
     - [AI Agent Instrumentation](#ai-agent-instrumentation)
     - [Observability using AgentCore](#observability-using-agentcore)
     - [Evaluation Techniques](#evaluation-techniques)
     - [AI Agent Evaluation](#ai-agent-evaluation)
-- [Chapter 9: Security](#chapter-9-security)
+- [Chapter 9: Security](#chapter-9-security) | [📁 Code](./chapters/chapter_09_security/)
     - [Guardrails](#guardrails)
     - [Testing LLM based applications](#testing-llm-based-applications)
     - [Ethical considerations](#ethical-considerations)
     - [AWS AgentCore Security Architecture](#aws-agentcore-security-architecture)
-- [Chapter 10: Forward Looking Elements](#chapter-10-forward-looking-elements)
+- [Chapter 10: Forward Looking Elements](#chapter-10-forward-looking-elements) | [📁 Code](./chapters/chapter_10_forward_looking/)
     - [Voice and Vision Agents](#voice-and-vision-agents)
     - [Robotics Agents](#robotics-agents)
     - [Computer Use](#computer-use)
     - [CLI Agents](#cli-agents)
     - [Automated Prompt Engineering](#automated-prompt-engineering)
-- [Chapter 11: Complete Integration - Building a Production Customer Support Agent](#chapter-11-complete-integration---building-a-production-customer-support-agent)
+- [Chapter 11: Complete Integration - Building a Production Customer Support Agent](#chapter-11-complete-integration---building-a-production-customer-support-agent) | [📁 Code](./chapters/chapter_11_complete_integration/)
     - [Architecture Overview](#architecture-overview)
     - [Project Structure](#project-structure)
     - [Step 1: Setting Up AWS Infrastructure](#step-1-setting-up-aws-infrastructure)
@@ -119,6 +135,8 @@ Let's get started!
 - [Strands Agents Research Notes](#strands-agents-research-notes)
 
 # Chapter 1: Coding & ML Fundamentals
+
+**📁 [Chapter 1 Code Examples](./chapters/chapter_01_coding_ml_fundamentals/)** | **📖 [Chapter 1 Guide](./chapters/chapter_01_coding_ml_fundamentals/README.md)**
 
 Welcome to the first chapter of our AI Engineering guide! Before we dive into the exciting world of Large Language Models (LLMs) and AI agents, it's crucial to build a strong foundation in the fundamental concepts that underpin modern AI development. This chapter will cover the essential coding and machine learning fundamentals that every AI engineer should master.
 
@@ -398,6 +416,8 @@ Agentic systems, which we will explore in detail later in this guide, are system
 By understanding the different types of machine learning models, you will be better equipped to choose the right tools and techniques for your AI projects. In the next chapter, we will dive deeper into the world of LLMs and explore how to use them to build powerful AI applications on AWS.
 
 # Chapter 2: LLM APIs
+
+**📁 [Chapter 2 Code Examples](./chapters/chapter_02_llm_apis/)** | **📖 [Chapter 2 Guide](./chapters/chapter_02_llm_apis/README.md)**
 
 Welcome to the second chapter of our AI Engineering guide! Now that we have a solid foundation in the fundamentals of coding and machine learning, it's time to dive into the exciting world of Large Language Models (LLMs). In this chapter, we will explore the different types of LLMs, how to interact with them through APIs, and how to leverage their powerful capabilities to build intelligent applications.
 
@@ -1310,6 +1330,8 @@ This comprehensive expansion of AWS Bedrock coverage provides engineers with det
 
 # Chapter 3: Model Adaptation
 
+**📁 [Chapter 3 Code Examples](./chapters/chapter_03_model_adaptation/)** | **📖 [Chapter 3 Guide](./chapters/chapter_03_model_adaptation/README.md)**
+
 Welcome to the third chapter of our AI Engineering guide! In the previous chapter, we explored the different types of LLMs and how to interact with them through APIs. Now, we will delve into the crucial topic of **model adaptation**, which is the process of customizing and refining LLMs to better suit your specific needs.
 
 While pre-trained LLMs are incredibly powerful, they are not always perfect for every task. By adapting these models, you can significantly improve their performance, accuracy, and relevance to your specific domain. In this chapter, we will cover the following key techniques for model adaptation:
@@ -1378,6 +1400,8 @@ When working with LLMs in AWS Bedrock, you can use the same prompt engineering t
 
 By mastering the art of prompt engineering, you can unlock the full potential of LLMs and build more intelligent and effective AI applications.
 
+> **🎯 Practical Implementation**: See comprehensive prompt engineering examples in [prompt_engineering_example.py](./chapters/chapter_03_model_adaptation/prompt_engineering_example.py) demonstrating all key principles with real AWS Bedrock integration.
+
 
 
 
@@ -1438,6 +1462,8 @@ print(response)
 In this example, we first define a `get_weather` tool that takes a city as input and returns the current weather for that city. We then create a Strands agent and register the `get_weather` tool with it. When we ask the agent "What is the weather like in London?", the agent will recognize that it needs to use the `get_weather` tool to answer the question. It will then execute the tool with the city "London" and use the result to generate a response.
 
 By using tools, you can dramatically expand the capabilities of your LLMs and build applications that can interact with the real world in a much more meaningful way. In the next section, we will explore another powerful technique for model adaptation: fine-tuning.
+
+> **🔧 Practical Implementation**: See comprehensive tool use examples in [strands_tool_use_example.py](./chapters/chapter_03_model_adaptation/strands_tool_use_example.py) demonstrating multiple tool types, AWS integration, and multi-tool workflows.
 
 
 
