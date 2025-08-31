@@ -113,6 +113,10 @@ python examples\bedrock\bedrock_json_output.py --mode examples
 # Specialized AI applications
 python examples\bedrock\nova_lite_apps.py --help
 
+# Strands agent examples
+python chapters\chapter_01_coding_ml_fundamentals\simple_strands_example.py
+python examples\strands\strands_integration.py
+
 # Monitor AI usage and costs
 python Utils\ai_usage_monitor.py --days 7
 
@@ -139,7 +143,9 @@ python Utils\usage_examples.py
 - **`bedrock_json_output.py`** - Structured JSON data extraction from text
 
 ### 🔗 Strands Library Examples
-*Coming soon - examples demonstrating Strands library integration*
+- **`simple_strands_example.py`** - Basic Strands agent example from [Chapter 1](./chapters/chapter_01_coding_ml_fundamentals/)
+- **`python_strands_agents.py`** - Comprehensive Strands framework demonstration from [Chapter 1](./chapters/chapter_01_coding_ml_fundamentals/)
+- **`strands_integration.py`** - AWS-Strands integration example from [examples/strands/](./examples/strands/)
 
 ### 💰 AI Usage and Cost Monitoring
 - **`ai_usage_monitor.py`** - Comprehensive monitoring with CloudWatch and Cost Explorer
