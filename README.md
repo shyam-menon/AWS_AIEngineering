@@ -10,6 +10,8 @@ The comprehensive course documentation covers all theoretical concepts, detailed
 
 ## 📚 Course Structure
 
+![AI Engineering Fundamentals Curriculum (2025 Roadmap)](./Diagrams/AI%20Engineering%20Fundamentals%20Curriculum%20(2025%20Roadmap).png)
+
 This repository is organized into **11 chapters** that take you from fundamentals to production deployment:
 
 **📁 [Browse All Chapters](./chapters/)** | **📖 [Course.md](./Course.md)** | **💰 [Cost Monitoring](./Utils/)**
