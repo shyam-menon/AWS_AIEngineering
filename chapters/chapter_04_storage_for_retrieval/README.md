@@ -47,6 +47,12 @@ make down          # Clean up AWS resources
 - Automatic fallback from managed to local approach
 - Clear indication of which backend answered
 
+**Monitoring & Observability:**
+- [`bedrock_kb_monitoring.py`](./rag-samples/bedrock_kb_monitoring.py) - Comprehensive CloudWatch monitoring
+- Real-time dashboards, automated alerting, performance analysis
+- Custom metrics and cost optimization
+- [`monitoring.env.example`](./rag-samples/monitoring.env.example) - Configuration template
+
 **Infrastructure Automation:**
 - [`scripts/setup-kb.sh`](./rag-samples/scripts/setup-kb.sh) - AWS infrastructure creation
 - [`scripts/teardown-kb.sh`](./rag-samples/scripts/teardown-kb.sh) - Complete cleanup
@@ -109,6 +115,64 @@ The demo includes comprehensive cost management:
 - Multi-tool agent orchestration
 - Intelligent decision making
 - User experience optimization
+
+### 5. Comprehensive Monitoring & Observability
+- CloudWatch dashboard creation with 6 widget types
+- Automated alerting for 4 critical metrics (latency, errors, usage, performance)
+- Real-time log monitoring with metric filters
+- Custom metrics for performance scoring and quality tracking
+- Automated performance analysis with 0-100 scoring
+- Cost tracking and optimization recommendations
+
+## 📊 Monitoring Deep Dive
+
+### CloudWatch Integration
+The demo includes a comprehensive monitoring system (`bedrock_kb_monitoring.py`) that provides:
+
+**Real-time Dashboards:**
+- Query volume and patterns
+- Latency analysis (P50, P95, P99)
+- Error rates and failure types
+- Cost tracking and optimization
+- Custom performance metrics
+- Log insights with filtering
+
+**Intelligent Alerting:**
+- High latency detection (>2000ms)
+- Error rate monitoring (>5%)
+- Usage spike alerts (>100 queries/min)
+- Performance score warnings (<70/100)
+
+**Performance Analysis:**
+- Automated scoring based on latency (40%), accuracy (30%), reliability (20%), efficiency (10%)
+- AI-driven optimization recommendations
+- Trend analysis and forecasting
+- Cost per query optimization
+
+### Monitoring Commands
+```bash
+# Set up comprehensive monitoring
+make monitor-setup
+
+# Create CloudWatch dashboard
+make monitor-dashboard
+
+# Generate performance report
+make monitor-report
+
+# Check current status
+make monitor-status
+
+# Clean up monitoring resources
+make monitor-cleanup
+```
+
+### Monitoring Configuration
+Configure monitoring through `.env` file:
+```bash
+cp monitoring.env.example .env
+# Edit with your AWS settings and Knowledge Base ID
+```
 
 ## 🛠️ Prerequisites
 - **Completed**: Chapters 1-3 (especially Strands agent framework from Chapter 1)

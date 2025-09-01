@@ -4,7 +4,7 @@
 # This Makefile provides convenient targets for managing the RAG demo
 # environment and running different components.
 
-.PHONY: help setup up down demo-local demo-kb agent test clean install-deps validate
+.PHONY: help setup up down demo-local demo-kb agent test clean install-deps validate monitor-setup monitor-dashboard monitor-report monitor-status
 
 # Load environment variables if .env exists
 ifneq (,$(wildcard .env))
@@ -43,6 +43,12 @@ help:
 	@echo "  test           Run test suite"
 	@echo "  clean          Clean up local files and indexes"
 	@echo "  rebuild-local  Force rebuild of local FAISS index"
+	@echo ""
+	@echo "📊 Monitoring and Optimization:"
+	@echo "  monitor-setup     Set up comprehensive CloudWatch monitoring"
+	@echo "  monitor-dashboard Create monitoring dashboard"
+	@echo "  monitor-report    Generate performance report"
+	@echo "  monitor-status    Check monitoring status and metrics"
 	@echo ""
 	@echo "📖 Documentation:"
 	@echo "  docs           Open README.md for detailed instructions"
@@ -258,6 +264,31 @@ cost-estimate:
 	@echo "  • Full day: ~$$3-4 (if left running)"
 	@echo ""
 	@echo "⚠️  Remember to run 'make down' when finished!"
+
+# Monitoring and Optimization
+monitor-setup:
+	@echo "📊 Setting up comprehensive monitoring..."
+	@if [ ! -f monitoring.env ]; then \
+		cp monitoring.env.example monitoring.env; \
+		echo "⚠️  Please edit monitoring.env with your configuration"; \
+	fi
+	python bedrock_kb_monitoring.py --setup-monitoring
+
+monitor-dashboard:
+	@echo "📈 Creating CloudWatch dashboard..."
+	python bedrock_kb_monitoring.py --create-dashboard
+
+monitor-report:
+	@echo "📋 Generating performance report..."
+	python bedrock_kb_monitoring.py --performance-report
+
+monitor-status:
+	@echo "🔍 Checking monitoring status..."
+	python bedrock_kb_monitoring.py --status
+
+monitor-cleanup:
+	@echo "🧹 Cleaning up monitoring resources..."
+	python bedrock_kb_monitoring.py --cleanup
 
 # Troubleshooting
 troubleshoot:

@@ -34,14 +34,23 @@ def load_environment() -> Dict[str, str]:
     # Load main .env file
     if os.path.exists('.env'):
         load_dotenv('.env')
-        print("✅ Loaded configuration from .env")
+        try:
+            print("✅ Loaded configuration from .env")
+        except UnicodeEncodeError:
+            print("Loaded configuration from .env")
     else:
-        print("⚠️  No .env file found. Using environment variables or defaults.")
+        try:
+            print("⚠️  No .env file found. Using environment variables or defaults.")
+        except UnicodeEncodeError:
+            print("No .env file found. Using environment variables or defaults.")
     
     # Load Knowledge Base specific config if it exists
     if os.path.exists('.kb.env'):
         load_dotenv('.kb.env')
-        print("✅ Loaded Knowledge Base configuration from .kb.env")
+        try:
+            print("✅ Loaded Knowledge Base configuration from .kb.env")
+        except UnicodeEncodeError:
+            print("Loaded Knowledge Base configuration from .kb.env")
     
     # Extract all relevant environment variables
     config = {
@@ -274,22 +283,34 @@ def safe_json_parse(json_str: str) -> Optional[Dict]:
 
 def print_error(message: str):
     """Print error message with consistent formatting."""
-    print(f"❌ ERROR: {message}", file=sys.stderr)
+    try:
+        print(f"❌ ERROR: {message}", file=sys.stderr)
+    except UnicodeEncodeError:
+        print(f"ERROR: {message}", file=sys.stderr)
 
 
 def print_warning(message: str):
     """Print warning message with consistent formatting."""
-    print(f"⚠️  WARNING: {message}")
+    try:
+        print(f"⚠️  WARNING: {message}")
+    except UnicodeEncodeError:
+        print(f"WARNING: {message}")
 
 
 def print_info(message: str):
     """Print info message with consistent formatting."""
-    print(f"ℹ️  INFO: {message}")
+    try:
+        print(f"ℹ️  INFO: {message}")
+    except UnicodeEncodeError:
+        print(f"INFO: {message}")
 
 
 def print_success(message: str):
     """Print success message with consistent formatting."""
-    print(f"✅ SUCCESS: {message}")
+    try:
+        print(f"✅ SUCCESS: {message}")
+    except UnicodeEncodeError:
+        print(f"SUCCESS: {message}")
 
 
 def validate_environment() -> bool:
