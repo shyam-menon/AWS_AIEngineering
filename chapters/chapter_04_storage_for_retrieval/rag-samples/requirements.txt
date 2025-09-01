@@ -1,0 +1,26 @@
+# RAG Demo Dependencies for AWS AI Engineering Course
+# Chapter 4: Storage for Retrieval
+
+# AWS SDK for Python
+boto3>=1.34.0
+
+# Vector database and embeddings
+faiss-cpu>=1.7.4
+numpy>=1.24.0
+
+# Text processing and tokenization
+tiktoken>=0.5.0
+
+# Configuration management
+python-dotenv>=1.0.0
+
+# AI Agent Framework (used in course examples)
+# Note: Install with: pip install strands
+# strands
+
+# Optional: For enhanced text processing
+# sentence-transformers>=2.2.0
+
+# Development and testing
+pytest>=7.0.0
+pytest-mock>=3.10.0

@@ -1,0 +1,106 @@
+# AWS RAG Demo - Git Ignore File
+
+# Environment and Configuration
+.env
+.kb.env
+*.env
+
+# AWS Credentials (additional safety)
+credentials
+config
+.aws/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+.env/
+
+# FAISS Index Files (can be large and regenerated)
+faiss_index.faiss
+faiss_index_data.npz
+*.faiss
+*.npz
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Documentation builds
+docs/_build/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# Local development
+.local/
+scratch/
+temp/
+
+# Model files (if downloaded)
+models/
+*.bin
+*.safetensors
+
+# Data files (if large datasets added)
+data/large_docs/
+data/processed/
+
+# Backup files
+*.bak
+*.backup
+
+# OS generated files
+.directory
+.Trash-*
