@@ -32,7 +32,8 @@ from common import (
 
 # Import Strands with fallback
 try:
-    from strands import Agent, tool
+    from strands import Agent
+    from strands.tools import tool
     STRANDS_AVAILABLE = True
     print_success("Strands framework loaded successfully")
 except ImportError:

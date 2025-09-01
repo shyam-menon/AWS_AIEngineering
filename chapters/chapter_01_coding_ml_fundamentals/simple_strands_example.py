@@ -15,7 +15,8 @@ Date: August 2025
 """
 
 try:
-    from strands import Agent, tool
+    from strands import Agent
+    from strands.tools import tool
     from strands_tools import calculator, current_time
     
     print("✅ Strands Agents library is available!")

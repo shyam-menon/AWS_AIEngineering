@@ -16,7 +16,8 @@ Date: August 2025
 # The actual strands library may need to be installed separately
 
 try:
-    from strands import Agent, tool
+    from strands import Agent
+    from strands.tools import tool
     from strands_tools import calculator, current_time
     STRANDS_AVAILABLE = True
 except ImportError:
