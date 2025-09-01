@@ -77,12 +77,14 @@ Let's get started!
     - [Tool Use](#tool-use)
     - [Fine-tuning](#fine-tuning)
     - [Graph Databases](#graph-databases)
-- [Chapter 4: Storage for Retrieval](#chapter-4-storage-for-retrieval) | [📁 Code](./chapters/chapter_04_storage_retrieval/)
+- [Chapter 4: Storage for Retrieval](#chapter-4-storage-for-retrieval) | [📁 Code](./chapters/chapter_04_storage_for_retrieval/)
+    - [Hands-On RAG Implementation](#-hands-on-rag-implementation)
     - [Vector Databases](#vector-databases)
     - [Graph Databases for Retrieval](#graph-databases-for-retrieval)
     - [Hybrid Retrieval](#hybrid-retrieval)
     - [AWS Bedrock Knowledge Bases](#aws-bedrock-knowledge-bases)
-- [Chapter 5: RAG & Agentic RAG](#chapter-5-rag--agentic-rag) | [📁 Code](./chapters/chapter_05_rag_agentic/)
+    - [Putting It All Together: Production RAG Implementation](#-putting-it-all-together-production-rag-implementation)
+- [Chapter 5: RAG & Agentic RAG](#chapter-5-rag--agentic-rag) | [📁 Code](./chapters/chapter_05_rag_agentic_rag/)
     - [Data Preparation](#data-preparation)
     - [Data Retrieval and Generation](#data-retrieval-and-generation)
     - [Reranking](#reranking)
@@ -1594,8 +1596,62 @@ In this chapter, we will explore the different types of storage solutions that c
 *   **Vector Databases**: A type of database that is specifically designed to store and query high-dimensional vectors, which are mathematical representations of data like text and images.
 *   **Graph Databases**: A type of database that can be used to represent and store knowledge in a structured way, which can then be used to enhance the capabilities of LLMs.
 *   **Hybrid Retrieval**: A technique that combines the strengths of both vector databases and graph databases to create a more powerful and accurate retrieval system.
+*   **AWS Bedrock Knowledge Bases**: A fully managed service for implementing retrieval-augmented generation.
+*   **Practical Implementation**: A comprehensive hands-on RAG demo comparing DIY and managed approaches.
 
 By the end of this chapter, you will have a solid understanding of the different storage solutions that are available for retrieval-based AI systems and how to choose the right one for your specific needs. Let's get started!
+
+## 🚀 Hands-On RAG Implementation
+
+**📁 [Complete RAG Demo](./chapters/chapter_04_storage_for_retrieval/rag-samples/)** | **📖 [Implementation Guide](./chapters/chapter_04_storage_for_retrieval/README.md)**
+
+This chapter includes a comprehensive, production-ready RAG implementation that demonstrates both DIY and managed approaches side-by-side. The demo showcases:
+
+### **Two-Path Architecture**
+
+**Path A - DIY Approach (Local FAISS):**
+- Complete local vector database implementation using FAISS
+- Full control over chunking, embedding, and retrieval processes
+- Cost-effective for development and smaller datasets
+- Includes comprehensive error handling and performance optimization
+
+**Path B - Managed Approach (AWS Bedrock Knowledge Bases):**
+- Enterprise-grade managed RAG service
+- Automatic scaling and infrastructure management
+- Advanced features like hybrid search and metadata filtering
+- Seamless integration with AWS security and compliance
+
+### **Intelligent Agent Orchestration**
+
+Using the **Strands Agent Framework**, the implementation provides:
+- **Automatic fallback** from managed to local approach
+- **Cost optimization** through intelligent backend selection
+- **Clear traceability** of which system answered each query
+- **Production-ready** error handling and monitoring
+
+### **Key Features**
+
+*   **🔧 Complete Automation**: 20+ Makefile targets for setup, demo, and teardown
+*   **💰 Cost Management**: Built-in cost estimation and automatic resource cleanup
+*   **🧪 Comprehensive Testing**: 18 unit tests covering all components
+*   **🪟 Windows Compatible**: Full PowerShell support and troubleshooting guides
+*   **📊 Performance Metrics**: Response time tracking and quality assessment
+*   **🛡️ Production Safety**: Robust error handling and resource lifecycle management
+
+### **Quick Start**
+
+```bash
+# Navigate to the RAG demo
+cd chapters/chapter_04_storage_for_retrieval/rag-samples/
+
+# Set up environment and run local demo
+make setup && make demo-local
+
+# For AWS experience (creates billable resources)
+make up && make demo-kb && make agent && make down
+```
+
+This practical implementation bridges the gap between theoretical knowledge and real-world production systems, providing you with a solid foundation for building scalable RAG applications.
 
 
 
@@ -2119,7 +2175,59 @@ cloudwatch.put_metric_alarm(
 )
 ```
 
-AWS Bedrock Knowledge Bases provides a powerful, managed solution for implementing RAG applications with minimal infrastructure overhead. By leveraging this service, you can focus on building your application logic rather than managing the complexities of vector databases and embedding generation. In the next section, we will explore how to combine vector and graph databases for even more powerful hybrid retrieval systems.
+AWS Bedrock Knowledge Bases provides a powerful, managed solution for implementing RAG applications with minimal infrastructure overhead. By leveraging this service, you can focus on building your application logic rather than managing the complexities of vector databases and embedding generation.
+
+## 🎯 Putting It All Together: Production RAG Implementation
+
+The theoretical concepts covered in this chapter come together in our comprehensive RAG demonstration located in [`./chapters/chapter_04_storage_for_retrieval/rag-samples/`](./chapters/chapter_04_storage_for_retrieval/rag-samples/). This implementation showcases:
+
+### **Real-World Architecture Decisions**
+
+The demo implements both approaches side-by-side, allowing you to understand the trade-offs:
+
+**DIY Approach (FAISS):**
+- ✅ **Full Control**: Complete customization of chunking, embedding, and retrieval
+- ✅ **Cost-Effective**: No per-query charges, only compute costs
+- ✅ **Learning Value**: Deep understanding of RAG mechanics
+- ⚠️ **Infrastructure**: Requires management of scaling and availability
+
+**Managed Approach (Bedrock Knowledge Bases):**
+- ✅ **Enterprise Ready**: Automatic scaling, security, and compliance
+- ✅ **Advanced Features**: Hybrid search, metadata filtering, reranking
+- ✅ **Reduced Complexity**: Focus on application logic vs infrastructure
+- ⚠️ **Cost**: Per-query charges can add up at scale
+
+### **Production-Ready Features**
+
+The implementation includes essential production features often missing from tutorials:
+
+*   **🛡️ Comprehensive Error Handling**: Graceful degradation and fallback strategies
+*   **💰 Cost Management**: Automatic resource cleanup and cost estimation
+*   **🧪 Quality Assurance**: 18 unit tests covering all components  
+*   **📊 Observability**: Response time tracking and quality metrics
+*   **🔧 DevOps Integration**: Complete CI/CD pipeline with Makefile automation
+*   **🪟 Cross-Platform**: Windows/PowerShell compatibility
+
+### **Intelligent Agent Orchestration**
+
+Using the **Strands Agent Framework**, the implementation demonstrates:
+- **Smart Backend Selection**: Automatic fallback from managed to local
+- **Cost Optimization**: Intelligent routing based on query complexity
+- **Transparency**: Clear indication of which system provided the answer
+
+### **Getting Started**
+
+To experience these concepts hands-on:
+
+```bash
+cd chapters/chapter_04_storage_for_retrieval/rag-samples/
+make setup                    # Install dependencies
+make demo-local              # Try local FAISS approach
+make cost-estimate           # See AWS costs before committing
+make run-kb-ephemeral        # Full cycle with automatic cleanup
+```
+
+This chapter has provided you with both the theoretical foundation and practical implementation needed to build production-grade retrieval systems. In the next chapter, we will explore how to combine vector and graph databases for even more powerful hybrid retrieval systems, and dive deeper into RAG and Agentic RAG patterns.
 
 # Chapter 5: RAG & Agentic RAG
 
