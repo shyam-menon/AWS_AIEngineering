@@ -19,12 +19,27 @@ make setup
 make demo-local    # Try local FAISS approach
 ```
 
+**Windows PowerShell Users:**
+If `make` is not available, use the PowerShell script:
+```powershell
+cd rag-samples/
+.\run-demo.ps1 setup
+.\run-demo.ps1 demo-local    # Try local FAISS approach
+```
+
 For the full AWS experience:
 ```bash
 make up            # Create AWS infrastructure (⚠️ charges apply)
 make demo-kb       # Test Bedrock Knowledge Base
 make agent         # Run intelligent agent wrapper
 make down          # Clean up AWS resources
+```
+
+**Windows PowerShell equivalent:**
+```powershell
+# Note: Infrastructure creation requires Linux/WSL or manual setup
+.\run-demo.ps1 demo-kb       # Test Bedrock Knowledge Base (after manual setup)
+.\run-demo.ps1 agent         # Run intelligent agent wrapper
 ```
 
 ## 📁 Code Examples
@@ -56,7 +71,8 @@ make down          # Clean up AWS resources
 **Infrastructure Automation:**
 - [`scripts/setup-kb.sh`](./rag-samples/scripts/setup-kb.sh) - AWS infrastructure creation
 - [`scripts/teardown-kb.sh`](./rag-samples/scripts/teardown-kb.sh) - Complete cleanup
-- [`Makefile`](./rag-samples/Makefile) - Workflow automation
+- [`Makefile`](./rag-samples/Makefile) - Workflow automation (Linux/macOS)
+- [`run-demo.ps1`](./rag-samples/run-demo.ps1) - Windows PowerShell automation script
 
 ## 🏗️ Architecture Highlights
 
@@ -165,6 +181,18 @@ make monitor-status
 
 # Clean up monitoring resources
 make monitor-cleanup
+```
+
+**Windows PowerShell equivalent:**
+```powershell
+# Set up comprehensive monitoring
+.\run-demo.ps1 monitor-setup
+
+# Check current status
+.\run-demo.ps1 monitor-status
+
+# Generate performance report
+.\run-demo.ps1 monitor-report
 ```
 
 ### Monitoring Configuration
