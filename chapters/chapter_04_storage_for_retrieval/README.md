@@ -37,9 +37,10 @@ make down          # Clean up AWS resources
 
 **Windows PowerShell equivalent:**
 ```powershell
-# Note: Infrastructure creation requires Linux/WSL or manual setup
-.\run-demo.ps1 demo-kb       # Test Bedrock Knowledge Base (after manual setup)
-.\run-demo.ps1 agent         # Run intelligent agent wrapper
+.\setup-kb.ps1              # Create AWS infrastructure (⚠️ charges apply)
+.\run-demo.ps1 demo-kb      # Test Bedrock Knowledge Base
+.\run-demo.ps1 agent        # Run intelligent agent wrapper
+.\teardown-kb.ps1           # Clean up AWS resources
 ```
 
 ## 📁 Code Examples
@@ -69,8 +70,10 @@ make down          # Clean up AWS resources
 - [`monitoring.env.example`](./rag-samples/monitoring.env.example) - Configuration template
 
 **Infrastructure Automation:**
-- [`scripts/setup-kb.sh`](./rag-samples/scripts/setup-kb.sh) - AWS infrastructure creation
-- [`scripts/teardown-kb.sh`](./rag-samples/scripts/teardown-kb.sh) - Complete cleanup
+- [`scripts/setup-kb.sh`](./rag-samples/scripts/setup-kb.sh) - AWS infrastructure creation (Linux/macOS)
+- [`scripts/teardown-kb.sh`](./rag-samples/scripts/teardown-kb.sh) - Complete cleanup (Linux/macOS)
+- [`setup-kb.ps1`](./rag-samples/setup-kb.ps1) - AWS infrastructure creation (Windows PowerShell)
+- [`teardown-kb.ps1`](./rag-samples/teardown-kb.ps1) - Complete cleanup (Windows PowerShell)
 - [`Makefile`](./rag-samples/Makefile) - Workflow automation (Linux/macOS)
 - [`run-demo.ps1`](./rag-samples/run-demo.ps1) - Windows PowerShell automation script
 
