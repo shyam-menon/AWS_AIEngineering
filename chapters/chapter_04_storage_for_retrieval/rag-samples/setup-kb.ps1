@@ -14,7 +14,7 @@ function Write-Error { param($Message) Write-Host $Message -ForegroundColor Red 
 # Configuration
 $BucketSuffix = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
 $BucketName = "rag-demo-kb-$BucketSuffix"
-$CollectionName = "rag-demo-collection-$BucketSuffix"
+$CollectionName = "rag-kb-$BucketSuffix"
 $RoleName = "rag-demo-kb-role-$BucketSuffix"
 $KBName = "rag-demo-kb-$BucketSuffix"
 $DataSourceName = "s3-docs"
@@ -118,7 +118,8 @@ $trustPolicyJson = @"
 
 # Create the role
 try {
-    $trustPolicyJson | Out-File -FilePath "trust-policy.json" -Encoding utf8
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText("$PWD\trust-policy.json", $trustPolicyJson, $utf8NoBom)
     aws iam create-role --role-name $RoleName --assume-role-policy-document file://trust-policy.json --region $Region
     Remove-Item "trust-policy.json" -ErrorAction SilentlyContinue
     if ($LASTEXITCODE -ne 0) {
@@ -171,9 +172,49 @@ $policyDocumentJson = @"
 "@
 
 try {
-    $policyDocumentJson | Out-File -FilePath "policy-document.json" -Encoding utf8
-    $policyArn = aws iam create-policy --policy-name "$RoleName-policy" --policy-document file://policy-document.json --query "Policy.Arn" --output text --region $Region
-    Remove-Item "policy-document.json" -ErrorAction SilentlyContinue
+    $policyDocumentJson = @"
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::$BucketName",
+                "arn:aws:s3:::$BucketName/*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "aoss:CreateCollection",
+                "aoss:DeleteCollection",
+                "aoss:CreateIndex",
+                "aoss:DeleteIndex",
+                "aoss:UpdateIndex",
+                "aoss:DescribeIndex",
+                "aoss:APIAccessAll"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "bedrock:InvokeModel"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+"@
+    
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText("$PWD\role-policy.json", $policyDocumentJson, $utf8NoBom)
+    $policyArn = aws iam create-policy --policy-name "$RoleName-policy" --policy-document file://role-policy.json --query "Policy.Arn" --output text --region $Region
+    Remove-Item "role-policy.json" -ErrorAction SilentlyContinue
     aws iam attach-role-policy --role-name $RoleName --policy-arn $policyArn --region $Region
     Write-Success "IAM policy attached to role"
 } catch {
@@ -188,69 +229,84 @@ Write-Info "Creating OpenSearch Serverless collection: $CollectionName"
 $accountId = aws sts get-caller-identity --query "Account" --output text
 
 # Create encryption policy
-$encryptionPolicy = @{
-    Rules = @(
-        @{
-            ResourceType = "collection"
-            Resource = @("collection/$CollectionName")
+$encryptionPolicyJson = @"
+{
+    "Rules": [
+        {
+            "ResourceType": "collection",
+            "Resource": ["collection/$CollectionName"]
         }
-    )
-    AWSOwnedKey = $true
-} | ConvertTo-Json -Depth 10
+    ],
+    "AWSOwnedKey": true
+}
+"@
 
 try {
-    aws opensearchserverless create-security-policy --name "$CollectionName-encryption" --type "encryption" --policy $encryptionPolicy --region $Region
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText("$PWD\encryption-policy.json", $encryptionPolicyJson, $utf8NoBom)
+    aws opensearchserverless create-security-policy --name "$CollectionName-encryption" --type "encryption" --policy file://encryption-policy.json --region $Region
+    Remove-Item "encryption-policy.json" -ErrorAction SilentlyContinue
     Write-Success "Encryption policy created"
 } catch {
     Write-Warning "Encryption policy may already exist or creation failed"
 }
 
 # Create network policy
-$networkPolicy = @(
-    @{
-        Description = "Public access for $CollectionName"
-        Rules = @(
-            @{
-                ResourceType = "collection"
-                Resource = @("collection/$CollectionName")
+$networkPolicyJson = @"
+[
+    {
+        "Description": "Public access for $CollectionName",
+        "Rules": [
+            {
+                "ResourceType": "collection",
+                "Resource": ["collection/$CollectionName"]
             },
-            @{
-                ResourceType = "dashboard"
-                Resource = @("collection/$CollectionName")
+            {
+                "ResourceType": "dashboard",
+                "Resource": ["collection/$CollectionName"]
             }
-        )
-        AllowFromPublic = $true
+        ],
+        "AllowFromPublic": true
     }
-) | ConvertTo-Json -Depth 10
+]
+"@
 
 try {
-    aws opensearchserverless create-security-policy --name "$CollectionName-network" --type "network" --policy $networkPolicy --region $Region
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText("$PWD\network-policy.json", $networkPolicyJson, $utf8NoBom)
+    aws opensearchserverless create-security-policy --name "$CollectionName-network" --type "network" --policy file://network-policy.json --region $Region
+    Remove-Item "network-policy.json" -ErrorAction SilentlyContinue
     Write-Success "Network policy created"
 } catch {
     Write-Warning "Network policy may already exist or creation failed"
 }
 
 # Create data access policy
-$dataAccessPolicy = @(
-    @{
-        Rules = @(
-            @{
-                ResourceType = "collection"
-                Resource = @("collection/$CollectionName")
-                Permission = @("aoss:*")
+$dataAccessPolicyJson = @"
+[
+    {
+        "Rules": [
+            {
+                "ResourceType": "collection",
+                "Resource": ["collection/$CollectionName"],
+                "Permission": ["aoss:*"]
             },
-            @{
-                ResourceType = "index"
-                Resource = @("index/$CollectionName/*")
-                Permission = @("aoss:*")
+            {
+                "ResourceType": "index",
+                "Resource": ["index/$CollectionName/*"],
+                "Permission": ["aoss:*"]
             }
-        )
-        Principal = @("arn:aws:iam::$accountId:role/$RoleName")
+        ],
+        "Principal": ["arn:aws:iam::$accountId:role/$RoleName"]
     }
-) | ConvertTo-Json -Depth 10
+]
+"@
 
 try {
-    aws opensearchserverless create-access-policy --name "$CollectionName-access" --type "data" --policy $dataAccessPolicy --region $Region
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    [System.IO.File]::WriteAllText("$PWD\data-access-policy.json", $dataAccessPolicyJson, $utf8NoBom)
+    aws opensearchserverless create-access-policy --name "$CollectionName-access" --type "data" --policy file://data-access-policy.json --region $Region
+    Remove-Item "data-access-policy.json" -ErrorAction SilentlyContinue
     Write-Success "Data access policy created"
 } catch {
     Write-Warning "Data access policy may already exist or creation failed"
@@ -285,37 +341,41 @@ $roleArn = aws iam get-role --role-name $RoleName --query "Role.Arn" --output te
 $collectionEndpoint = aws opensearchserverless batch-get-collection --ids $collectionId --query "collectionDetails[0].collectionEndpoint" --output text --region $Region
 
 # Knowledge Base configuration
-$kbConfig = @{
-    name = $KBName
-    description = "RAG Demo Knowledge Base for AI Engineering Course"
-    roleArn = $roleArn
-    knowledgeBaseConfiguration = @{
-        type = "VECTOR"
-        vectorKnowledgeBaseConfiguration = @{
-            embeddingModelArn = "arn:aws:bedrock:${Region}::foundation-model/amazon.titan-embed-text-v2:0"
-            embeddingModelConfiguration = @{
-                bedrockEmbeddingModelConfiguration = @{
-                    dimensions = 1024
+$kbConfigJson = @"
+{
+    "name": "$KBName",
+    "description": "RAG Demo Knowledge Base for AI Engineering Course",
+    "roleArn": "$roleArn",
+    "knowledgeBaseConfiguration": {
+        "type": "VECTOR",
+        "vectorKnowledgeBaseConfiguration": {
+            "embeddingModelArn": "arn:aws:bedrock:${Region}::foundation-model/amazon.titan-embed-text-v2:0",
+            "embeddingModelConfiguration": {
+                "bedrockEmbeddingModelConfiguration": {
+                    "dimensions": 1024
                 }
             }
         }
-    }
-    storageConfiguration = @{
-        type = "OPENSEARCH_SERVERLESS"
-        opensearchServerlessConfiguration = @{
-            collectionArn = "arn:aws:aoss:${Region}:${accountId}:collection/$collectionId"
-            vectorIndexName = "rag-demo-index"
-            fieldMapping = @{
-                vectorField = "vector"
-                textField = "text"
-                metadataField = "metadata"
+    },
+    "storageConfiguration": {
+        "type": "OPENSEARCH_SERVERLESS",
+        "opensearchServerlessConfiguration": {
+            "collectionArn": "arn:aws:aoss:${Region}:${accountId}:collection/$collectionId",
+            "vectorIndexName": "rag-demo-index",
+            "fieldMapping": {
+                "vectorField": "vector",
+                "textField": "text",
+                "metadataField": "metadata"
             }
         }
     }
-} | ConvertTo-Json -Depth 10
+}
+"@
 
 try {
-    $kbId = aws bedrock-agent create-knowledge-base --cli-input-json $kbConfig --query "knowledgeBase.knowledgeBaseId" --output text --region $Region
+    $kbConfigJson | Out-File -FilePath "kb-config.json" -Encoding utf8
+    $kbId = aws bedrock-agent create-knowledge-base --cli-input-json file://kb-config.json --query "knowledgeBase.knowledgeBaseId" --output text --region $Region
+    Remove-Item "kb-config.json" -ErrorAction SilentlyContinue
     Write-Success "Knowledge Base created: $kbId"
 } catch {
     Write-Error "Failed to create Knowledge Base: $_"
@@ -325,30 +385,34 @@ try {
 # Step 5: Create Data Source
 Write-Info "Creating data source..."
 
-$dataSourceConfig = @{
-    knowledgeBaseId = $kbId
-    name = $DataSourceName
-    description = "S3 data source for RAG demo"
-    dataSourceConfiguration = @{
-        type = "S3"
-        s3Configuration = @{
-            bucketArn = "arn:aws:s3:::$BucketName"
-            inclusionPrefixes = @("sample_docs/")
+$dataSourceConfigJson = @"
+{
+    "knowledgeBaseId": "$kbId",
+    "name": "$DataSourceName",
+    "description": "S3 data source for RAG demo",
+    "dataSourceConfiguration": {
+        "type": "S3",
+        "s3Configuration": {
+            "bucketArn": "arn:aws:s3:::$BucketName",
+            "inclusionPrefixes": ["sample_docs/"]
         }
-    }
-    vectorIngestionConfiguration = @{
-        chunkingConfiguration = @{
-            chunkingStrategy = "FIXED_SIZE"
-            fixedSizeChunkingConfiguration = @{
-                maxTokens = 300
-                overlapPercentage = 20
+    },
+    "vectorIngestionConfiguration": {
+        "chunkingConfiguration": {
+            "chunkingStrategy": "FIXED_SIZE",
+            "fixedSizeChunkingConfiguration": {
+                "maxTokens": 300,
+                "overlapPercentage": 20
             }
         }
     }
-} | ConvertTo-Json -Depth 10
+}
+"@
 
 try {
-    $dataSourceId = aws bedrock-agent create-data-source --cli-input-json $dataSourceConfig --query "dataSource.dataSourceId" --output text --region $Region
+    $dataSourceConfigJson | Out-File -FilePath "data-source-config.json" -Encoding utf8
+    $dataSourceId = aws bedrock-agent create-data-source --cli-input-json file://data-source-config.json --query "dataSource.dataSourceId" --output text --region $Region
+    Remove-Item "data-source-config.json" -ErrorAction SilentlyContinue
     Write-Success "Data source created: $dataSourceId"
 } catch {
     Write-Error "Failed to create data source: $_"

@@ -33,12 +33,13 @@ Get-Content ".kb.env" | ForEach-Object {
 $KBId = $config.KB_ID
 $BucketName = $config.S3_BUCKET_NAME
 $CollectionName = $config.COLLECTION_NAME
+$CollectionId = $config.COLLECTION_ID
 $RoleName = $config.ROLE_NAME
 
 Write-Info "Configuration loaded:"
 Write-Info "  Knowledge Base ID: $KBId"
 Write-Info "  S3 Bucket: $BucketName"
-Write-Info "  Collection: $CollectionName"
+Write-Info "  Collection: $CollectionName ($CollectionId)"
 Write-Info "  Role: $RoleName"
 Write-Info ""
 
@@ -95,10 +96,10 @@ if ($BucketName) {
 }
 
 # Step 3: Delete OpenSearch Serverless collection
-if ($CollectionName) {
-    Write-Info "Deleting OpenSearch collection: $CollectionName"
+if ($CollectionId) {
+    Write-Info "Deleting OpenSearch collection: $CollectionName ($CollectionId)"
     try {
-        aws opensearchserverless delete-collection --id $CollectionName --region $Region
+        aws opensearchserverless delete-collection --id $CollectionId --region $Region
         Write-Success "OpenSearch collection deletion initiated"
         
         # Wait for deletion
@@ -106,7 +107,7 @@ if ($CollectionName) {
         do {
             Start-Sleep 15
             try {
-                $collectionStatus = aws opensearchserverless batch-get-collection --names $CollectionName --query "collectionDetails[0].status" --output text --region $Region 2>$null
+                $collectionStatus = aws opensearchserverless batch-get-collection --ids $CollectionId --query "collectionDetails[0].status" --output text --region $Region 2>$null
                 if ($LASTEXITCODE -ne 0) {
                     break  # Collection not found = deleted
                 }
