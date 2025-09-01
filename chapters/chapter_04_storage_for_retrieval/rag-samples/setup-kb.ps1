@@ -101,22 +101,26 @@ try {
 Write-Info "Creating IAM role: $RoleName"
 
 # Create trust policy
-$trustPolicy = @{
-    Version = "2012-10-17"
-    Statement = @(
-        @{
-            Effect = "Allow"
-            Principal = @{
-                Service = "bedrock.amazonaws.com"
-            }
-            Action = "sts:AssumeRole"
+$trustPolicyJson = @"
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "bedrock.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
         }
-    )
-} | ConvertTo-Json -Depth 10
+    ]
+}
+"@
 
 # Create the role
 try {
-    aws iam create-role --role-name $RoleName --assume-role-policy-document $trustPolicy --region $Region
+    $trustPolicyJson | Out-File -FilePath "trust-policy.json" -Encoding utf8
+    aws iam create-role --role-name $RoleName --assume-role-policy-document file://trust-policy.json --region $Region
+    Remove-Item "trust-policy.json" -ErrorAction SilentlyContinue
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to create role"
     }
@@ -127,23 +131,24 @@ try {
 }
 
 # Create and attach policy
-$policyDocument = @{
-    Version = "2012-10-17"
-    Statement = @(
-        @{
-            Effect = "Allow"
-            Action = @(
+$policyDocumentJson = @"
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
                 "s3:GetObject",
                 "s3:ListBucket"
-            )
-            Resource = @(
+            ],
+            "Resource": [
                 "arn:aws:s3:::$BucketName",
                 "arn:aws:s3:::$BucketName/*"
-            )
+            ]
         },
-        @{
-            Effect = "Allow"
-            Action = @(
+        {
+            "Effect": "Allow",
+            "Action": [
                 "aoss:CreateCollection",
                 "aoss:DeleteCollection",
                 "aoss:CreateIndex",
@@ -151,21 +156,24 @@ $policyDocument = @{
                 "aoss:UpdateIndex",
                 "aoss:DescribeIndex",
                 "aoss:APIAccessAll"
-            )
-            Resource = "*"
+            ],
+            "Resource": "*"
         },
-        @{
-            Effect = "Allow"
-            Action = @(
+        {
+            "Effect": "Allow",
+            "Action": [
                 "bedrock:InvokeModel"
-            )
-            Resource = "*"
+            ],
+            "Resource": "*"
         }
-    )
-} | ConvertTo-Json -Depth 10
+    ]
+}
+"@
 
 try {
-    $policyArn = aws iam create-policy --policy-name "$RoleName-policy" --policy-document $policyDocument --query "Policy.Arn" --output text --region $Region
+    $policyDocumentJson | Out-File -FilePath "policy-document.json" -Encoding utf8
+    $policyArn = aws iam create-policy --policy-name "$RoleName-policy" --policy-document file://policy-document.json --query "Policy.Arn" --output text --region $Region
+    Remove-Item "policy-document.json" -ErrorAction SilentlyContinue
     aws iam attach-role-policy --role-name $RoleName --policy-arn $policyArn --region $Region
     Write-Success "IAM policy attached to role"
 } catch {
