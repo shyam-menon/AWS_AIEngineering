@@ -456,8 +456,34 @@ async def get_knowledge_stats() -> List[TextContent]:
 async def main():
     """Main function to run the MCP server."""
     logger.info("Starting MCP Knowledge Server (stdio)")
-    async with stdio_server() as (read_stream, write_stream):
-        await server.run(read_stream, write_stream, server.create_initialization_options())
+    
+    # Check if we're running in standalone mode (for testing)
+    import sys
+    if sys.stdin.isatty():
+        logger.info("Running in standalone demo mode")
+        print("\n🤖 MCP Knowledge Server - Demo Mode")
+        print("=" * 50)
+        print("This server is designed to be used with Strands agents via MCP.")
+        print("To test the server:")
+        print("1. Run 'python mcp_rag_agent.py' for interactive agent")
+        print("2. Run 'python test_mcp_rag.py' for automated tests")
+        print("3. Run 'python demo_mcp_rag.py' for guided demo")
+        print("\nServer tools available:")
+        tools = await list_tools()
+        for i, tool in enumerate(tools, 1):
+            print(f"  {i}. {tool.name}: {tool.description}")
+        print("\nPress Ctrl+C to exit...")
+        
+        # Keep the server running for demonstration
+        try:
+            await asyncio.Event().wait()  # Wait indefinitely
+        except KeyboardInterrupt:
+            print("\n👋 MCP Knowledge Server stopped")
+            return
+    else:
+        # Normal MCP server mode (called by Strands agent)
+        async with stdio_server() as (read_stream, write_stream):
+            await server.run(read_stream, write_stream, server.create_initialization_options())
 
 if __name__ == "__main__":
     asyncio.run(main())

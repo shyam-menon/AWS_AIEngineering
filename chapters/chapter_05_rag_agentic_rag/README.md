@@ -224,16 +224,18 @@ python -c "from strands import Agent; print('Strands ready!')"
 
 3. **Model Context Protocol (MCP) Examples**:
    
-   **Start the MCP Knowledge Server** (in first terminal):
+   **View MCP Server Demo** (standalone mode):
    ```bash
    python mcp_knowledge_server.py
-   # Server will run on http://localhost:8000/mcp/
+   # Shows available tools and usage instructions
+   # Press Ctrl+C to exit
    ```
    
-   **Run the Interactive MCP RAG Agent** (in second terminal):
+   **Run the Interactive MCP RAG Agent**:
    ```bash
    python mcp_rag_agent.py
-   # Interactive CLI for testing MCP integration
+   # Interactive CLI - the server runs automatically as subprocess
+   # Try queries like: "What is AWS Bedrock?" or "Show me Strands examples"
    ```
    
    **Test the Production MCP Integration**:
@@ -245,8 +247,13 @@ python -c "from strands import Agent; print('Strands ready!')"
    **Run MCP Test Suite**:
    ```bash
    python test_mcp_rag.py
-   # Or for detailed output:
-   pytest test_mcp_rag.py -v
+   # Comprehensive testing of all MCP functionality
+   ```
+   
+   **Interactive Demo with Step-by-Step Guide**:
+   ```bash
+   python demo_mcp_rag.py
+   # Guided demonstration of MCP capabilities
    ```
 
 4. **Nova Lite Applications**:
