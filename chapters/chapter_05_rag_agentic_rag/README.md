@@ -59,6 +59,63 @@ This chapter demonstrates advanced Retrieval-Augmented Generation (RAG) patterns
 - **What it does**: Tests core Nova Lite model capabilities and streaming responses
 - **Validates**: Model connectivity, response generation, streaming functionality, error handling
 
+### 🔌 Model Context Protocol (MCP) Integration
+**Advanced Example**: Complete MCP implementation for production RAG systems
+
+**`mcp_knowledge_server.py`** - **MCP Server Implementation**
+- **What it does**: Creates an MCP server providing 6 specialized knowledge retrieval tools
+- **Key Features**: 
+  - Technical documentation search with semantic similarity
+  - Code examples search by language/complexity
+  - FAQ database with relevance scoring
+  - Comprehensive topic overviews across all knowledge sources
+  - Dynamic knowledge base management and statistics
+- **Tools Provided**: `search_technical_docs`, `search_code_examples`, `get_faq_answers`, `get_topic_overview`, `add_knowledge_entry`, `get_knowledge_stats`
+- **Demonstrates**: How to build knowledge servers that Strands agents can connect to via MCP
+
+**`mcp_rag_agent.py`** - **Strands Agent with MCP Integration**
+- **What it does**: Demonstrates basic MCP integration with interactive query processing
+- **Key Features**: 
+  - Automatic MCP tool discovery and integration
+  - Natural language to tool parameter mapping
+  - Multi-source information synthesis
+  - Session tracking and interactive CLI interface
+- **Demonstrates**: How Strands agents can seamlessly use external MCP tools for knowledge retrieval
+
+**`mcp_production_integration.py`** - **Production-Ready MCP System**
+- **What it does**: Production-grade MCP system with comprehensive monitoring and failover
+- **Key Features**:
+  - Multi-server failover and health monitoring
+  - Response caching with TTL and performance optimization
+  - Configurable search strategies (quick, comprehensive, targeted)
+  - Confidence scoring and quality assurance
+  - Comprehensive metrics and observability
+- **Components**: `ProductionMCPManager`, `ProductionRAGAgent`, `RAGResponse`, `MCPServerConfig`
+- **Demonstrates**: Enterprise-ready MCP integration patterns with reliability and scalability
+
+**`test_mcp_rag.py`** - **Comprehensive MCP Test Suite**
+- **What it does**: Complete testing framework for MCP implementation
+- **Test Coverage**: Knowledge base validation, agent functionality, production features, integration scenarios
+- **Validates**: Tool integration, error handling, performance, async operations, metrics collection
+
+**`demo_mcp_rag.py`** - **Interactive MCP Demonstration**
+- **What it does**: Guided demonstration of MCP capabilities with real-time interaction
+- **Features**: Step-by-step MCP tool usage, different search scenarios, production patterns showcase
+- **Use Case**: Perfect for learning MCP concepts and seeing the integration in action
+
+**`mcp_requirements.txt`** - **MCP Dependencies**
+- **Contains**: All required packages for MCP functionality including `strands-agents`, `mcp` packages
+- **Usage**: Install with `pip install -r mcp_requirements.txt`
+
+**`MCP_IMPLEMENTATION_README.md`** - **Complete MCP Documentation**
+- **Coverage**: Comprehensive guide to MCP concepts, implementation patterns, and best practices
+- **Sections**: Architecture overview, tool development, production deployment, troubleshooting
+- **Audience**: Developers implementing MCP in production environments
+
+**`MCP_IMPLEMENTATION_README.md`** - **Complete MCP Documentation**
+- **What it covers**: Detailed guide for MCP implementation, usage patterns, and production deployment
+- **Includes**: Architecture diagrams, example interactions, advanced features, and learning outcomes
+
 ## 🏗️ Architecture Patterns Demonstrated
 
 ### 1. Intelligent Query Routing
@@ -82,6 +139,19 @@ User Query → Intent Analysis → Route Selection → Data Source Query → Res
 - **Fallback Strategies**: Graceful degradation when primary sources fail
 - **Performance Learning**: Tracking success rates to improve future routing decisions
 
+### 4. Model Context Protocol (MCP) Architecture
+```
+Strands Agent ↔ MCP Client ↔ MCP Server ↔ Knowledge Sources
+      ↓              ↓           ↓              ↓
+ Natural Query  Tool Discovery  Tool Execution  Data Retrieval
+   Processing    & Selection     & Response     & Processing
+```
+
+- **Tool Discovery**: Automatic discovery of available MCP tools
+- **Parameter Mapping**: Seamless natural language to tool parameter conversion
+- **Multi-Server Support**: Failover and load balancing across multiple MCP servers
+- **Response Synthesis**: Intelligent combination of results from multiple tools
+
 ## 🔧 Technical Implementation Highlights
 
 ### Strands Agent Framework Integration
@@ -89,6 +159,12 @@ User Query → Intent Analysis → Route Selection → Data Source Query → Res
 - **Multi-Tool Workflows**: Agents chain multiple tools for complex queries
 - **Intelligent Reasoning**: Visible agent thinking processes for transparency
 - **Error Handling**: Robust error recovery and fallback mechanisms
+
+### Model Context Protocol (MCP) Integration
+- **6 MCP Tools**: Comprehensive knowledge retrieval capabilities
+- **Production Architecture**: Multi-server failover, health monitoring, caching
+- **Quality Assurance**: Confidence scoring and response validation
+- **Extensible Design**: Easy addition of new knowledge sources and tools
 
 ### Query Classification Engine
 - **5 Query Types**: Technical docs, code, general knowledge, troubleshooting, comparison
@@ -145,6 +221,35 @@ python -c "from strands import Agent; print('Strands ready!')"
    python intelligent_query_router.py
    # Features: Live query analysis and routing demonstration
    ```
+
+3. **Model Context Protocol (MCP) Examples**:
+   
+   **Start the MCP Knowledge Server** (in first terminal):
+   ```bash
+   python mcp_knowledge_server.py
+   # Server will run on http://localhost:8000/mcp/
+   ```
+   
+   **Run the Interactive MCP RAG Agent** (in second terminal):
+   ```bash
+   python mcp_rag_agent.py
+   # Interactive CLI for testing MCP integration
+   ```
+   
+   **Test the Production MCP Integration**:
+   ```bash
+   python mcp_production_integration.py
+   # Demonstrates production features with monitoring
+   ```
+   
+   **Run MCP Test Suite**:
+   ```bash
+   python test_mcp_rag.py
+   # Or for detailed output:
+   pytest test_mcp_rag.py -v
+   ```
+
+4. **Nova Lite Applications**:
 
 3. **Try the Production Integration**:
    ```bash

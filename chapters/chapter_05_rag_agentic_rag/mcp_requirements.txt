@@ -1,0 +1,33 @@
+# MCP RAG Implementation Requirements
+# Additional dependencies for Model Context Protocol integration
+
+# Core MCP dependencies
+mcp>=1.13.0
+fastmcp>=0.1.0
+
+# HTTP client for MCP streamable HTTP transport
+httpx>=0.28.0
+httpx-sse>=0.4.0
+
+# Scientific computing for embeddings simulation
+numpy>=2.0.0
+
+# Testing framework
+pytest>=8.0.0
+pytest-mock>=3.14.0
+pytest-asyncio>=0.24.0
+
+# Development and debugging
+rich>=14.0.0
+click>=8.2.0
+colorama>=0.4.6
+
+# Async utilities
+aiohttp>=3.12.0
+anyio>=4.10.0
+
+# Data validation (already included in main requirements but ensuring version)
+pydantic>=2.11.0
+pydantic-settings>=2.10.0
+
+# Note: strands-agents and boto3 should already be installed from main requirements.txt

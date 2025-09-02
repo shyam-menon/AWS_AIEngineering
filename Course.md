@@ -2424,21 +2424,206 @@ As we have seen, RAG systems can be enhanced by giving them access to external t
 *   **Interoperability**: MCP is designed to be interoperable with a wide range of LLMs and tools, which gives you more flexibility in choosing the components for your RAG system.
 *   **Security**: MCP can help to improve the security of your RAG system by providing a secure way for the LLM to access external tools and APIs.
 *   **Observability**: MCP can make it easier to monitor and debug your RAG system by providing a clear and consistent format for the interactions between the LLM and the external tools.
+*   **Modularity**: MCP enables separation of concerns between AI agents and tool implementations, allowing for independent development and maintenance.
 
 ### How MCP Works
 
 MCP is a request-response protocol that works as follows:
 
-1.  **The LLM makes a request**: When the LLM needs to use a tool, it will make a request to the MCP server. The request will be in a standardized format that specifies the name of the tool to be used and the parameters to be passed to it.
-2.  **The MCP server executes the tool**: The MCP server will then execute the specified tool with the given parameters.
-3.  **The MCP server returns a response**: The MCP server will then return a response to the LLM in a standardized format. The response will contain the output of the tool, as well as any errors that occurred.
-4.  **The LLM uses the response**: The LLM will then use the response from the MCP server to generate a final response to the user.
+1.  **Tool Discovery**: The LLM agent connects to an MCP server and discovers available tools through a standardized discovery mechanism.
+2.  **The LLM makes a request**: When the LLM needs to use a tool, it will make a request to the MCP server. The request will be in a standardized format that specifies the name of the tool to be used and the parameters to be passed to it.
+3.  **The MCP server executes the tool**: The MCP server will then execute the specified tool with the given parameters, handling any necessary authentication, validation, and processing.
+4.  **The MCP server returns a response**: The MCP server will then return a response to the LLM in a standardized format. The response will contain the output of the tool, as well as any errors that occurred.
+5.  **The LLM uses the response**: The LLM will then use the response from the MCP server to generate a final response to the user.
+
+### MCP with Strands Agents
+
+The Strands Agent framework provides first-class support for MCP through the `MCPClient` and `MCPAgentTool` classes. Here's how you can integrate MCP tools with a Strands agent:
+
+```python
+from mcp.client.streamable_http import streamablehttp_client
+from strands import Agent
+from strands.tools.mcp.mcp_client import MCPClient
+
+# Create MCP transport connection
+def create_mcp_transport():
+    return streamablehttp_client("http://localhost:8000/mcp/")
+
+# Create MCP client
+mcp_client = MCPClient(create_mcp_transport)
+
+# Use the MCP server in a context manager
+with mcp_client:
+    # Get the tools from the MCP server
+    tools = mcp_client.list_tools_sync()
+    
+    # Create an agent with the MCP tools
+    agent = Agent(tools=tools)
+    
+    # Use the agent with natural language queries
+    response = agent("What is 125 plus 375?")
+```
+
+### Building Production MCP Systems
+
+For production RAG systems, consider these MCP integration patterns:
+
+#### Multi-Server Architecture
+```python
+# Configure multiple MCP servers for redundancy
+server_configs = [
+    MCPServerConfig(
+        url="http://primary-knowledge-server:8000/mcp/",
+        name="primary",
+        timeout=30
+    ),
+    MCPServerConfig(
+        url="http://backup-knowledge-server:8000/mcp/",
+        name="backup",
+        timeout=30
+    )
+]
+
+# Production manager handles failover and load balancing
+mcp_manager = ProductionMCPManager(server_configs)
+```
+
+#### Intelligent Query Routing
+```python
+# Different tools for different query types
+async def route_query(query: str):
+    if "code" in query.lower():
+        return await mcp_client.call_tool("search_code_examples", {"query": query})
+    elif "documentation" in query.lower():
+        return await mcp_client.call_tool("search_technical_docs", {"query": query})
+    else:
+        return await mcp_client.call_tool("get_topic_overview", {"topic": query})
+```
+
+#### Caching and Performance Optimization
+```python
+# Response caching for frequently asked questions
+class CachedMCPClient:
+    def __init__(self, base_client, cache_ttl=300):
+        self.base_client = base_client
+        self.cache = {}
+        self.cache_ttl = cache_ttl
+    
+    async def call_tool_cached(self, tool_name, arguments):
+        cache_key = f"{tool_name}:{hash(json.dumps(arguments, sort_keys=True))}"
+        
+        if cache_key in self.cache and self._is_cache_valid(cache_key):
+            return self.cache[cache_key]["result"]
+        
+        result = await self.base_client.call_tool(tool_name, arguments)
+        self.cache[cache_key] = {
+            "result": result,
+            "timestamp": datetime.now()
+        }
+        return result
+```
+
+### MCP Knowledge Server Implementation
+
+Our implementation includes a comprehensive MCP knowledge server that provides:
+
+**Available Tools:**
+- `search_technical_docs`: Search technical documentation with semantic similarity
+- `search_code_examples`: Find code snippets by language and complexity
+- `get_faq_answers`: Query FAQ database with relevance scoring
+- `get_topic_overview`: Comprehensive multi-source information retrieval
+- `add_knowledge_entry`: Dynamic knowledge base expansion
+- `get_knowledge_stats`: Knowledge base analytics and statistics
+
+**Key Features:**
+- Simulated vector embeddings for semantic search
+- Relevance scoring and ranking
+- Multiple knowledge source types (docs, code, FAQs)
+- RESTful HTTP interface
+- Comprehensive error handling
+
+### Real-World MCP Use Cases
+
+#### Customer Support Systems
+```python
+# Route customer queries to appropriate knowledge sources
+tools = [
+    "search_product_docs",
+    "search_troubleshooting_guides", 
+    "search_known_issues",
+    "escalate_to_human_agent"
+]
+
+agent = Agent(tools=mcp_tools)
+response = agent("My product isn't working after the latest update")
+```
+
+#### Development Assistance
+```python
+# Provide comprehensive development support
+tools = [
+    "search_api_documentation",
+    "find_code_examples",
+    "check_best_practices",
+    "analyze_code_quality"
+]
+
+agent = Agent(tools=mcp_tools)
+response = agent("How do I implement authentication in my FastAPI app?")
+```
+
+#### Research and Analysis
+```python
+# Multi-source research capabilities
+tools = [
+    "search_academic_papers",
+    "analyze_market_trends",
+    "compare_technologies",
+    "generate_summaries"
+]
+
+agent = Agent(tools=mcp_tools)
+response = agent("Compare the latest developments in transformer architectures")
+```
 
 ### MCP and AWS Bedrock AgentCore
 
 AWS Bedrock AgentCore provides a built-in implementation of MCP, which makes it easy to build and deploy RAG systems that use external tools. With AgentCore, you can define your tools as Lambda functions or by importing OpenAPI schemas, and AgentCore will automatically handle the process of exposing them to your LLM through an MCP endpoint.
 
-By using MCP, you can simplify the process of building and maintaining RAG systems that use external tools, and you can improve the security, interoperability, and observability of your applications. In the next section, we will explore how to use the Strands Agent framework to build powerful RAG and Agentic RAG systems.
+Key AgentCore MCP features:
+- Automatic tool discovery and registration
+- Built-in authentication and authorization
+- Monitoring and observability
+- Scalable serverless execution
+- Integration with AWS services
+
+### Best Practices for MCP Integration
+
+1. **Tool Design**: Design tools to be atomic, focused, and composable
+2. **Error Handling**: Implement comprehensive error handling and graceful degradation
+3. **Performance**: Use caching, connection pooling, and async operations
+4. **Security**: Implement proper authentication, authorization, and input validation
+5. **Monitoring**: Track tool usage, performance metrics, and error rates
+6. **Documentation**: Provide clear tool descriptions and parameter specifications
+
+### Code Examples in Chapter 5
+
+Our Chapter 5 implementation includes comprehensive MCP examples:
+
+- **`mcp_knowledge_server.py`**: Complete MCP server with 6 knowledge tools
+- **`mcp_rag_agent.py`**: Basic Strands-MCP integration with interactive CLI
+- **`mcp_production_integration.py`**: Production-ready system with failover and monitoring
+- **`test_mcp_rag.py`**: Comprehensive test suite
+- **`demo_mcp_rag.py`**: Guided demonstration script
+
+To run the MCP examples:
+
+1. Start the MCP server: `python mcp_knowledge_server.py`
+2. Run the interactive agent: `python mcp_rag_agent.py`
+3. Test production features: `python mcp_production_integration.py`
+4. Run comprehensive tests: `python test_mcp_rag.py`
+
+By using MCP, you can simplify the process of building and maintaining RAG systems that use external tools, and you can improve the security, interoperability, and observability of your applications. The standardized protocol makes it easier to integrate different tools and services, while the production patterns ensure your systems are robust and scalable.
 
 
 
