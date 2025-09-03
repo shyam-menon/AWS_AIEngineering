@@ -3859,26 +3859,266 @@ Welcome to the sixth chapter of our AI Engineering guide! In the previous chapte
 
 An AI agent is a system that can perceive its environment, make decisions, and take actions to achieve a goal. In the context of AI engineering, an agent is typically a system that uses an LLM as its reasoning engine and can interact with users, tools, and other agents to perform a wide range of tasks.
 
-This chapter provides comprehensive, production-ready implementations of AI agent patterns using the Strands Agents framework. We've built complete working examples that you can run immediately, with full documentation and testing frameworks.
+In this chapter, we will explore the key concepts and techniques for building and deploying AI agents. We will cover the following topics:
 
-## What's Included: Complete Multi-Agent Implementation
+*   **AI Agent Design Patterns**: An overview of the common design patterns for building AI agents.
+*   **Multi-agent Systems**: A look at how you can create systems of multiple agents that can collaborate to solve complex problems.
+*   **Memory**: The different types of memory that can be used to give agents a sense of history and context.
+*   **Human in the Loop**: Techniques for incorporating human feedback and oversight into your agentic systems.
+*   **A2A, ACP**: An introduction to the Agent-to-Agent (A2A) and Agent-to-Computer (ACP) protocols for agent communication.
+*   **Strands Agent Framework Usage**: How to use the Strands Agent framework to build powerful and flexible AI agents.
 
-### ✅ **4 out of 5 Multi-Agent Patterns Fully Implemented**
-1. **Agents as Tools** - Hierarchical delegation with specialized agents
-2. **Swarm** - Collaborative autonomous teams with intelligent coordination  
-3. **Graph** - Network-based execution with dependency management
-4. **Workflow** - Sequential pipeline processing with context management
-5. **A2A (Agent-to-Agent)** - Direct peer communication *(planned)*
+By the end of this chapter, you will have a solid understanding of how to design, build, and deploy AI agents on AWS. Let's get started!
 
-### 🎯 **Production-Ready Features**
-- **Complete working implementations** with AWS Bedrock Nova Lite integration
-- **Comprehensive documentation** for each pattern with learning guides
-- **Token-optimized** implementations to minimize costs during learning
-- **Error handling and logging** for production deployment
-- **Test suites** for quick pattern demonstrations
-- **Progressive complexity** from simple tool agents to complex multi-agent systems
+
+
 
 ## AI Agent Design Patterns
+
+As the field of AI agents matures, a number of common design patterns are emerging. These design patterns provide a reusable blueprint for solving common problems in agent design. By understanding these patterns, you can build more robust, scalable, and maintainable agentic systems.
+
+### Common Agent Design Patterns
+
+*   **Tool-Augmented Agent**: This is the most common design pattern for AI agents. In this pattern, the agent is given access to a set of tools that it can use to perform actions and gather information. The agent uses its reasoning engine to decide which tool to use and what parameters to pass to it.
+*   **Router Agent**: A router agent is a specialized type of agent that is responsible for routing a user's request to the appropriate agent or tool. This is useful in multi-agent systems where you have a number of specialized agents that are each responsible for a different task.
+*   **Planner Agent**: A planner agent is an agent that can create a plan to achieve a goal. The agent will break down the goal into a series of smaller steps and then execute the steps in order. This is useful for complex tasks that require multiple steps to complete.
+*   **Generative Agent**: A generative agent is an agent that can generate new content, such as text, images, or code. This is useful for a wide range of applications, from creative writing to software development.
+*   **Reflective Agent**: A reflective agent is an agent that can reflect on its own performance and learn from its mistakes. This is a key component of building autonomous agents that can improve over time.
+
+### Choosing the Right Design Pattern
+
+The right design pattern for your agent will depend on the specific task that you want the agent to perform. For simple tasks, a tool-augmented agent may be sufficient. For more complex tasks, you may need to use a combination of different design patterns.
+
+### Example: A Simple Tool-Augmented Agent with Strands
+
+Here is a conceptual Python code snippet that shows how you might implement a simple tool-augmented agent using the Strands Agent framework:
+
+```python
+from strands import Agent
+from strands.tools import tool
+
+@tool
+def get_stock_price(symbol: str) -> float:
+    """Gets the current stock price for a given symbol."""
+    # In a real application, you would call a stock price API here
+    return 123.45
+
+# Create a tool-augmented agent
+agent = Agent(tools=[get_stock_price])
+
+# Ask the agent a question that requires the tool
+response = agent("What is the stock price of AAPL?")
+
+# Print the agent's response
+print(response)
+```
+
+In this example, we first define a `get_stock_price` tool that takes a stock symbol as input and returns the current stock price. We then create a Strands agent and register the `get_stock_price` tool with it. When we ask the agent a question about the stock price of AAPL, the agent will use its reasoning engine to decide to use the `get_stock_price` tool. It will then execute the tool with the symbol "AAPL" and use the result to generate a response.
+
+By understanding and applying these design patterns, you can build more powerful and sophisticated AI agents that can solve a wide range of problems. In the next section, we will explore how you can create systems of multiple agents that can collaborate to solve even more complex problems.
+
+
+
+
+## Multi-agent Systems
+
+While a single agent can be powerful, some problems are too complex for a single agent to solve on its own. This is where **multi-agent systems** come in. A multi-agent system is a system of multiple agents that can interact with each other to solve a common problem. By dividing a complex task into smaller sub-tasks and assigning each sub-task to a specialized agent, you can create a system that is more powerful and flexible than a single agent.
+
+### Why Use a Multi-agent System?
+
+*   **Modularity**: Multi-agent systems are modular by nature. Each agent can be developed and tested independently, which makes it easier to build and maintain complex systems.
+*   **Scalability**: Multi-agent systems can be easily scaled by adding more agents to the system. This makes them well-suited for solving large-scale problems.
+*   **Robustness**: Multi-agent systems can be more robust than single-agent systems. If one agent fails, the other agents can continue to operate and may even be able to take over the failed agent's tasks.
+*   **Specialization**: By creating a team of specialized agents, you can create a system that has a wider range of capabilities than a single, general-purpose agent.
+
+### How to Build a Multi-agent System
+
+The process of building a multi-agent system typically involves the following steps:
+
+1.  **Define the agents**: The first step is to define the agents that will be part of the system. This includes specifying the role of each agent, the tools it has access to, and how it will interact with the other agents.
+2.  **Define the communication protocol**: You then need to define a communication protocol that the agents will use to interact with each other. This could be a simple message-passing protocol or a more sophisticated protocol like Agent-to-Agent (A2A).
+3.  **Define the coordination mechanism**: You also need to define a coordination mechanism that the agents will use to coordinate their actions. This could be a simple master-slave architecture or a more decentralized approach where the agents negotiate with each other to decide what to do.
+
+### Multi-agent Systems with Strands
+
+The Strands Agent framework provides a number of features that make it easy to build multi-agent systems. You can create multiple agents and have them interact with each other by calling each other's tools. You can also use a router agent to route requests to the appropriate agent.
+
+Here is a conceptual Python code snippet that shows how you might implement a simple multi-agent system using the Strands Agent framework:
+
+```python
+from strands import Agent
+from strands.tools import tool
+
+@tool
+def financial_analyst(query: str) -> str:
+    """Analyzes financial data."""
+    # In a real application, you would call a financial analysis tool here
+    return "The financial outlook is positive."
+
+@tool
+def marketing_analyst(query: str) -> str:
+    """Analyzes marketing data."""
+    # In a real application, you would call a marketing analysis tool here
+    return "The marketing campaign was successful."
+
+# Create the specialized agents
+financial_agent = Agent(tools=[financial_analyst])
+marketing_agent = Agent(tools=[marketing_analyst])
+
+# Create a router agent
+router_agent = Agent(
+    tools=[financial_agent.as_tool(), marketing_agent.as_tool()],
+    prompt="""You are a router agent. Your job is to route the user's request to the appropriate specialist.
+
+    If the request is about finance, route it to the financial_analyst.
+    If the request is about marketing, route it to the marketing_analyst.
+    """
+)
+
+# Ask the router agent a question
+response = router_agent("What is the financial outlook for our company?")
+
+# Print the response
+print(response)
+```
+
+In this example, we first define two specialized agents: a `financial_agent` and a `marketing_agent`. We then create a `router_agent` that has access to the other two agents as tools. When we ask the `router_agent` a question about the financial outlook of the company, the `router_agent` will use its reasoning engine to decide to route the request to the `financial_agent`. The `financial_agent` will then analyze the financial data and return a response, which the `router_agent` will then pass back to the user.
+
+By using a multi-agent approach, you can build more powerful and flexible AI systems that can solve a wide range of complex problems. In the next section, we will explore the different types of memory that can be used to give agents a sense of history and context.
+
+
+
+
+## Memory
+
+For an AI agent to be truly intelligent, it needs to have a sense of history and context. This is where **memory** comes in. Memory allows an agent to remember past interactions and to use that information to inform its future decisions. This can lead to more personalized, context-aware, and effective agents.
+
+### Types of Memory
+
+There are two main types of memory that can be used with AI agents:
+
+*   **Short-term memory**: Short-term memory is used to store information about the current conversation. This allows the agent to remember what the user has said and to maintain a coherent conversation. Short-term memory is typically implemented using a simple buffer that stores the last few turns of the conversation.
+*   **Long-term memory**: Long-term memory is used to store information about the user and their preferences over time. This allows the agent to provide a more personalized experience. Long-term memory can be implemented using a variety of technologies, such as a database, a knowledge graph, or a vector store.
+
+### Memory in Strands Agents
+
+The Strands Agent framework provides a built-in memory module that makes it easy to add memory to your agents. The memory module supports both short-term and long-term memory, and it can be configured to use a variety of different storage backends.
+
+Here is a conceptual Python code snippet that shows how you might use the memory module in the Strands Agent framework:
+
+```python
+from strands import Agent
+from strands.memory import ConversationBufferMemory
+
+# Create an agent with a conversation buffer memory
+agent = Agent(memory=ConversationBufferMemory())
+
+# Have a conversation with the agent
+response1 = agent("My name is John.")
+print(response1)
+
+response2 = agent("What is my name?")
+print(response2) # The agent will remember your name
+```
+
+In this example, we create a Strands agent with a `ConversationBufferMemory`. This type of memory stores the entire conversation history in a buffer. When we ask the agent "What is my name?", the agent will be able to answer the question correctly because it has access to the previous turn of the conversation where we told it our name.
+
+### Memory on AWS
+
+AWS provides a number of services that can be used to implement long-term memory for your agents:
+
+*   **Amazon DynamoDB**: A fully managed NoSQL database that can be used to store user profiles and preferences.
+*   **Amazon Neptune**: A fully managed graph database that can be used to build a knowledge graph of the user and their relationships.
+*   **Amazon OpenSearch Service**: A fully managed search service that can be used to store and query conversation histories.
+
+By giving your agents a memory, you can create more intelligent and personalized AI applications that can provide a better user experience. In the next section, we will explore how to incorporate human feedback and oversight into your agentic systems.
+
+
+
+
+## Human in the Loop
+
+While AI agents are becoming increasingly autonomous, there are still many situations where it is desirable or even necessary to have a **human in the loop**. Human-in-the-loop (HITL) is a design pattern where humans are involved in the decision-making process of an AI system. This can be used to improve the accuracy, reliability, and safety of your agentic systems.
+
+### Why Use Human in the Loop?
+
+*   **Improved Accuracy**: Humans can provide feedback to the agent to help it learn from its mistakes and to improve its performance over time.
+*   **Increased Reliability**: By having a human review the agent's decisions, you can reduce the risk of errors and ensure that the agent is behaving as expected.
+*   **Enhanced Safety**: For high-stakes applications, such as in healthcare or finance, it is often necessary to have a human in the loop to ensure the safety of the system.
+*   **Handling Ambiguity**: When the agent is unsure about how to proceed, it can ask a human for help. This can help to prevent the agent from making a mistake and can lead to a better outcome.
+
+### How to Implement Human in the Loop
+
+There are a number of ways to implement human in the loop in your agentic systems:
+
+*   **Supervised Learning**: You can use supervised learning to train your agent on a dataset of human-labeled examples. This can help the agent to learn how to perform a task in a way that is consistent with human expectations.
+*   **Reinforcement Learning with Human Feedback (RLHF)**: RLHF is a technique where the agent is trained on feedback from a human. The human will review the agent's actions and provide a reward or penalty, which the agent will then use to update its policy.
+*   **Active Learning**: Active learning is a technique where the agent identifies the examples that it is most uncertain about and then asks a human to label them. This can help the agent to learn more efficiently and to improve its performance with less data.
+*   **Human-in-the-loop as a Tool**: You can also implement human in the loop as a tool that the agent can call when it needs help. For example, you could create a `ask_human` tool that sends a message to a human and waits for a response.
+
+### Human in the Loop with Strands Agents
+
+The Strands Agent framework makes it easy to implement human in the loop in your agentic systems. You can create a tool that allows the agent to ask a human for help, and you can also use the framework's observability features to monitor the agent's behavior and to identify situations where human intervention is needed.
+
+Here is a conceptual Python code snippet that shows how you might implement a `ask_human` tool using the Strands Agent framework:
+
+```python
+from strands import Agent
+from strands.tools import tool
+
+@tool
+def ask_human(question: str) -> str:
+    """Asks a human for help."""
+    print(f"Agent needs help: {question}")
+    response = input("Your response: ")
+    return response
+
+# Create an agent with the ask_human tool
+agent = Agent(tools=[ask_human])
+
+# Ask the agent a question that it might not know the answer to
+response = agent("What is the meaning of life?")
+
+# Print the agent's response
+print(response)
+```
+
+In this example, we first define an `ask_human` tool that takes a question as input and prompts a human for a response. We then create a Strands agent and register the `ask_human` tool with it. When we ask the agent a question that it does not know the answer to, the agent can use the `ask_human` tool to ask a human for help.
+
+By incorporating human feedback and oversight into your agentic systems, you can build more accurate, reliable, and safe AI applications. In the next section, we will explore the Agent-to-Agent (A2A) and Agent-to-Computer (ACP) protocols for agent communication.
+
+
+
+
+## A2A, ACP
+
+As we have seen, multi-agent systems can be very powerful. However, for agents to be able to collaborate effectively, they need to be able to communicate with each other. The **Agent-to-Agent (A2A)** and **Agent-to-Computer (ACP)** protocols are two standardized protocols that are designed to facilitate communication between agents and between agents and computers.
+
+### Agent-to-Agent (A2A) Protocol
+
+The A2A protocol is a communication protocol that is designed to allow agents to interact with each other in a standardized way. It defines a set of message types and a set of rules for how agents should exchange messages. The A2A protocol is designed to be independent of the underlying transport protocol, which means that it can be used with a variety of different communication technologies, such as HTTP, WebSockets, and message queues.
+
+### Agent-to-Computer (ACP) Protocol
+
+The ACP protocol is a communication protocol that is designed to allow agents to interact with computers in a standardized way. It defines a set of message types and a set of rules for how agents should exchange messages with computers. The ACP protocol is designed to be used with the Model Context Protocol (MCP), which we discussed in the previous chapter.
+
+### Why are A2A and ACP Important?
+
+*   **Interoperability**: A2A and ACP provide a standardized way for agents to communicate with each other and with computers, which makes it easier to build interoperable multi-agent systems.
+*   **Flexibility**: A2A and ACP are designed to be independent of the underlying transport protocol, which gives you more flexibility in choosing the communication technology for your multi-agent system.
+*   **Scalability**: A2A and ACP can be used to build scalable multi-agent systems that can handle a large number of agents and a high volume of messages.
+
+### A2A and ACP on AWS
+
+AWS provides a number of services that can be used to implement A2A and ACP in your multi-agent systems:
+
+*   **Amazon Simple Queue Service (SQS)**: A fully managed message queuing service that can be used to decouple the components of a multi-agent system and to provide a reliable way for agents to exchange messages.
+*   **Amazon Simple Notification Service (SNS)**: A fully managed pub/sub messaging service that can be used to send messages to a large number of subscribers.
+*   **AWS Lambda**: A serverless compute service that can be used to implement the logic for your agents and to handle the processing of A2A and ACP messages.
+
+By using standardized protocols like A2A and ACP, you can build more interoperable, flexible, and scalable multi-agent systems. In the next section, we will explore how to use the Strands Agent framework to build powerful and flexible AI agents.
+
+## AI Agent Design Patterns using Strands
 
 Modern AI agents follow established patterns that provide reusable blueprints for solving common problems. Our implementations demonstrate these patterns in production-ready code:
 
@@ -3929,7 +4169,7 @@ Master coordinators that manage complex multi-agent workflows.
 
 Our comprehensive multi-agent implementations demonstrate how specialized agents can collaborate to solve complex problems that no single agent could handle effectively.
 
-### Pattern 1: Agents as Tools ✅ IMPLEMENTED
+### Pattern 1: Agents as Tools 
 
 **Concept**: Hierarchical delegation where an orchestrator agent routes queries to specialized domain experts.
 
@@ -3955,7 +4195,7 @@ Our comprehensive multi-agent implementations demonstrate how specialized agents
 - Result synthesis and presentation
 - Error handling with graceful fallbacks
 
-### Pattern 2: Swarm ✅ IMPLEMENTED
+### Pattern 2: Swarm 
 
 **Concept**: Autonomous collaborative teams that self-organize around shared tasks with intelligent handoff mechanisms.
 
@@ -3983,7 +4223,7 @@ result = swarm.execute("Create a technical blog post about AI agents")
 - Shared context management
 - Autonomous decision making
 
-### Pattern 3: Graph ✅ IMPLEMENTED
+### Pattern 3: Graph 
 
 **Concept**: Network-based agent execution with sophisticated dependency management and parallel processing capabilities.
 
@@ -4015,7 +4255,7 @@ graph.add_edge([fact_check_node, analysis_node], report_node)
 - Dependency resolution
 - Output propagation between nodes
 
-### Pattern 4: Workflow ✅ IMPLEMENTED
+### Pattern 4: Workflow 
 
 **Concept**: Sequential pipeline processing with sophisticated state management and context passing.
 
@@ -4054,7 +4294,7 @@ result = workflow.execute("Create marketing content for new product")
 - Distributed decision making
 - Peer-to-peer task coordination
 
-## Memory Management
+## Memory Management using Strands
 
 AI agents need sophisticated memory systems to maintain context, learn from interactions, and provide personalized experiences.
 
@@ -4282,8 +4522,6 @@ Our agent implementations are designed to evolve with the rapidly advancing fiel
 This comprehensive implementation of AI agent patterns provides a solid foundation for building production-ready intelligent systems. The combination of theoretical understanding and practical implementation ensures you can immediately apply these concepts to real-world AI engineering challenges.
 
 By the end of this chapter, you will have hands-on experience with multiple agent patterns, understand their appropriate use cases, and be able to design and implement sophisticated multi-agent systems using the Strands framework on AWS infrastructure.
-
-
 
 
 ## Quick Start Guide
