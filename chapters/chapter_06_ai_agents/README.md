@@ -65,10 +65,12 @@ This chapter explores 5 key multi-agent patterns using the Strands framework:
 - **Concept**: Hierarchical delegation with specialized expertise
 - **Use Cases**: Complex queries requiring domain specialists
 
-### 2. Swarm 🚧 COMING NEXT
+### 2. Swarm ✅ IMPLEMENTED
 **Pattern**: Collaborative agents working together on shared tasks
-- **Concept**: Parallel processing with coordination
-- **Use Cases**: Distributed problem-solving, consensus building
+- **File**: `swarm_example.py`
+- **Documentation**: `SWARM_README.md`
+- **Concept**: Autonomous collaboration with shared context and handoff tools
+- **Use Cases**: Complex collaborative tasks, distributed problem-solving
 
 ### 3. Graph 🚧 PLANNED
 **Pattern**: Network-based agent interactions with defined relationships
