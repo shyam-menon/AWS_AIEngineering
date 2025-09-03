@@ -54,12 +54,42 @@ This chapter explores the exciting world of AI agents, including design patterns
 - **Concept**: Autonomous agents with direct messaging capabilities
 - **Use Cases**: Negotiation systems, distributed decision-making
 
+### Advanced Tool Integration Examples
+
+#### AWS Cost Monitoring with Human-in-the-Loop ✅ IMPLEMENTED
+**Pattern**: Community tools integration with production workflows
+- **Files**: `aws_cost_monitor_hitl_example.py` + `AWS_COST_MONITOR_HITL_README.md` + `test_aws_cost_hitl.py`
+- **Tools Used**: `use_aws` (AWS service integration) + `handoff_to_user` (human-in-the-loop)
+- **Concept**: Intelligent cost monitoring with human oversight and approval workflows
+- **Features**: 
+  - Real-time AWS cost monitoring and alerts
+  - Budget threshold management with human approval
+  - Cost optimization recommendations
+  - Interactive approval workflows for high-cost operations
+  - Production-ready error handling and logging
+
+**Example Use Cases**:
+```python
+# Automated cost monitoring with human oversight
+agent = AWSCostMonitoringAgent(monthly_budget_limit=1000.0, alert_threshold=0.8)
+agent.run_cost_monitoring_session()
+
+# Human approval for high-cost operations
+agent.approve_high_cost_operation("Scale RDS cluster", estimated_cost=800.0)
+
+# Interactive cost optimization
+agent.check_service_costs("EC2")  # AI analysis + human decision making
+```
+
 ## Quick Start
 
 ### Prerequisites
 ```bash
 # Install required dependencies
 pip install -r requirements.txt
+
+# For AWS cost monitoring example, also install:
+pip install strands-agents-tools
 
 # Ensure AWS credentials are configured for Bedrock access
 aws configure
@@ -75,6 +105,10 @@ python test_swarm.py       # Quick Swarm demo
 python test_graph.py       # Quick Graph demo  
 python test_workflow.py    # Quick Workflow demo
 
+# Test advanced tool integration
+python test_aws_cost_hitl.py          # Quick AWS tools test
+python aws_cost_monitor_hitl_example.py # Full cost monitoring demo
+
 # Run full examples
 python agents_as_tools_example.py  # Complete hierarchical system
 python swarm_example.py            # Full collaborative pipeline
@@ -86,6 +120,7 @@ python workflow_example.py         # Sequential content pipeline
 
 ### Tool-Augmented Agents
 - **Built-in Tools**: Calculator, file operations, time functions
+- **Community Tools**: AWS integration, human-in-the-loop, specialized functions
 - **Custom Tools**: Text processing, character analysis
 - **Integration**: AWS Bedrock Nova Lite model
 - **Features**: Interactive and demonstration modes
@@ -185,12 +220,13 @@ python-dotenv>=1.0.0
 ### Beginner (Start Here)
 1. **`simple_tool_agent.py`** - Understand basic agent concepts
 2. **`test_workflow.py`** - See simple sequential processing
-3. **`agents_as_tools_example.py`** - Learn hierarchical patterns
+3. **`test_aws_cost_hitl.py`** - Quick test of community tools
 
 ### Intermediate
 1. **`test_swarm.py`** - Explore collaborative agents
 2. **`test_graph.py`** - Understand dependency-based execution
-3. **Full examples** - Run complete implementations
+3. **`agents_as_tools_example.py`** - Learn hierarchical patterns
+4. **`aws_cost_monitor_hitl_example.py`** - Advanced tool integration
 
 ### Advanced
 1. **Custom tool development** - Extend agent capabilities
@@ -222,12 +258,44 @@ chapter_06_ai_agents/
 │
 ├── workflow_example.py                # Sequential pattern
 ├── WORKFLOW_README.md                 # Pipeline guide
-└── test_workflow.py                   # Quick workflow demo
+├── test_workflow.py                   # Quick workflow demo
+│
+├── aws_cost_monitor_hitl_example.py   # AWS tools + HITL integration
+├── AWS_COST_MONITOR_HITL_README.md    # AWS cost monitoring guide
+└── test_aws_cost_hitl.py              # Quick AWS tools test
+```
+
+## Community Tools Integration
+
+Our examples demonstrate advanced usage of the `strands-agents-tools` community package:
+
+### AWS Integration Tools
+- **`use_aws`**: Direct AWS service integration for cost monitoring, resource management
+- **Capabilities**: Cost Explorer API, Billing data, Resource usage, Service-specific costs
+
+### Human-in-the-Loop Tools  
+- **`handoff_to_user`**: Interactive approval workflows and human oversight
+- **Modes**: Interactive input collection, Complete execution handoff
+- **Use Cases**: Budget approvals, Critical decision points, Anomaly investigation
+
+### Example Integration Patterns
+```python
+# AWS cost monitoring with human approval
+from strands_tools import use_aws, handoff_to_user
+
+agent = Agent(tools=[use_aws, handoff_to_user])
+response = agent("Check AWS costs, if over budget, handoff to user for approval")
+
+# Interactive vs Complete handoff modes
+agent.tool.handoff_to_user("Approve $500 spending?", breakout_of_loop=False)  # Continue
+agent.tool.handoff_to_user("Critical alert!", breakout_of_loop=True)         # Stop
 ```
 
 ## AWS Services Integration
 
 - **Amazon Bedrock**: AI model inference and enhancement
+- **Amazon Cost Explorer**: Real-time cost monitoring and analysis  
+- **AWS Budgets**: Budget tracking and automated alerts
 - **Amazon S3**: Data storage and retrieval
 - **Amazon Lambda**: Serverless processing triggers
 - **Amazon EventBridge**: Event-driven workflows

@@ -13,3 +13,7 @@ typing-extensions>=4.0.0
 
 # Multi-agent system dependencies
 # (All included in strands-agents core package)
+
+# Community tools package for advanced examples
+# Includes: use_aws, handoff_to_user, and other production tools
+# Install with: pip install strands-agents-tools
