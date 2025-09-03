@@ -79,9 +79,11 @@ This chapter explores 5 key multi-agent patterns using the Strands framework:
 - **Concept**: Deterministic DAG execution with dependency management
 - **Use Cases**: Complex workflows, dependency resolution, parallel processing
 
-### 4. Workflow 🚧 PLANNED
+### 4. Workflow ✅ IMPLEMENTED
 **Pattern**: Sequential agent processing chains
-- **Concept**: Pipeline-based agent coordination
+- **File**: `workflow_example.py`
+- **Documentation**: `WORKFLOW_README.md` 
+- **Test**: `test_workflow.py`
 - **Use Cases**: Data processing pipelines, approval workflows
 
 ### 5. A2A (Agent-to-Agent) 🚧 PLANNED
