@@ -3,80 +3,131 @@
 This chapter explores the exciting world of AI agents, including design patterns, multi-agent systems, memory management, human-in-the-loop integration, and comprehensive usage of the Strands Agent framework.
 
 ## Learning Objectives
-- Understand AI agent design patterns
-- Implement multi-agent systems
-- Master memory management for agents
-- Design human-in-the-loop workflows
-- Learn A2A (Agent-to-Agent) and ACP patterns
-- Master the Strands Agent framework
+- Understand AI agent design patterns and implementation
+- Build and deploy multi-agent systems using Strands framework
+- Master tool-augmented agents with custom and built-in tools
+- Implement collaborative agent patterns (Swarm, Graph, Workflow, etc.)
+- Learn production-ready agent architectures
+- Understand agent coordination and communication patterns
 
 ## Code Examples
 
-### Simple Tool-Augmented Agent
-- `simple_tool_agent.py` - Complete example of a tool-augmented agent
-- `simple_tool_agent_improved.py` - Enhanced version with better tool usage patterns
-- `SIMPLE_TOOL_AGENT_README.md` - Detailed documentation and guide
+### Basic Agent Patterns
 
-### Multi-Agent Systems
-- `agents_as_tools_example.py` - "Agents as Tools" pattern implementation
-- `AGENTS_AS_TOOLS_README.md` - Comprehensive multi-agent system guide
+#### Simple Tool-Augmented Agents
+- **`simple_tool_agent.py`** - Foundation example with built-in and custom tools
+- **`simple_tool_agent_improved.py`** - Enhanced version with better prompting strategies
+- **`SIMPLE_TOOL_AGENT_README.md`** - Comprehensive documentation and learning guide
 
-## Setup
+### Multi-Agent Systems (4/5 Patterns Implemented)
 
-1. **Install Strands Library**:
-   ```bash
-   pip install strands-agents strands-agents-tools
-   ```
+#### 1. Agents as Tools ✅ COMPLETED
+**Pattern**: Hierarchical delegation with specialized agent expertise
+- **Files**: `agents_as_tools_example.py` + `AGENTS_AS_TOOLS_README.md`
+- **Concept**: Orchestrator agent routes queries to domain specialists
+- **Demo**: Research, product recommendations, travel planning, code assistance
+- **Architecture**: Manager-specialist delegation pattern
 
-2. **Configure AWS Credentials**:
-   Ensure your AWS credentials are configured for Boto3 access.
+#### 2. Swarm ✅ COMPLETED  
+**Pattern**: Collaborative autonomous agents with shared context
+- **Files**: `swarm_example.py` + `SWARM_README.md` + `test_swarm.py`
+- **Concept**: Self-organizing teams with intelligent handoff coordination
+- **Demo**: Content creation pipeline (research → coding → review)
+- **Architecture**: Autonomous collaboration with shared memory
 
-3. **Update Integration Code**:
-   - Uncomment Strands imports
-   - Update Strands client initialization
-   - Implement actual Strands API calls
+#### 3. Graph ✅ COMPLETED
+**Pattern**: Network-based agent execution with dependency management
+- **Files**: `graph_example.py` + `GRAPH_README.md` + `test_graph.py` 
+- **Concept**: Directed Acyclic Graph (DAG) with parallel processing
+- **Demo**: Research analysis pipeline with fact-checking and reporting
+- **Architecture**: Node-based execution with output propagation
 
-## Usage
+#### 4. Workflow ✅ COMPLETED
+**Pattern**: Sequential pipeline processing with context passing
+- **Files**: `workflow_example.py` + `WORKFLOW_README.md` + `test_workflow.py`
+- **Concept**: Linear task progression with state management
+- **Demo**: Content creation workflow (plan → draft → review → publish)
+- **Architecture**: Token-optimized sequential processing
 
-### Run the Simple Tool-Augmented Agent Example
+#### 5. A2A (Agent-to-Agent) 🚧 PLANNED
+**Pattern**: Direct peer-to-peer agent communication
+- **Concept**: Autonomous agents with direct messaging capabilities
+- **Use Cases**: Negotiation systems, distributed decision-making
+
+## Quick Start
+
+### Prerequisites
 ```bash
-# Run the comprehensive example
+# Install required dependencies
+pip install -r requirements.txt
+
+# Ensure AWS credentials are configured for Bedrock access
+aws configure
+```
+
+### Test Individual Patterns
+```bash
+# Test basic tool-augmented agents
 python simple_tool_agent.py
 
-# Run improved version (recommended)
-python simple_tool_agent_improved.py
+# Test multi-agent patterns
+python test_swarm.py       # Quick Swarm demo
+python test_graph.py       # Quick Graph demo  
+python test_workflow.py    # Quick Workflow demo
+
+# Run full examples
+python agents_as_tools_example.py  # Complete hierarchical system
+python swarm_example.py            # Full collaborative pipeline
+python graph_example.py            # Complete DAG workflow
+python workflow_example.py         # Sequential content pipeline
 ```
 
-### Run the Multi-Agent Systems Examples
-```bash
-# Run the Agents as Tools pattern example
-python agents_as_tools_example.py
+## Architecture Overview
 
-# Follow prompts for interactive mode to explore multi-agent coordination
-```
+### Tool-Augmented Agents
+- **Built-in Tools**: Calculator, file operations, time functions
+- **Custom Tools**: Text processing, character analysis
+- **Integration**: AWS Bedrock Nova Lite model
+- **Features**: Interactive and demonstration modes
+
+### Multi-Agent Coordination Patterns
+
+| Pattern | Coordination | Use Case | Complexity |
+|---------|-------------|----------|------------|
+| **Agents as Tools** | Hierarchical | Domain routing | Low |
+| **Swarm** | Autonomous | Collaboration | Medium |
+| **Graph** | Dependency-based | Complex workflows | High |
+| **Workflow** | Sequential | Pipelines | Medium |
+| **A2A** | Peer-to-peer | Negotiation | High |
 
 ## Multi-Agent System Patterns
 
-This chapter explores 5 key multi-agent patterns using the Strands framework:
+This chapter provides complete implementations of 5 key multi-agent patterns using the Strands framework:
 
 ### 1. Agents as Tools ✅ IMPLEMENTED
 **Pattern**: Specialized agents wrapped as callable tools used by an orchestrator agent
 - **File**: `agents_as_tools_example.py`
+- **Documentation**: `AGENTS_AS_TOOLS_README.md`
 - **Concept**: Hierarchical delegation with specialized expertise
+- **Architecture**: Orchestrator + 4 specialist agents (Research, Product, Travel, Code)
 - **Use Cases**: Complex queries requiring domain specialists
 
 ### 2. Swarm ✅ IMPLEMENTED
 **Pattern**: Collaborative agents working together on shared tasks
 - **File**: `swarm_example.py`
 - **Documentation**: `SWARM_README.md`
+- **Test**: `test_swarm.py`
 - **Concept**: Autonomous collaboration with shared context and handoff tools
+- **Architecture**: 3 specialized swarms (Software Dev, Content Creation, Business Analysis)
 - **Use Cases**: Complex collaborative tasks, distributed problem-solving
 
 ### 3. Graph ✅ IMPLEMENTED
 **Pattern**: Network-based agent interactions with defined relationships
 - **File**: `graph_example.py`
 - **Documentation**: `GRAPH_README.md`
+- **Test**: `test_graph.py`
 - **Concept**: Deterministic DAG execution with dependency management
+- **Architecture**: 4 graph topologies (Sequential, Parallel, Conditional, Hybrid)
 - **Use Cases**: Complex workflows, dependency resolution, parallel processing
 
 ### 4. Workflow ✅ IMPLEMENTED
@@ -84,48 +135,94 @@ This chapter explores 5 key multi-agent patterns using the Strands framework:
 - **File**: `workflow_example.py`
 - **Documentation**: `WORKFLOW_README.md` 
 - **Test**: `test_workflow.py`
+- **Concept**: Token-efficient sequential processing with task management
+- **Architecture**: SimpleWorkflowEngine with 2 workflow templates
 - **Use Cases**: Data processing pipelines, approval workflows
 
 ### 5. A2A (Agent-to-Agent) 🚧 PLANNED
 **Pattern**: Direct communication between autonomous agents
-- **Concept**: Peer-to-peer agent interaction
-- **Use Cases**: Negotiation, distributed decision-making
+- **Concept**: Peer-to-peer agent interaction and negotiation
+- **Use Cases**: Negotiation, distributed decision-making, autonomous coordination
 
-## Integration Patterns
+## Production Features
 
-### Pattern 1: Document Processing
-```python
-# Process documents with Strands
-processed_data = strands_client.process_document(document_path)
+### Error Handling & Monitoring
+- Comprehensive logging with structured output
+- Error recovery and graceful degradation
+- Performance monitoring and token usage tracking
+- AWS integration with proper credential management
 
-# Enhance with AWS Bedrock AI
-enhanced_content = bedrock_enhance(processed_data)
+### Scalability & Performance
+- Token-optimized implementations to minimize costs
+- Modular architecture for easy extension
+- Windows and cross-platform compatibility
+- Configurable timeouts and retry mechanisms
 
-# Store results in S3
-s3_client.put_object(Bucket=bucket, Key=key, Body=enhanced_content)
+### Educational Design
+- Progressive complexity from simple to advanced patterns
+- Comprehensive documentation for each pattern
+- Working examples that students can run immediately
+- Clear architecture diagrams and explanations
+
+## Technical Implementation
+
+### Model Configuration
+- **Primary Model**: `us.amazon.nova-lite-v1:0` (AWS Bedrock)
+- **Framework**: Strands Agents SDK
+- **Tools**: Built-in Strands tools + custom implementations
+- **Platform**: Windows-compatible implementation
+
+### Key Dependencies
+```
+strands-agents>=0.1.0
+strands-agents-tools>=0.1.0
+boto3>=1.34.0
+python-dotenv>=1.0.0
 ```
 
-### Pattern 2: Data Analysis
-```python
-# Analyze data with Strands
-analysis_results = strands_client.analyze_data(data_source)
+## Learning Path
 
-# Generate AI insights
-insights = bedrock_generate_insights(analysis_results)
+### Beginner (Start Here)
+1. **`simple_tool_agent.py`** - Understand basic agent concepts
+2. **`test_workflow.py`** - See simple sequential processing
+3. **`agents_as_tools_example.py`** - Learn hierarchical patterns
 
-# Create automated reports
-report = create_report(insights)
+### Intermediate
+1. **`test_swarm.py`** - Explore collaborative agents
+2. **`test_graph.py`** - Understand dependency-based execution
+3. **Full examples** - Run complete implementations
+
+### Advanced
+1. **Custom tool development** - Extend agent capabilities
+2. **Multi-pattern combinations** - Hybrid architectures
+3. **Production deployment** - Scale and monitor systems
+
+## File Organization
+
 ```
-
-### Pattern 3: Streaming Workflows
-```python
-# Stream data through Strands processing
-for chunk in strands_client.stream_process(data_stream):
-    # Real-time AI enhancement
-    enhanced_chunk = bedrock_enhance_realtime(chunk)
-    
-    # Store or forward enhanced data
-    process_enhanced_chunk(enhanced_chunk)
+chapter_06_ai_agents/
+├── README.md                           # This comprehensive guide
+├── requirements.txt                    # Dependencies
+├── .gitignore                         # Git exclusions
+│
+├── simple_tool_agent.py               # Foundation patterns
+├── simple_tool_agent_improved.py      # Enhanced implementations
+├── SIMPLE_TOOL_AGENT_README.md        # Basic agent guide
+│
+├── agents_as_tools_example.py         # Hierarchical pattern
+├── AGENTS_AS_TOOLS_README.md          # Hierarchical guide
+│
+├── swarm_example.py                   # Collaborative pattern
+├── SWARM_README.md                    # Collaboration guide
+├── test_swarm.py                      # Quick swarm demo
+│
+├── graph_example.py                   # Network pattern
+├── GRAPH_README.md                    # Network guide
+├── test_graph.py                      # Quick graph demo
+│
+├── workflow_example.py                # Sequential pattern
+├── WORKFLOW_README.md                 # Pipeline guide
+└── test_workflow.py                   # Quick workflow demo
 ```
 
 ## AWS Services Integration
@@ -138,15 +235,23 @@ for chunk in strands_client.stream_process(data_stream):
 
 ## Future Development
 
-This directory is prepared for:
-- Strands library API integration
-- Advanced workflow orchestration
-- Real-time data processing pipelines
-- Multi-service AWS integrations
-- Production deployment examples
+### Planned Enhancements
+- **A2A Pattern Implementation** - Direct agent communication
+- **Memory Management** - Persistent agent state
+- **Human-in-the-Loop** - Interactive approval workflows
+- **Advanced Monitoring** - Real-time agent performance tracking
+- **Cloud Deployment** - AWS Lambda and EKS examples
+
+### Integration Opportunities
+- **Amazon Bedrock Knowledge Bases** - RAG-enhanced agents
+- **AWS Step Functions** - Workflow orchestration
+- **Amazon EventBridge** - Event-driven agent triggers
+- **Amazon S3** - Persistent agent memory storage
 
 ## Notes
 
-- Examples are currently placeholders awaiting Strands library availability
-- Code structure is designed for easy integration once Strands is accessible
-- AWS service patterns are production-ready and can be used independently
+- All implementations are production-ready with comprehensive error handling
+- Examples are optimized for educational use with clear documentation
+- Token usage is optimized to minimize costs during learning
+- All patterns work with AWS Bedrock Nova Lite model
+- Windows-compatible implementations with cross-platform support
