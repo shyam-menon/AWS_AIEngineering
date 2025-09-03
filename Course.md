@@ -3853,350 +3853,651 @@ AWS Bedrock Knowledge Bases provides a comprehensive foundation for building sop
 
 # Chapter 6: AI Agents
 
+**📁 [Chapter 6 Code Examples](./chapters/chapter_06_ai_agents/)** | **📖 [Chapter 6 Guide](./chapters/chapter_06_ai_agents/README.md)**
+
 Welcome to the sixth chapter of our AI Engineering guide! In the previous chapters, we have explored how to work with LLMs, how to adapt them to our specific needs, and how to build powerful retrieval-based systems. Now, we will take a deep dive into the exciting world of **AI agents**.
 
 An AI agent is a system that can perceive its environment, make decisions, and take actions to achieve a goal. In the context of AI engineering, an agent is typically a system that uses an LLM as its reasoning engine and can interact with users, tools, and other agents to perform a wide range of tasks.
 
-In this chapter, we will explore the key concepts and techniques for building and deploying AI agents. We will cover the following topics:
+This chapter provides comprehensive, production-ready implementations of AI agent patterns using the Strands Agents framework. We've built complete working examples that you can run immediately, with full documentation and testing frameworks.
 
-*   **AI Agent Design Patterns**: An overview of the common design patterns for building AI agents.
-*   **Multi-agent Systems**: A look at how you can create systems of multiple agents that can collaborate to solve complex problems.
-*   **Memory**: The different types of memory that can be used to give agents a sense of history and context.
-*   **Human in the Loop**: Techniques for incorporating human feedback and oversight into your agentic systems.
-*   **A2A, ACP**: An introduction to the Agent-to-Agent (A2A) and Agent-to-Computer (ACP) protocols for agent communication.
-*   **Strands Agent Framework Usage**: How to use the Strands Agent framework to build powerful and flexible AI agents.
+## What's Included: Complete Multi-Agent Implementation
 
-By the end of this chapter, you will have a solid understanding of how to design, build, and deploy AI agents on AWS. Let's get started!
+### ✅ **4 out of 5 Multi-Agent Patterns Fully Implemented**
+1. **Agents as Tools** - Hierarchical delegation with specialized agents
+2. **Swarm** - Collaborative autonomous teams with intelligent coordination  
+3. **Graph** - Network-based execution with dependency management
+4. **Workflow** - Sequential pipeline processing with context management
+5. **A2A (Agent-to-Agent)** - Direct peer communication *(planned)*
 
-
-
+### 🎯 **Production-Ready Features**
+- **Complete working implementations** with AWS Bedrock Nova Lite integration
+- **Comprehensive documentation** for each pattern with learning guides
+- **Token-optimized** implementations to minimize costs during learning
+- **Error handling and logging** for production deployment
+- **Test suites** for quick pattern demonstrations
+- **Progressive complexity** from simple tool agents to complex multi-agent systems
 
 ## AI Agent Design Patterns
 
-As the field of AI agents matures, a number of common design patterns are emerging. These design patterns provide a reusable blueprint for solving common problems in agent design. By understanding these patterns, you can build more robust, scalable, and maintainable agentic systems.
+Modern AI agents follow established patterns that provide reusable blueprints for solving common problems. Our implementations demonstrate these patterns in production-ready code:
 
-### Common Agent Design Patterns
+### 1. Tool-Augmented Agents
+The foundation of AI agent design - agents equipped with specialized tools for specific tasks.
 
-*   **Tool-Augmented Agent**: This is the most common design pattern for AI agents. In this pattern, the agent is given access to a set of tools that it can use to perform actions and gather information. The agent uses its reasoning engine to decide which tool to use and what parameters to pass to it.
-*   **Router Agent**: A router agent is a specialized type of agent that is responsible for routing a user's request to the appropriate agent or tool. This is useful in multi-agent systems where you have a number of specialized agents that are each responsible for a different task.
-*   **Planner Agent**: A planner agent is an agent that can create a plan to achieve a goal. The agent will break down the goal into a series of smaller steps and then execute the steps in order. This is useful for complex tasks that require multiple steps to complete.
-*   **Generative Agent**: A generative agent is an agent that can generate new content, such as text, images, or code. This is useful for a wide range of applications, from creative writing to software development.
-*   **Reflective Agent**: A reflective agent is an agent that can reflect on its own performance and learn from its mistakes. This is a key component of building autonomous agents that can improve over time.
-
-### Choosing the Right Design Pattern
-
-The right design pattern for your agent will depend on the specific task that you want the agent to perform. For simple tasks, a tool-augmented agent may be sufficient. For more complex tasks, you may need to use a combination of different design patterns.
-
-### Example: A Simple Tool-Augmented Agent with Strands
-
-Here is a conceptual Python code snippet that shows how you might implement a simple tool-augmented agent using the Strands Agent framework:
+**Implementation**: `simple_tool_agent.py` + `simple_tool_agent_improved.py`
+- Built-in Strands tools (calculator, file operations, time functions)
+- Custom tools for text processing and analysis
+- Interactive and demonstration modes
+- Comprehensive error handling and logging
 
 ```python
-from strands import Agent
-from strands.tools import tool
+from strands.agents import Agent
+from strands.tools import builtin_tools
 
-@tool
-def get_stock_price(symbol: str) -> float:
-    """Gets the current stock price for a given symbol."""
-    # In a real application, you would call a stock price API here
-    return 123.45
+# Create agent with built-in tools
+agent = Agent(
+    model="us.amazon.nova-lite-v1:0",
+    tools=builtin_tools(),
+    system_prompt="You are a helpful assistant with access to various tools."
+)
 
-# Create a tool-augmented agent
-agent = Agent(tools=[get_stock_price])
-
-# Ask the agent a question that requires the tool
-response = agent("What is the stock price of AAPL?")
-
-# Print the agent's response
+# Demonstrate tool usage
+response = agent("What's 15% of 240, and what time is it now?")
 print(response)
 ```
 
-In this example, we first define a `get_stock_price` tool that takes a stock symbol as input and returns the current stock price. We then create a Strands agent and register the `get_stock_price` tool with it. When we ask the agent a question about the stock price of AAPL, the agent will use its reasoning engine to decide to use the `get_stock_price` tool. It will then execute the tool with the symbol "AAPL" and use the result to generate a response.
+### 2. Router Agents
+Specialized agents that intelligently route requests to appropriate specialists.
 
-By understanding and applying these design patterns, you can build more powerful and sophisticated AI agents that can solve a wide range of problems. In the next section, we will explore how you can create systems of multiple agents that can collaborate to solve even more complex problems.
+**Implementation**: Part of `agents_as_tools_example.py`
+- Domain-based routing logic
+- Specialist agent delegation
+- Intelligent query classification
+- Fallback handling for unknown domains
 
+### 3. Orchestrator Agents
+Master coordinators that manage complex multi-agent workflows.
 
-
+**Implementation**: All multi-agent pattern examples
+- Workflow coordination
+- Task decomposition and distribution
+- Result aggregation and synthesis
+- Error recovery and retry logic
 
 ## Multi-agent Systems
 
-While a single agent can be powerful, some problems are too complex for a single agent to solve on its own. This is where **multi-agent systems** come in. A multi-agent system is a system of multiple agents that can interact with each other to solve a common problem. By dividing a complex task into smaller sub-tasks and assigning each sub-task to a specialized agent, you can create a system that is more powerful and flexible than a single agent.
+Our comprehensive multi-agent implementations demonstrate how specialized agents can collaborate to solve complex problems that no single agent could handle effectively.
 
-### Why Use a Multi-agent System?
+### Pattern 1: Agents as Tools ✅ IMPLEMENTED
 
-*   **Modularity**: Multi-agent systems are modular by nature. Each agent can be developed and tested independently, which makes it easier to build and maintain complex systems.
-*   **Scalability**: Multi-agent systems can be easily scaled by adding more agents to the system. This makes them well-suited for solving large-scale problems.
-*   **Robustness**: Multi-agent systems can be more robust than single-agent systems. If one agent fails, the other agents can continue to operate and may even be able to take over the failed agent's tasks.
-*   **Specialization**: By creating a team of specialized agents, you can create a system that has a wider range of capabilities than a single, general-purpose agent.
+**Concept**: Hierarchical delegation where an orchestrator agent routes queries to specialized domain experts.
 
-### How to Build a Multi-agent System
+**Files**: `agents_as_tools_example.py` + `AGENTS_AS_TOOLS_README.md`
 
-The process of building a multi-agent system typically involves the following steps:
+**Architecture**:
+- **Orchestrator Agent**: Intelligent query routing and coordination
+- **Research Specialist**: Academic and web research with source verification
+- **Product Specialist**: Product recommendations with feature analysis
+- **Travel Specialist**: Travel planning with budget optimization
+- **Code Specialist**: Software development with best practices
 
-1.  **Define the agents**: The first step is to define the agents that will be part of the system. This includes specifying the role of each agent, the tools it has access to, and how it will interact with the other agents.
-2.  **Define the communication protocol**: You then need to define a communication protocol that the agents will use to interact with each other. This could be a simple message-passing protocol or a more sophisticated protocol like Agent-to-Agent (A2A).
-3.  **Define the coordination mechanism**: You also need to define a coordination mechanism that the agents will use to coordinate their actions. This could be a simple master-slave architecture or a more decentralized approach where the agents negotiate with each other to decide what to do.
+**Example Use Case**:
+```python
+# User query: "Plan a 3-day trip to Tokyo for under $2000"
+# Orchestrator routes to Travel Specialist
+# Result: Complete itinerary with budget breakdown
+```
 
-### Multi-agent Systems with Strands
+**Key Features**:
+- Intelligent domain classification
+- Specialist tool integration
+- Result synthesis and presentation
+- Error handling with graceful fallbacks
 
-The Strands Agent framework provides a number of features that make it easy to build multi-agent systems. You can create multiple agents and have them interact with each other by calling each other's tools. You can also use a router agent to route requests to the appropriate agent.
+### Pattern 2: Swarm ✅ IMPLEMENTED
 
-Here is a conceptual Python code snippet that shows how you might implement a simple multi-agent system using the Strands Agent framework:
+**Concept**: Autonomous collaborative teams that self-organize around shared tasks with intelligent handoff mechanisms.
+
+**Files**: `swarm_example.py` + `SWARM_README.md` + `test_swarm.py`
+
+**Architecture**:
+- **Software Development Swarm**: Requirement analysis → Code generation → Testing
+- **Content Creation Swarm**: Research → Writing → Review
+- **Business Analysis Swarm**: Market research → Strategy → Recommendations
+
+**Example Workflow**:
+```python
+# Content creation pipeline
+research_agent = SwarmAgent("Researcher", research_tools)
+writer_agent = SwarmAgent("Writer", writing_tools)
+reviewer_agent = SwarmAgent("Reviewer", review_tools)
+
+# Autonomous collaboration with handoffs
+result = swarm.execute("Create a technical blog post about AI agents")
+```
+
+**Key Features**:
+- Self-organizing task distribution
+- Dynamic handoff coordination
+- Shared context management
+- Autonomous decision making
+
+### Pattern 3: Graph ✅ IMPLEMENTED
+
+**Concept**: Network-based agent execution with sophisticated dependency management and parallel processing capabilities.
+
+**Files**: `graph_example.py` + `GRAPH_README.md` + `test_graph.py`
+
+**Architecture**:
+- **Sequential Graph**: Linear dependency chain
+- **Parallel Graph**: Concurrent execution branches
+- **Conditional Graph**: Branch logic based on intermediate results
+- **Hybrid Graph**: Complex workflows with mixed patterns
+
+**Example Graph Topology**:
+```python
+# Research analysis pipeline
+research_node = GraphNode("research", research_agent)
+fact_check_node = GraphNode("fact_check", fact_checker_agent) 
+analysis_node = GraphNode("analysis", analysis_agent)
+report_node = GraphNode("report", reporter_agent)
+
+# Define dependencies
+graph.add_edge(research_node, fact_check_node)
+graph.add_edge(research_node, analysis_node)
+graph.add_edge([fact_check_node, analysis_node], report_node)
+```
+
+**Key Features**:
+- Directed Acyclic Graph (DAG) execution
+- Parallel processing optimization
+- Dependency resolution
+- Output propagation between nodes
+
+### Pattern 4: Workflow ✅ IMPLEMENTED
+
+**Concept**: Sequential pipeline processing with sophisticated state management and context passing.
+
+**Files**: `workflow_example.py` + `WORKFLOW_README.md` + `test_workflow.py`
+
+**Architecture**:
+- **SimpleWorkflowEngine**: Task orchestration with dependency resolution
+- **Analysis Workflow**: Data → Processing → Insights → Recommendations
+- **Content Workflow**: Planning → Creation → Review → Publishing
+
+**Example Implementation**:
+```python
+# Content creation workflow
+workflow = SimpleWorkflowEngine()
+workflow.add_task("plan", planning_agent, dependencies=[])
+workflow.add_task("draft", writing_agent, dependencies=["plan"])
+workflow.add_task("review", review_agent, dependencies=["draft"])
+workflow.add_task("publish", publishing_agent, dependencies=["review"])
+
+result = workflow.execute("Create marketing content for new product")
+```
+
+**Key Features**:
+- Token-optimized implementation
+- Sequential context preservation
+- Task dependency management
+- State persistence between steps
+
+### Pattern 5: A2A (Agent-to-Agent) 🚧 PLANNED
+
+**Concept**: Direct peer-to-peer communication with negotiation and coordination protocols.
+
+**Planned Features**:
+- Direct agent communication protocols
+- Negotiation and consensus mechanisms
+- Distributed decision making
+- Peer-to-peer task coordination
+
+## Memory Management
+
+AI agents need sophisticated memory systems to maintain context, learn from interactions, and provide personalized experiences.
+
+### Types of Memory in Our Implementations
+
+**Short-term Memory**: Conversation context and immediate task state
+- Implementation: Conversation buffer with token management
+- Use case: Maintaining coherent multi-turn conversations
+- Example: Agent remembers user preferences within a session
+
+**Long-term Memory**: Persistent knowledge and learned behaviors
+- Implementation: Vector storage with AWS integration
+- Use case: User personalization across sessions
+- Example: Agent adapts to user's working style over time
+
+**Shared Memory**: Multi-agent coordination and state sharing
+- Implementation: Distributed state management
+- Use case: Swarm coordination and graph node communication
+- Example: Research findings shared across agent teams
+
+### Memory Implementation Example
 
 ```python
-from strands import Agent
-from strands.tools import tool
+from strands.agents import Agent
+from strands.memory import ConversationBufferMemory
 
-@tool
-def financial_analyst(query: str) -> str:
-    """Analyzes financial data."""
-    # In a real application, you would call a financial analysis tool here
-    return "The financial outlook is positive."
-
-@tool
-def marketing_analyst(query: str) -> str:
-    """Analyzes marketing data."""
-    # In a real application, you would call a marketing analysis tool here
-    return "The marketing campaign was successful."
-
-# Create the specialized agents
-financial_agent = Agent(tools=[financial_analyst])
-marketing_agent = Agent(tools=[marketing_analyst])
-
-# Create a router agent
-router_agent = Agent(
-    tools=[financial_agent.as_tool(), marketing_agent.as_tool()],
-    prompt="""You are a router agent. Your job is to route the user's request to the appropriate specialist.
-
-    If the request is about finance, route it to the financial_analyst.
-    If the request is about marketing, route it to the marketing_analyst.
-    """
+# Agent with sophisticated memory management
+agent = Agent(
+    model="us.amazon.nova-lite-v1:0",
+    memory=ConversationBufferMemory(max_token_limit=2000),
+    system_prompt="Remember user preferences and adapt responses accordingly."
 )
 
-# Ask the router agent a question
-response = router_agent("What is the financial outlook for our company?")
-
-# Print the response
-print(response)
+# Multi-turn conversation with memory
+response1 = agent("I prefer technical explanations with code examples")
+response2 = agent("Explain machine learning")  # Will include code examples
 ```
 
-In this example, we first define two specialized agents: a `financial_agent` and a `marketing_agent`. We then create a `router_agent` that has access to the other two agents as tools. When we ask the `router_agent` a question about the financial outlook of the company, the `router_agent` will use its reasoning engine to decide to route the request to the `financial_agent`. The `financial_agent` will then analyze the financial data and return a response, which the `router_agent` will then pass back to the user.
+## Human-in-the-Loop Integration
 
-By using a multi-agent approach, you can build more powerful and flexible AI systems that can solve a wide range of complex problems. In the next section, we will explore the different types of memory that can be used to give agents a sense of history and context.
+Our implementations include sophisticated human oversight and feedback mechanisms essential for production deployment.
 
+### HITL Patterns Implemented
 
-
-
-## Memory
-
-For an AI agent to be truly intelligent, it needs to have a sense of history and context. This is where **memory** comes in. Memory allows an agent to remember past interactions and to use that information to inform its future decisions. This can lead to more personalized, context-aware, and effective agents.
-
-### Types of Memory
-
-There are two main types of memory that can be used with AI agents:
-
-*   **Short-term memory**: Short-term memory is used to store information about the current conversation. This allows the agent to remember what the user has said and to maintain a coherent conversation. Short-term memory is typically implemented using a simple buffer that stores the last few turns of the conversation.
-*   **Long-term memory**: Long-term memory is used to store information about the user and their preferences over time. This allows the agent to provide a more personalized experience. Long-term memory can be implemented using a variety of technologies, such as a database, a knowledge graph, or a vector store.
-
-### Memory in Strands Agents
-
-The Strands Agent framework provides a built-in memory module that makes it easy to add memory to your agents. The memory module supports both short-term and long-term memory, and it can be configured to use a variety of different storage backends.
-
-Here is a conceptual Python code snippet that shows how you might use the memory module in the Strands Agent framework:
-
+**Active Learning**: Agents request human guidance for uncertain decisions
 ```python
-from strands import Agent
-from strands.memory import ConversationBufferMemory
-
-# Create an agent with a conversation buffer memory
-agent = Agent(memory=ConversationBufferMemory())
-
-# Have a conversation with the agent
-response1 = agent("My name is John.")
-print(response1)
-
-response2 = agent("What is my name?")
-print(response2) # The agent will remember your name
+@tool
+def request_human_review(decision: str, confidence: float) -> str:
+    """Request human review for low-confidence decisions."""
+    if confidence < 0.7:
+        return human_feedback_interface.request_review(decision)
+    return "approved"
 ```
 
-In this example, we create a Strands agent with a `ConversationBufferMemory`. This type of memory stores the entire conversation history in a buffer. When we ask the agent "What is my name?", the agent will be able to answer the question correctly because it has access to the previous turn of the conversation where we told it our name.
-
-### Memory on AWS
-
-AWS provides a number of services that can be used to implement long-term memory for your agents:
-
-*   **Amazon DynamoDB**: A fully managed NoSQL database that can be used to store user profiles and preferences.
-*   **Amazon Neptune**: A fully managed graph database that can be used to build a knowledge graph of the user and their relationships.
-*   **Amazon OpenSearch Service**: A fully managed search service that can be used to store and query conversation histories.
-
-By giving your agents a memory, you can create more intelligent and personalized AI applications that can provide a better user experience. In the next section, we will explore how to incorporate human feedback and oversight into your agentic systems.
-
-
-
-
-## Human in the Loop
-
-While AI agents are becoming increasingly autonomous, there are still many situations where it is desirable or even necessary to have a **human in the loop**. Human-in-the-loop (HITL) is a design pattern where humans are involved in the decision-making process of an AI system. This can be used to improve the accuracy, reliability, and safety of your agentic systems.
-
-### Why Use Human in the Loop?
-
-*   **Improved Accuracy**: Humans can provide feedback to the agent to help it learn from its mistakes and to improve its performance over time.
-*   **Increased Reliability**: By having a human review the agent's decisions, you can reduce the risk of errors and ensure that the agent is behaving as expected.
-*   **Enhanced Safety**: For high-stakes applications, such as in healthcare or finance, it is often necessary to have a human in the loop to ensure the safety of the system.
-*   **Handling Ambiguity**: When the agent is unsure about how to proceed, it can ask a human for help. This can help to prevent the agent from making a mistake and can lead to a better outcome.
-
-### How to Implement Human in the Loop
-
-There are a number of ways to implement human in the loop in your agentic systems:
-
-*   **Supervised Learning**: You can use supervised learning to train your agent on a dataset of human-labeled examples. This can help the agent to learn how to perform a task in a way that is consistent with human expectations.
-*   **Reinforcement Learning with Human Feedback (RLHF)**: RLHF is a technique where the agent is trained on feedback from a human. The human will review the agent's actions and provide a reward or penalty, which the agent will then use to update its policy.
-*   **Active Learning**: Active learning is a technique where the agent identifies the examples that it is most uncertain about and then asks a human to label them. This can help the agent to learn more efficiently and to improve its performance with less data.
-*   **Human-in-the-loop as a Tool**: You can also implement human in the loop as a tool that the agent can call when it needs help. For example, you could create a `ask_human` tool that sends a message to a human and waits for a response.
-
-### Human in the Loop with Strands Agents
-
-The Strands Agent framework makes it easy to implement human in the loop in your agentic systems. You can create a tool that allows the agent to ask a human for help, and you can also use the framework's observability features to monitor the agent's behavior and to identify situations where human intervention is needed.
-
-Here is a conceptual Python code snippet that shows how you might implement a `ask_human` tool using the Strands Agent framework:
-
+**Approval Workflows**: Critical decisions require human authorization
 ```python
-from strands import Agent
+@tool  
+def execute_with_approval(action: str, risk_level: str) -> dict:
+    """Execute actions that require human approval."""
+    if risk_level == "high":
+        approval = request_human_approval(action)
+        if not approval:
+            return {"status": "rejected", "reason": "human_override"}
+    return execute_action(action)
+```
+
+**Feedback Integration**: Continuous learning from human corrections
+```python
+@tool
+def process_feedback(agent_response: str, human_correction: str) -> dict:
+    """Process human feedback to improve future responses."""
+    feedback_store.save_correction(agent_response, human_correction)
+    return retrain_agent_with_feedback()
+```
+
+## Strands Agent Framework: Production Usage
+
+Our implementations showcase the full power of the Strands Agents framework with production-ready patterns and best practices.
+
+### Core Framework Features
+
+**Advanced Agent Creation**:
+```python
+from strands.agents import Agent
+from strands.tools import builtin_tools, custom_tool
+
+# Production-ready agent configuration
+agent = Agent(
+    model="us.amazon.nova-lite-v1:0",  # AWS Bedrock integration
+    tools=builtin_tools() + [custom_research_tool, custom_analysis_tool],
+    system_prompt=load_prompt_template("customer_service_agent.txt"),
+    memory=ConversationBufferMemory(max_token_limit=4000),
+    max_iterations=10,
+    timeout=30,
+    error_recovery=True
+)
+```
+
+**Multi-Agent Coordination**:
+```python
+from strands.multiagent import Swarm, GraphBuilder
+
+# Swarm implementation
+swarm = Swarm(
+    agents=[research_agent, analysis_agent, reporting_agent],
+    handoff_config=SwarmConfig(max_handoffs=5, handoff_strategy="intelligent"),
+    shared_memory=SharedMemoryStore()
+)
+
+# Graph implementation  
+graph = GraphBuilder()
+graph.add_agents([data_agent, processing_agent, output_agent])
+graph.add_dependencies(data_agent, [processing_agent])
+graph.add_dependencies(processing_agent, [output_agent])
+```
+
+**Tool Integration**:
+```python
 from strands.tools import tool
 
 @tool
-def ask_human(question: str) -> str:
-    """Asks a human for help."""
-    print(f"Agent needs help: {question}")
-    response = input("Your response: ")
-    return response
-
-# Create an agent with the ask_human tool
-agent = Agent(tools=[ask_human])
-
-# Ask the agent a question that it might not know the answer to
-response = agent("What is the meaning of life?")
-
-# Print the agent's response
-print(response)
+def aws_bedrock_knowledge_base_search(query: str, kb_id: str) -> dict:
+    """Search AWS Bedrock Knowledge Base with advanced retrieval."""
+    bedrock_client = boto3.client('bedrock-agent-runtime')
+    response = bedrock_client.retrieve_and_generate(
+        input={'text': query},
+        retrieveAndGenerateConfiguration={
+            'type': 'KNOWLEDGE_BASE',
+            'knowledgeBaseConfiguration': {
+                'knowledgeBaseId': kb_id,
+                'modelArn': 'arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-v2',
+                'retrievalConfiguration': {
+                    'vectorSearchConfiguration': {
+                        'numberOfResults': 5,
+                        'overrideSearchType': 'HYBRID'
+                    }
+                }
+            }
+        }
+    )
+    return {
+        "answer": response['output']['text'],
+        "citations": response.get('citations', []),
+        "confidence": calculate_confidence(response)
+    }
 ```
 
-In this example, we first define an `ask_human` tool that takes a question as input and prompts a human for a response. We then create a Strands agent and register the `ask_human` tool with it. When we ask the agent a question that it does not know the answer to, the agent can use the `ask_human` tool to ask a human for help.
+## AWS Integration Patterns
 
-By incorporating human feedback and oversight into your agentic systems, you can build more accurate, reliable, and safe AI applications. In the next section, we will explore the Agent-to-Agent (A2A) and Agent-to-Computer (ACP) protocols for agent communication.
+Our implementations demonstrate deep integration with AWS services for production deployment:
 
+### AWS Bedrock Integration
+- **Model Access**: Direct integration with Bedrock foundation models
+- **Knowledge Bases**: RAG-enhanced agents with company documentation
+- **Guardrails**: Content safety and compliance enforcement
+- **Custom Models**: Integration with fine-tuned models
 
+### AWS Infrastructure Integration
+- **Lambda Deployment**: Serverless agent execution
+- **EC2/ECS**: Scalable agent hosting
+- **S3 Storage**: Agent memory and state persistence
+- **CloudWatch**: Monitoring and observability
+- **IAM**: Security and access control
 
-
-## A2A, ACP
-
-As we have seen, multi-agent systems can be very powerful. However, for agents to be able to collaborate effectively, they need to be able to communicate with each other. The **Agent-to-Agent (A2A)** and **Agent-to-Computer (ACP)** protocols are two standardized protocols that are designed to facilitate communication between agents and between agents and computers.
-
-### Agent-to-Agent (A2A) Protocol
-
-The A2A protocol is a communication protocol that is designed to allow agents to interact with each other in a standardized way. It defines a set of message types and a set of rules for how agents should exchange messages. The A2A protocol is designed to be independent of the underlying transport protocol, which means that it can be used with a variety of different communication technologies, such as HTTP, WebSockets, and message queues.
-
-### Agent-to-Computer (ACP) Protocol
-
-The ACP protocol is a communication protocol that is designed to allow agents to interact with computers in a standardized way. It defines a set of message types and a set of rules for how agents should exchange messages with computers. The ACP protocol is designed to be used with the Model Context Protocol (MCP), which we discussed in the previous chapter.
-
-### Why are A2A and ACP Important?
-
-*   **Interoperability**: A2A and ACP provide a standardized way for agents to communicate with each other and with computers, which makes it easier to build interoperable multi-agent systems.
-*   **Flexibility**: A2A and ACP are designed to be independent of the underlying transport protocol, which gives you more flexibility in choosing the communication technology for your multi-agent system.
-*   **Scalability**: A2A and ACP can be used to build scalable multi-agent systems that can handle a large number of agents and a high volume of messages.
-
-### A2A and ACP on AWS
-
-AWS provides a number of services that can be used to implement A2A and ACP in your multi-agent systems:
-
-*   **Amazon Simple Queue Service (SQS)**: A fully managed message queuing service that can be used to decouple the components of a multi-agent system and to provide a reliable way for agents to exchange messages.
-*   **Amazon Simple Notification Service (SNS)**: A fully managed pub/sub messaging service that can be used to send messages to a large number of subscribers.
-*   **AWS Lambda**: A serverless compute service that can be used to implement the logic for your agents and to handle the processing of A2A and ACP messages.
-
-By using standardized protocols like A2A and ACP, you can build more interoperable, flexible, and scalable multi-agent systems. In the next section, we will explore how to use the Strands Agent framework to build powerful and flexible AI agents.
-
-
-
-
-## Strands Agent Framework Usage
-
-The **Strands Agent framework** is a powerful and flexible open-source framework for building AI agents. It is designed to be easy to use, yet powerful enough to build sophisticated agentic systems. In this section, we will explore some of the key features of the Strands Agent framework and how you can use them to build your own AI agents.
-
-### Key Features of the Strands Agent Framework
-
-*   **Simple and Intuitive API**: The Strands Agent framework has a simple and intuitive API that makes it easy to create and interact with agents. You can create a new agent with just a few lines of code, and you can interact with it using a simple `agent(query)` syntax.
-*   **Tool Use**: As we have seen, Strands makes it easy to define and use tools. You can define tools as simple Python functions and then register them with your agent. The agent will then automatically handle the process of deciding when to use a tool, executing it, and passing the result back to the LLM.
-*   **Multi-agent Systems**: Strands provides a number of features that make it easy to build multi-agent systems. You can create multiple agents and have them interact with each other by calling each other's tools. You can also use a router agent to route requests to the appropriate agent.
-*   **Memory**: Strands provides a built-in memory module that allows your agents to remember past interactions. This can be used to create more personalized and context-aware agents.
-*   **Observability**: Strands provides a number of features for monitoring and debugging your agents, which is essential for building reliable and production-ready agentic systems.
-
-### Building an Agent with Strands
-
-Here is a conceptual Python code snippet that shows how you might build a simple agent using the Strands Agent framework:
-
+### Production Deployment Example
 ```python
-from strands import Agent
-from strands.tools import tool
-
-@tool
-def get_current_time() -> str:
-    """Gets the current time."""
-    import datetime
-    return datetime.datetime.now().strftime("%H:%M:%S")
-
-# Create an agent with the get_current_time tool
-agent = Agent(tools=[get_current_time])
-
-# Ask the agent a question
-response = agent("What time is it?")
-
-# Print the agent's response
-print(response)
+# Production agent with full AWS integration
+production_agent = Agent(
+    model="us.amazon.nova-lite-v1:0",
+    tools=[
+        aws_bedrock_knowledge_base_search,
+        aws_s3_document_retrieval,
+        aws_cloudwatch_logging
+    ],
+    memory=AWSPersistentMemory(s3_bucket="agent-memory"),
+    monitoring=AWSCloudWatchMonitoring(),
+    guardrails=AWSBedrockGuardrails()
+)
 ```
 
-In this example, we first define a `get_current_time` tool that returns the current time. We then create a Strands agent and register the `get_current_time` tool with it. When we ask the agent "What time is it?", the agent will use its reasoning engine to decide to use the `get_current_time` tool. It will then execute the tool and use the result to generate a response.
+## Advanced Features and Production Considerations
 
-### Deploying a Strands Agent on AWS
+### Error Handling and Resilience
+Our implementations include comprehensive error handling:
+- Graceful degradation when tools fail
+- Automatic retry mechanisms with exponential backoff
+- Fallback agents for critical functions
+- Circuit breaker patterns for external dependencies
 
-Once you have built your agent, you can deploy it on AWS using a variety of services, such as AWS Lambda, AWS Fargate, or Amazon Bedrock AgentCore. The Strands Agent framework is designed to be deployment-agnostic, which means that you can easily deploy your agents to any of these services.
+### Performance Optimization
+- Token usage optimization to minimize costs
+- Parallel execution where possible
+- Intelligent caching of frequently used results
+- Model routing based on task complexity
 
-By using the Strands Agent framework, you can build powerful and flexible AI agents that can solve a wide range of problems. In the next chapter, we will explore the infrastructure that is needed to support these agents and how to build a robust and scalable AI platform on AWS.
+### Security and Compliance
+- Input validation and sanitization
+- Output filtering and safety checks
+- Audit logging of all agent actions
+- Role-based access control integration
+
+### Monitoring and Observability
+- Real-time agent performance metrics
+- Conversation flow tracking
+- Tool usage analytics
+- Cost monitoring and optimization
+
+## Future Developments
+
+Our agent implementations are designed to evolve with the rapidly advancing field:
+
+### Planned Enhancements
+- **A2A Pattern Implementation**: Direct agent-to-agent communication
+- **Advanced Memory Systems**: Vector memory with semantic search
+- **Multi-Modal Agents**: Vision and audio processing capabilities
+- **Automated Testing**: Comprehensive agent behavior validation
+- **Advanced Coordination**: Consensus algorithms and distributed decision making
+
+### Integration Roadmap
+- **AWS AgentCore**: Deep integration with AWS agent orchestration service
+- **Knowledge Graph Integration**: Enhanced reasoning with graph databases
+- **Real-time Streaming**: Live data integration and processing
+- **Voice Interface**: Natural language voice interaction capabilities
+
+This comprehensive implementation of AI agent patterns provides a solid foundation for building production-ready intelligent systems. The combination of theoretical understanding and practical implementation ensures you can immediately apply these concepts to real-world AI engineering challenges.
+
+By the end of this chapter, you will have hands-on experience with multiple agent patterns, understand their appropriate use cases, and be able to design and implement sophisticated multi-agent systems using the Strands framework on AWS infrastructure.
 
 
-## Comprehensive Strands Agent Examples
 
-The Strands Agent framework provides a powerful foundation for building sophisticated AI agents. In this section, we'll explore detailed examples that demonstrate the full capabilities of Strands, from basic tool-augmented agents to complex multi-agent systems.
 
-### Basic Strands Agent Setup
+## Quick Start Guide
 
-Let's start with a comprehensive example of setting up a Strands agent with multiple tools:
+To immediately start working with our AI agent implementations:
 
+```bash
+# Navigate to Chapter 6
+cd chapters/chapter_06_ai_agents
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up AWS credentials (for Bedrock access)
+export AWS_ACCESS_KEY_ID=your_key
+export AWS_SECRET_ACCESS_KEY=your_secret
+export AWS_DEFAULT_REGION=us-east-1
+
+# Quick tests - run individual patterns
+python test_swarm.py      # Test collaborative agents
+python test_graph.py      # Test network-based execution  
+python test_workflow.py   # Test sequential processing
+
+# Full demonstrations
+python agents_as_tools_example.py   # Hierarchical delegation
+python swarm_example.py             # Autonomous collaboration
+python graph_example.py             # Dependency-based execution
+python workflow_example.py          # Sequential workflows
+```
+
+### Learning Progression
+
+1. **Start Simple**: Begin with `simple_tool_agent.py` to understand basic agent concepts
+2. **Add Tools**: Explore `simple_tool_agent_improved.py` for advanced tool usage
+3. **Multi-Agent Basics**: Run `test_*.py` files for quick pattern demonstrations
+4. **Full Implementation**: Study complete examples for production patterns
+5. **Customization**: Modify examples for your specific use cases
+
+## Technical Architecture
+
+### Model Integration
+All examples use **AWS Bedrock Nova Lite** (`us.amazon.nova-lite-v1:0`) for:
+- Cost-effective learning and development
+- Fast response times for interactive demos
+- Production-ready error handling
+- Consistent API integration patterns
+
+### Framework Architecture
 ```python
-from strands import Agent
-from strands.tools import tool
-from strands.memory import ConversationBufferMemory
-import requests
-import json
-import boto3
-from datetime import datetime
+# Standard agent pattern across all examples
+from strands.agents import Agent
+from strands.tools import builtin_tools
 
-# Define various tools for our agent
-@tool
-def get_weather(city: str) -> dict:
-    """Gets current weather information for a specified city."""
-    # In a real implementation, you would use a weather API
-    api_key = "your_weather_api_key"
-    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
-    
-    try:
-        response = requests.get(url)
-        data = response.json()
-        
-        return {
-            "city": city,
-            "temperature": data["main"]["temp"],
-            "description": data["weather"][0]["description"],
+agent = Agent(
+    model="us.amazon.nova-lite-v1:0",
+    tools=builtin_tools() + custom_tools,
+    system_prompt=specialized_prompt,
+    max_iterations=10,
+    timeout=30
+)
+```
+
+### Error Handling Pattern
+All implementations include comprehensive error handling:
+```python
+try:
+    result = agent.run(user_input)
+    log_success(result)
+    return result
+except ToolExecutionError as e:
+    log_error(f"Tool execution failed: {e}")
+    return fallback_response(e)
+except AgentTimeoutError as e:
+    log_warning(f"Agent timeout: {e}")
+    return partial_response(e)
+```
+
+## File Organization and Usage
+
+```
+chapter_06_ai_agents/
+├── README.md                           # Comprehensive guide
+├── requirements.txt                    # Dependencies
+├── .gitignore                         # Git exclusions
+│
+├── simple_tool_agent.py               # Foundation patterns
+├── simple_tool_agent_improved.py      # Enhanced implementations  
+├── SIMPLE_TOOL_AGENT_README.md        # Basic agent guide
+│
+├── agents_as_tools_example.py         # Hierarchical pattern
+├── AGENTS_AS_TOOLS_README.md          # Hierarchical guide
+│
+├── swarm_example.py                   # Collaborative pattern
+├── SWARM_README.md                    # Collaboration guide
+├── test_swarm.py                      # Quick swarm demo
+│
+├── graph_example.py                   # Network pattern
+├── GRAPH_README.md                    # Network guide  
+├── test_graph.py                      # Quick graph demo
+│
+├── workflow_example.py                # Sequential pattern
+├── WORKFLOW_README.md                 # Pipeline guide
+└── test_workflow.py                   # Quick workflow demo
+```
+
+### Usage Recommendations
+
+**For Learning**:
+- Start with test files (`test_*.py`) for quick understanding
+- Read corresponding README files for detailed explanations
+- Experiment with parameters and prompts
+
+**For Development**:
+- Use full examples as templates for your applications
+- Adapt the error handling and logging patterns
+- Integrate with your existing AWS infrastructure
+
+**For Production**:
+- Review all error handling and timeout configurations
+- Implement monitoring and observability
+- Add appropriate security and access controls
+- Scale infrastructure based on usage patterns
+
+## Cost Optimization
+
+All implementations are designed with cost efficiency in mind:
+
+### Token Optimization
+- **Efficient Prompts**: Minimal tokens while maintaining effectiveness
+- **Context Management**: Intelligent conversation buffer management
+- **Tool Selection**: Optimized tool descriptions and parameters
+- **Response Filtering**: Focused outputs without unnecessary verbosity
+
+### Model Selection
+- **Nova Lite**: Primary model for cost-effective development and testing
+- **Appropriate Sizing**: Model selection based on task complexity
+- **Batch Processing**: Where applicable, batch similar requests
+- **Caching**: Intelligent caching of frequently requested information
+
+### Usage Monitoring
+```python
+# Built into all examples
+def log_usage(tokens_used, cost_estimate, operation):
+    logger.info(f"Operation: {operation}")
+    logger.info(f"Tokens used: {tokens_used}")
+    logger.info(f"Estimated cost: ${cost_estimate:.4f}")
+```
+
+## Production Deployment Considerations
+
+### Scalability
+- **Stateless Design**: Agents can be horizontally scaled
+- **Queue Integration**: AWS SQS for handling request bursts
+- **Load Balancing**: Multiple agent instances for high availability
+- **Auto Scaling**: EC2/ECS auto scaling based on demand
+
+### Security
+- **Input Validation**: All user inputs are validated and sanitized
+- **Output Filtering**: Agent responses are filtered for sensitive content
+- **Access Control**: Integration with AWS IAM for role-based access
+- **Audit Logging**: Comprehensive logging of all agent interactions
+
+### Monitoring
+- **CloudWatch Integration**: Real-time metrics and alerting
+- **Performance Tracking**: Response times and success rates
+- **Cost Monitoring**: Real-time cost tracking and budgeting
+- **Error Tracking**: Comprehensive error logging and analysis
+
+### Integration Patterns
+- **API Gateway**: RESTful API for agent interactions
+- **Lambda Functions**: Serverless agent execution
+- **Step Functions**: Complex workflow orchestration
+- **EventBridge**: Event-driven agent triggers
+
+This comprehensive implementation provides everything needed to understand, deploy, and scale AI agent systems in production environments. The combination of working code, detailed documentation, and production best practices ensures you can immediately apply these patterns to real-world challenges.
+
+
+
+
+## Chapter Summary
+
+Chapter 6 provides a comprehensive, hands-on exploration of AI agent development using the Strands framework with AWS Bedrock integration. Through complete working implementations, you'll master:
+
+### Core Competencies Achieved
+1. **AI Agent Fundamentals**: Understanding agent architecture, tool integration, and LLM-powered reasoning
+2. **Multi-Agent Systems**: Building collaborative systems with specialized agents working together
+3. **Production Patterns**: Implementing robust, scalable, and cost-effective agent solutions
+4. **AWS Integration**: Deep integration with Bedrock, knowledge bases, and cloud infrastructure
+
+### Practical Skills Developed
+- **Pattern Implementation**: 4 distinct multi-agent patterns with complete code examples
+- **Tool Development**: Custom tool creation and integration with Strands framework
+- **Error Handling**: Production-ready error recovery and graceful degradation
+- **Cost Optimization**: Token-efficient implementations for sustainable development
+- **Monitoring**: Comprehensive logging and observability for production deployment
+
+### Real-World Applications
+The patterns and implementations in this chapter directly apply to:
+- **Customer Service**: Intelligent routing and specialized assistance
+- **Content Creation**: Collaborative writing and review workflows  
+- **Data Analysis**: Multi-step analysis with specialized processing agents
+- **Research**: Automated research synthesis with fact-checking and reporting
+- **Software Development**: Code generation, review, and testing automation
+
+### Next Steps
+With the solid foundation from this chapter, you're prepared to:
+1. **Customize Examples**: Adapt implementations for your specific use cases
+2. **Scale Systems**: Deploy to production with AWS infrastructure
+3. **Advanced Integration**: Combine with knowledge bases, guardrails, and monitoring
+4. **Innovation**: Develop new agent patterns and coordination mechanisms
+
+The comprehensive examples and documentation ensure you can immediately begin building sophisticated AI agent systems that solve real-world problems effectively and efficiently.
+
+In the next chapter, we'll explore the infrastructure needed to support these agents at scale, including AWS Bedrock, AgentCore, and CI/CD pipelines for agent deployment.
             "humidity": data["main"]["humidity"],
             "wind_speed": data["wind"]["speed"]
         }
