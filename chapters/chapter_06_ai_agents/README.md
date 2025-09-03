@@ -72,10 +72,12 @@ This chapter explores 5 key multi-agent patterns using the Strands framework:
 - **Concept**: Autonomous collaboration with shared context and handoff tools
 - **Use Cases**: Complex collaborative tasks, distributed problem-solving
 
-### 3. Graph 🚧 PLANNED
+### 3. Graph ✅ IMPLEMENTED
 **Pattern**: Network-based agent interactions with defined relationships
-- **Concept**: Agent relationships and dependencies
-- **Use Cases**: Complex workflows, dependency management
+- **File**: `graph_example.py`
+- **Documentation**: `GRAPH_README.md`
+- **Concept**: Deterministic DAG execution with dependency management
+- **Use Cases**: Complex workflows, dependency resolution, parallel processing
 
 ### 4. Workflow 🚧 PLANNED
 **Pattern**: Sequential agent processing chains
