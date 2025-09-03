@@ -1,0 +1,12 @@
+# Chapter 6: AI Agents - Requirements
+# Simple Tool-Augmented Agent with Strands
+
+# Core Strands packages
+strands-agents>=1.0.0
+strands-agents-tools>=0.2.0
+
+# AWS SDK for Bedrock integration
+boto3>=1.26.0
+
+# Additional dependencies for examples
+typing-extensions>=4.0.0

@@ -12,14 +12,18 @@ This chapter explores the exciting world of AI agents, including design patterns
 
 ## Code Examples
 
+### Simple Tool-Augmented Agent
+- `simple_tool_agent.py` - Complete example of a tool-augmented agent
+- `SIMPLE_TOOL_AGENT_README.md` - Detailed documentation and guide
+
 ### Strands Integration
 - `strands_integration.py` - Core Strands Agent framework examples
 
 ## Setup
 
-1. **Install Strands Library** (when available):
+1. **Install Strands Library**:
    ```bash
-   pip install strands
+   pip install strands-agents strands-agents-tools
    ```
 
 2. **Configure AWS Credentials**:
@@ -32,6 +36,15 @@ This chapter explores the exciting world of AI agents, including design patterns
 
 ## Usage
 
+### Run the Simple Tool-Augmented Agent Example
+```bash
+# Run the comprehensive example
+python simple_tool_agent.py
+
+# Follow the prompts for interactive mode
+```
+
+### Run the Integration Example
 ```bash
 # Run the integration example
 python strands_integration.py
