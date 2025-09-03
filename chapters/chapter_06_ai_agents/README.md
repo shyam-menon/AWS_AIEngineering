@@ -14,10 +14,12 @@ This chapter explores the exciting world of AI agents, including design patterns
 
 ### Simple Tool-Augmented Agent
 - `simple_tool_agent.py` - Complete example of a tool-augmented agent
+- `simple_tool_agent_improved.py` - Enhanced version with better tool usage patterns
 - `SIMPLE_TOOL_AGENT_README.md` - Detailed documentation and guide
 
-### Strands Integration
-- `strands_integration.py` - Core Strands Agent framework examples
+### Multi-Agent Systems
+- `agents_as_tools_example.py` - "Agents as Tools" pattern implementation
+- `AGENTS_AS_TOOLS_README.md` - Comprehensive multi-agent system guide
 
 ## Setup
 
@@ -41,14 +43,47 @@ This chapter explores the exciting world of AI agents, including design patterns
 # Run the comprehensive example
 python simple_tool_agent.py
 
-# Follow the prompts for interactive mode
+# Run improved version (recommended)
+python simple_tool_agent_improved.py
 ```
 
-### Run the Integration Example
+### Run the Multi-Agent Systems Examples
 ```bash
-# Run the integration example
-python strands_integration.py
+# Run the Agents as Tools pattern example
+python agents_as_tools_example.py
+
+# Follow prompts for interactive mode to explore multi-agent coordination
 ```
+
+## Multi-Agent System Patterns
+
+This chapter explores 5 key multi-agent patterns using the Strands framework:
+
+### 1. Agents as Tools ✅ IMPLEMENTED
+**Pattern**: Specialized agents wrapped as callable tools used by an orchestrator agent
+- **File**: `agents_as_tools_example.py`
+- **Concept**: Hierarchical delegation with specialized expertise
+- **Use Cases**: Complex queries requiring domain specialists
+
+### 2. Swarm 🚧 COMING NEXT
+**Pattern**: Collaborative agents working together on shared tasks
+- **Concept**: Parallel processing with coordination
+- **Use Cases**: Distributed problem-solving, consensus building
+
+### 3. Graph 🚧 PLANNED
+**Pattern**: Network-based agent interactions with defined relationships
+- **Concept**: Agent relationships and dependencies
+- **Use Cases**: Complex workflows, dependency management
+
+### 4. Workflow 🚧 PLANNED
+**Pattern**: Sequential agent processing chains
+- **Concept**: Pipeline-based agent coordination
+- **Use Cases**: Data processing pipelines, approval workflows
+
+### 5. A2A (Agent-to-Agent) 🚧 PLANNED
+**Pattern**: Direct communication between autonomous agents
+- **Concept**: Peer-to-peer agent interaction
+- **Use Cases**: Negotiation, distributed decision-making
 
 ## Integration Patterns
 

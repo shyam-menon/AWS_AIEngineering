@@ -1,5 +1,5 @@
 # Chapter 6: AI Agents - Requirements
-# Simple Tool-Augmented Agent with Strands
+# Simple Tool-Augmented Agent with Strands and Multi-Agent Systems
 
 # Core Strands packages
 strands-agents>=1.0.0
@@ -10,3 +10,6 @@ boto3>=1.26.0
 
 # Additional dependencies for examples
 typing-extensions>=4.0.0
+
+# Multi-agent system dependencies
+# (All included in strands-agents core package)
