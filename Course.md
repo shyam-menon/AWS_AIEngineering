@@ -4154,9 +4154,9 @@ Master coordinators that manage complex multi-agent workflows.
 - Result aggregation and synthesis
 - Error recovery and retry logic
 
-## Multi-agent Systems
+## Multi-agent Systems using Strands
 
-Our comprehensive multi-agent implementations demonstrate how specialized agents can collaborate to solve complex problems that no single agent could handle effectively.
+Strands supports built-in multi-agent patterns that demonstrate how specialized agents can collaborate to solve complex problems that no single agent could handle effectively.
 
 ### Pattern 1: Agents as Tools 
 
