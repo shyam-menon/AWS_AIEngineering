@@ -96,9 +96,7 @@ Let's get started!
     - [Multi-agent Systems](#multi-agent-systems)
     - [Memory](#memory)
     - [Human in the Loop](#human-in-the-loop)
-    - [A2A, ACP](#a2a-acp)
-    - [Strands Agent Framework Usage](#strands-agent-framework-usage)
-    - [Comprehensive Strands Agent Examples](#comprehensive-strands-agent-examples)
+    - [A2A & ACP (Agent-to-Agent / Agent-to-Computer Protocols)](#a2a-acp) 
 - [Chapter 7: Infrastructure](#chapter-7-infrastructure) | [📁 Code](./chapters/chapter_07_infrastructure/)
     - [AWS Bedrock](#aws-bedrock)
     - [AWS AgentCore](#aws-agentcore)
@@ -3870,9 +3868,6 @@ In this chapter, we will explore the key concepts and techniques for building an
 
 By the end of this chapter, you will have a solid understanding of how to design, build, and deploy AI agents on AWS. Let's get started!
 
-
-
-
 ## AI Agent Design Patterns
 
 As the field of AI agents matures, a number of common design patterns are emerging. These design patterns provide a reusable blueprint for solving common problems in agent design. By understanding these patterns, you can build more robust, scalable, and maintainable agentic systems.
@@ -4033,9 +4028,6 @@ AWS provides a number of services that can be used to implement long-term memory
 
 By giving your agents a memory, you can create more intelligent and personalized AI applications that can provide a better user experience. In the next section, we will explore how to incorporate human feedback and oversight into your agentic systems.
 
-
-
-
 ## Human in the Loop
 
 While AI agents are becoming increasingly autonomous, there are still many situations where it is desirable or even necessary to have a **human in the loop**. Human-in-the-loop (HITL) is a design pattern where humans are involved in the decision-making process of an AI system. This can be used to improve the accuracy, reliability, and safety of your agentic systems.
@@ -4086,9 +4078,6 @@ print(response)
 In this example, we first define an `ask_human` tool that takes a question as input and prompts a human for a response. We then create a Strands agent and register the `ask_human` tool with it. When we ask the agent a question that it does not know the answer to, the agent can use the `ask_human` tool to ask a human for help.
 
 By incorporating human feedback and oversight into your agentic systems, you can build more accurate, reliable, and safe AI applications. In the next section, we will explore the Agent-to-Agent (A2A) and Agent-to-Computer (ACP) protocols for agent communication.
-
-
-
 
 ## A2A, ACP
 
