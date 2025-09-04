@@ -1,11 +1,10 @@
-# NOTE: The bedrock-agentcore-starter-toolkit is not publicly available
-# It requires special AWS access or preview participation
-# For manual deployment, use the deployment_script.py manual approach
-# bedrock-agentcore-starter-toolkit  # Commented out - requires special access
+# Core AWS dependencies
+bedrock-agentcore>=0.1.2
+bedrock-agentcore-starter-toolkit>=0.1.8
 
+# Strands Agents framework
 strands-agents[all]
 strands-tools
 boto3>=1.34.0
 requests
-logging
 python-dotenv>=1.0.0

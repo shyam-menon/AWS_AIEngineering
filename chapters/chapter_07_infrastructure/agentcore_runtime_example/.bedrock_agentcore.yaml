@@ -1,0 +1,30 @@
+default_agent: strands_claude_getting_started
+agents:
+  strands_claude_getting_started:
+    name: strands_claude_getting_started
+    entrypoint: C:/Code/Personal/AWS_AIEngineering/chapters/chapter_07_infrastructure/agentcore_runtime_example/agentcore_strands_agent_production.py
+    platform: linux/arm64
+    container_runtime: none
+    aws:
+      execution_role: arn:aws:iam::724772080977:role/AmazonBedrockAgentCoreSDKRuntime-us-east-1-8556fc4504
+      execution_role_auto_create: false
+      account: '724772080977'
+      region: us-east-1
+      ecr_repository: 724772080977.dkr.ecr.us-east-1.amazonaws.com/bedrock-agentcore-strands_claude_getting_started
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+    bedrock_agentcore:
+      agent_id: null
+      agent_arn: null
+      agent_session_id: null
+    codebuild:
+      project_name: null
+      execution_role: null
+      source_bucket: null
+    authorizer_configuration: null
+    oauth_configuration: null

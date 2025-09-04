@@ -49,7 +49,7 @@ def deploy_agent_with_toolkit():
     
     # Configure the deployment
     response = agentcore_runtime.configure(
-        entrypoint="agentcore_strands_agent.py",
+        entrypoint="agentcore_strands_agent_production.py",
         auto_create_execution_role=True,
         auto_create_ecr=True,
         requirements_file="requirements.txt",

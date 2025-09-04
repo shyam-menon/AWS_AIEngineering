@@ -12,8 +12,10 @@ import os
 try:
     from bedrock_agentcore.runtime import BedrockAgentCoreApp
     AGENTCORE_AVAILABLE = True
+    print("✅ AgentCore runtime imported successfully")
 except ImportError:
     AGENTCORE_AVAILABLE = False
+    print("⚠️ AgentCore runtime not available - using mock for testing")
     # Create a mock for testing purposes
     class BedrockAgentCoreApp:
         def __init__(self):

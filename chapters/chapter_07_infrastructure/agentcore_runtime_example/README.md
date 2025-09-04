@@ -1,53 +1,88 @@
-# AgentCore Runtime with Strands Agents and Amazon Bedrock Models ✅
+# Chapter 7: AI Agent Infrastructure with AgentCore Runtime
 
 ## Overview
 
-This example demonstrates how to deploy a Strands Agent with Amazon Bedrock models to cloud infrastructure. This tutorial follows the same pattern as the [AWS Labs AgentCore samples](https://github.com/awslabs/amazon-bedrock-agentcore-samples/blob/main/01-tutorials/01-AgentCore-runtime/01-hosting-agent/01-strands-with-bedrock-model/runtime_with_strands_and_bedrock_models.ipynb) but adapted for production deployment scenarios.
+This example demonstrates how to deploy AI agents to cloud infrastructure using AWS Bedrock AgentCore Runtime and AWS Lambda. This chapter provides practical experience with production-ready AI agent deployment patterns.
 
-### 🎉 **STATUS: SUCCESSFULLY DEPLOYED AND TESTED**
+### � **Chapter 7 Learning Objectives**
 
-✅ **Local Development** - Complete  
-✅ **Cloud Deployment** - Complete (AWS Lambda)  
-✅ **Nova Lite Integration** - Complete  
-✅ **Production Ready** - Complete  
+✅ **Infrastructure Patterns** - Multiple deployment approaches  
+✅ **AgentCore Integration** - AWS Bedrock AgentCore Runtime  
+✅ **Production Deployment** - AWS Lambda serverless architecture  
+✅ **Monitoring & Scaling** - CloudWatch integration and auto-scaling  
+✅ **Cost Optimization** - Pay-per-use serverless deployment  
 
 ### Tutorial Details
 
-| Information         | Details                                                                          |
+| Component           | Details                                                                          |
 |:--------------------|:---------------------------------------------------------------------------------|
-| Tutorial type       | Conversational                                                                   |
-| Agent type          | Single                                                                           |
-| Agentic Framework   | Strands Agents                                                                   |
-| LLM model           | Amazon Nova Lite v1:0 ✅                                                        |
-| Cloud Platform      | AWS Lambda + Function URL ✅                                                    |
-| Tutorial components | Local development, Cloud deployment, Production monitoring                       |
-| Tutorial vertical   | Cross-vertical                                                                   |
-| Example complexity  | Easy to Intermediate                                                             |
-| SDK used            | Amazon Bedrock Python SDK, boto3, Strands Agents                                |
+| Chapter Focus       | AI Agent Infrastructure and Cloud Deployment                                    |
+| Agent Framework     | Strands Agents                                                                   |
+| LLM Model           | Amazon Nova Lite v1:0                                                           |
+| Primary Deployment  | AWS Lambda (✅ **WORKING**)                                                      |
+| Alternative         | AgentCore Runtime (⚠️ Available with toolkit)                                   |
+| Architecture        | Serverless, auto-scaling, production-ready                                      |
+| Complexity Level    | Intermediate                                                                     |
+| Prerequisites       | AWS CLI, Python 3.10+, AWS Bedrock access                                      |
 
-### Tutorial Architecture
+### Architecture Overview
 
-In this tutorial we will describe how to deploy an existing agent to AgentCore runtime. 
+This tutorial demonstrates:
 
-For demonstration purposes, we will use a Strands Agent using Amazon Bedrock models.
+1. **Local Development** - Test agents locally before deployment
+2. **AWS Lambda Deployment** - Serverless production deployment  
+3. **AgentCore Runtime** - Alternative enterprise deployment
+4. **Monitoring Integration** - CloudWatch logs and metrics
+5. **Infrastructure Automation** - Automated deployment scripts
 
-In our example we will use a simple agent with tools for weather and calculator functionality.
+### Key Infrastructure Concepts
 
-### Tutorial Key Features
-
-* Hosting Agents on Amazon Bedrock AgentCore Runtime
-* Using Amazon Bedrock models
-* Using Strands Agents framework
-* Local development and testing
-* Production deployment patterns
+* **Serverless Architecture**: Pay-per-use, auto-scaling deployment
+* **AgentCore Runtime**: AWS-managed infrastructure for AI agents
+* **Production Monitoring**: CloudWatch integration for observability
+* **Cost Optimization**: Efficient resource utilization patterns
 
 ## Prerequisites
 
-To execute this tutorial you will need:
-* Python 3.10+
-* AWS credentials configured
-* Amazon Bedrock AgentCore SDK
-* Strands Agents framework
+To complete this chapter you will need:
+
+* **Python 3.10+** with virtual environment
+* **AWS CLI configured** with appropriate credentials
+* **AWS Bedrock access** in us-east-1 region
+* **Amazon Nova Lite model access** (enabled in AWS Console)
+
+### Required AWS Permissions
+
+Your AWS user/role needs:
+- `bedrock:InvokeModel` for Amazon Nova Lite
+- `lambda:*` for AWS Lambda deployment
+- `logs:*` for CloudWatch logging
+- `iam:CreateRole`, `iam:AttachRolePolicy` for execution roles
+
+## File Structure
+
+After cleanup, the essential files are:
+
+```
+agentcore_runtime_example/
+├── README.md                           # This documentation
+├── requirements.txt                    # Python dependencies
+├── DEPLOYMENT_STATUS.md               # Current deployment status
+│
+├── agentcore_strands_agent.py         # Main agent with AgentCore integration
+├── agentcore_strands_agent_production.py  # Production-optimized version
+├── local_strands_agent.py             # Local development version
+│
+├── aws_lambda_deployment.py           # ✅ AWS Lambda deployment (WORKING)
+├── deployment_script.py               # AgentCore Runtime deployment
+├── run_local_example.py               # Local testing framework
+├── simple_test.py                     # Basic functionality tests
+│
+├── Dockerfile                         # Container deployment
+├── .dockerignore                      # Docker build exclusions
+├── .bedrock_agentcore.yaml           # AgentCore configuration
+└── test_payload.json                 # Test data for agents
+```
 * Access to Amazon Bedrock models (Nova Lite v1:0)
 
 ### ⚠️ Important Note about AgentCore Toolkit
@@ -117,48 +152,46 @@ This example has been **successfully deployed and tested** on AWS Lambda with th
    - Lambda Console: Function management
    - Cost Explorer: Usage tracking
 
-## Files in this Example
+## Core Agent Implementations
 
-1. **`run_local_example.py`** - 🎯 **START HERE!** Complete local testing and environment validation
-2. **`simple_cloud_deployment.py`** - ✅ **CLOUD DEPLOYMENT** - Deploy agent to AWS Lambda
-3. **`test_cloud_agent.py`** - 🧪 Test the deployed cloud agent
-4. **`local_strands_agent.py`** - Local development version for experimentation
-5. **`agentcore_strands_agent.py`** - AgentCore Runtime ready version (with graceful fallback)
-6. **`deployment_script.py`** - Comprehensive deployment guide and automation
-7. **`requirements.txt`** - Python dependencies
-8. **`agentcore_rag_infrastructure_demo.py`** - Comprehensive RAG demonstration
-9. **`get_started.py`** - Quick start guide
-10. **`simple_test.py`** - Simple validation script
-11. **`testing_guide.py`** - Comprehensive testing workflows
-5. **`deployment_script.py`** - Script for deploying to AgentCore Runtime
-6. **`get_started.py`** - Quick setup verification and introduction
-7. **`simple_test.py`** - Basic functionality test
-8. **`testing_guide.py`** - Complete testing guide for local and cloud environments
+### 1. **agentcore_strands_agent.py** - Main AgentCore Implementation
+Production-ready agent with AgentCore Runtime integration and graceful fallback to local testing.
+
+### 2. **agentcore_strands_agent_production.py** - Production Optimized
+Clean production version optimized for container deployment with minimal dependencies.
+
+### 3. **local_strands_agent.py** - Local Development
+Development version for local testing and experimentation without cloud dependencies.
+
+## Deployment Scripts
+
+### 1. **aws_lambda_deployment.py** - ✅ AWS Lambda (WORKING)
+Proven serverless deployment to AWS Lambda with Function URL and automatic scaling.
+
+### 2. **deployment_script.py** - AgentCore Runtime (Available)
+Direct deployment to AWS Bedrock AgentCore Runtime infrastructure.
+
+### 3. **run_local_example.py** - Local Testing Framework
+Comprehensive local testing with environment validation and agent functionality testing.
 
 ## Getting Started
 
-### 1. Quick Setup and Testing Guide
-
-Start with the comprehensive testing guide that explains both local and cloud testing:
-
+### 1. Local Environment Validation
 ```bash
-python testing_guide.py
+# Start here - validates your complete environment
+python run_local_example.py
 ```
 
-### 2. Local Development
-
-Test the agent locally to test functionality:
-
+### 2. Basic Functionality Testing
 ```bash
+# Test core agent features
+python simple_test.py
+```
+
+### 3. Local Development Mode
+```bash
+# Interactive testing and development
 python local_strands_agent.py '{"prompt": "What is the weather like?"}'
-```
-
-### 3. Complete RAG Infrastructure Demo
-
-Run the comprehensive demonstration script that covers all AgentCore Runtime concepts:
-
-```bash
-python agentcore_rag_infrastructure_demo.py
 ```
 
 ## Testing AgentCore Runtime
@@ -443,27 +476,98 @@ When you use `BedrockAgentCoreApp`, it automatically:
 * Set up monitoring and alerting
 * Plan for scaling and load balancing
 
-## Quick Start Summary
+## Quick Start Guide
 
-**🚀 FASTEST PATH TO SUCCESS:**
-1. **`python run_local_example.py`** - 🎯 Validate everything locally first
-2. **`python simple_cloud_deployment.py`** - ☁️ Deploy to AWS Lambda cloud
-3. **`python test_cloud_agent.py`** - 🧪 Test your cloud deployment
+### Step 1: Environment Setup
+```bash
+# Navigate to the chapter directory
+cd chapters/chapter_07_infrastructure/agentcore_runtime_example
 
-**For absolute beginners:**
-1. `python run_local_example.py` - 🎯 **Best starting point!** Complete local testing and environment validation
-2. `python testing_guide.py` - Learn about local vs cloud testing
-3. `python get_started.py` - Quick introduction and setup check
-4. `python simple_test.py` - Basic functionality verification
+# Install dependencies
+pip install -r requirements.txt
 
-**For development:**
-1. `python local_strands_agent.py '{"prompt": "test"}'` - Test agent logic locally
-2. `python agentcore_rag_infrastructure_demo.py` - See complete RAG workflow
+# Verify AWS credentials
+aws sts get-caller-identity
+```
 
-**For production deployment:**
-1. `python simple_cloud_deployment.py` - ✅ **PROVEN:** Deploy to AWS Lambda (WORKING!)
-2. `python deployment_script.py` - Alternative: Deploy to AWS AgentCore Runtime
-3. Monitor via AWS CloudWatch console
+### Step 2: Local Development and Testing
+```bash
+# Test the agent locally (RECOMMENDED FIRST STEP)
+python run_local_example.py
+
+# Run basic functionality tests
+python simple_test.py
+```
+
+### Step 3: Cloud Deployment (AWS Lambda)
+```bash
+# Deploy to AWS Lambda (PRODUCTION READY)
+python aws_lambda_deployment.py
+
+# The script will:
+# 1. Create IAM role for Lambda execution
+# 2. Package the agent code and dependencies  
+# 3. Deploy Lambda function with Function URL
+# 4. Return the public endpoint for testing
+```
+
+### Step 4: Alternative Deployment (AgentCore Runtime)
+```bash
+# Deploy to AgentCore Runtime (requires AgentCore toolkit)
+python deployment_script.py
+
+# Note: This requires bedrock-agentcore-starter-toolkit
+# and may experience dependency conflicts
+```
+
+## Deployment Options
+
+| Method | Status | Best For | Cold Start | Scaling | Cost |
+|--------|---------|----------|------------|---------|------|
+| **AWS Lambda** | ✅ Working | Production use | ~2-3s | Automatic | Low |
+| **AgentCore Runtime** | ⚠️ Available | Enterprise users | Variable | Auto/Manual | Medium |
+| **Local Development** | ✅ Working | Development/Testing | Instant | Manual | None |
+
+## Testing Your Deployment
+
+### Local Testing
+```bash
+# Basic agent functionality
+python simple_test.py
+
+# Interactive local testing  
+python local_strands_agent.py '{"prompt": "What is 2+2?"}'
+```
+
+### Cloud Testing (Lambda)
+```bash
+# After deployment, test using AWS CLI
+aws lambda invoke \
+  --function-name strands_claude_getting_started \
+  --payload '{"prompt": "Hello, how are you?"}' \
+  response.json
+
+cat response.json
+```
+
+### Monitor Deployment
+```bash
+# View Lambda logs
+aws logs tail /aws/lambda/strands_claude_getting_started --follow
+
+# Check function status
+aws lambda get-function --function-name strands_claude_getting_started
+```
+
+## Chapter 7 Learning Outcomes
+
+After completing this chapter, you will understand:
+
+1. **Infrastructure Patterns**: Multiple deployment approaches for AI agents
+2. **Serverless Architecture**: Benefits and implementation of Lambda-based agents
+3. **Production Deployment**: Real-world deployment and monitoring practices
+4. **Cost Optimization**: Efficient resource utilization for AI workloads
+5. **Scalability Patterns**: Auto-scaling and load handling for AI agents
 
 ## Related Documentation
 
