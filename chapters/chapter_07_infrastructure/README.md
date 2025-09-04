@@ -15,6 +15,14 @@ This chapter focuses on building robust and scalable infrastructure for AI appli
 - `bedrock_manager.py` - Model status and management utilities
 - `bedrock_inference_profiles.py` - Inference profiles demonstration and management
 
+### AgentCore Runtime Example
+- `agentcore_runtime_example/` - Complete AgentCore Runtime implementation with Strands Agents
+  - `get_started.py` - Quick setup verification and introduction
+  - `local_strands_agent.py` - Local development version for testing
+  - `agentcore_strands_agent.py` - Production-ready agent for AgentCore Runtime
+  - `agentcore_rag_infrastructure_demo.py` - Comprehensive RAG infrastructure demonstration
+  - `deployment_script.py` - Automated deployment to AWS AgentCore Runtime
+
 ## Prerequisites
 - Completed Chapters 1-6
 - AWS infrastructure knowledge
