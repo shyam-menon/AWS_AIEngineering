@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 AgentCore Runtime ready Strands Agent.
 This version is configured for deployment to AWS Bedrock AgentCore Runtime.
@@ -7,6 +8,13 @@ from strands import Agent, tool
 from strands_tools import calculator
 import json
 import os
+import sys
+
+# Ensure proper encoding for Windows console
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 # Try to import AgentCore runtime, fall back gracefully for testing
 try:
