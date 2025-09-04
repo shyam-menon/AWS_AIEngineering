@@ -139,12 +139,18 @@ This example has been **successfully deployed and tested** on AWS Lambda with th
 
 1. **Deploy to AWS Lambda:**
    ```bash
-   python simple_cloud_deployment.py
+   python aws_lambda_deployment.py
    ```
 
 2. **Test Deployment:**
    ```bash
-   python test_cloud_agent.py
+   # Test using AWS CLI after deployment
+   aws lambda invoke \
+     --function-name strands_claude_getting_started \
+     --payload '{"prompt": "Hello, how are you?"}' \
+     response.json
+   
+   cat response.json
    ```
 
 3. **Monitor in AWS Console:**
@@ -202,9 +208,9 @@ Local testing allows you to develop and debug your agent before deploying to AWS
 
 #### **1. Quick Setup Verification**
 ```bash
-python get_started.py
+python run_local_example.py
 ```
-This script checks your AWS setup and explains AgentCore concepts.
+This script validates your complete environment and explains AgentCore concepts.
 
 #### **2. Basic Functionality Test**
 ```bash
@@ -218,11 +224,11 @@ python local_strands_agent.py '{"prompt": "What is 5 + 3?"}'
 ```
 Runs a simulated agent locally without AgentCore infrastructure.
 
-#### **4. Complete RAG Demo**
+#### **4. Complete Local Testing**
 ```bash
-python agentcore_rag_infrastructure_demo.py
+python run_local_example.py
 ```
-Comprehensive demonstration of all AgentCore concepts with real API calls.
+Comprehensive testing of all AgentCore concepts with local simulation.
 
 #### **Local Testing Benefits:**
 - ✅ **Fast Development**: Quick iterations without deployment delays
@@ -321,9 +327,9 @@ print(f"Status: {status.endpoint['status']}")
 
 ### 🎯 **Recommended Testing Flow**
 
-1. **Start Local**: Use `python get_started.py` to understand concepts
+1. **Start Local**: Use `python run_local_example.py` to understand concepts
 2. **Develop Local**: Test your agent logic with `local_strands_agent.py`
-3. **Validate Local**: Run full demo with `agentcore_rag_infrastructure_demo.py`
+3. **Validate Local**: Run complete testing with `simple_test.py`
 4. **Deploy Cloud**: Use `deployment_script.py` for cloud testing
 5. **Monitor Cloud**: Check CloudWatch for performance and errors
 6. **Iterate**: Make changes locally, then redeploy to cloud
@@ -369,6 +375,9 @@ print(f"Status: {status.endpoint['status']}")
 ```bash
 # Test locally without any AWS infrastructure costs
 python local_strands_agent.py '{"prompt": "Calculate 15 * 7"}'
+
+# Or run the complete local testing framework
+python run_local_example.py
 ```
 
 ### 🌩️ **AgentCore Runtime Environment (Cloud)**
@@ -414,14 +423,14 @@ launch_result = runtime.launch()
 
 #### **Scenario 1: New Agent Development**
 ```bash
-# 1. Start with concept validation
-python get_started.py
+# 1. Start with environment validation
+python run_local_example.py
 
 # 2. Develop agent logic
 python local_strands_agent.py '{"prompt": "test query"}'
 
 # 3. Test complete workflow
-python agentcore_rag_infrastructure_demo.py
+python simple_test.py
 
 # 4. Deploy when ready
 python deployment_script.py
@@ -441,7 +450,7 @@ python deployment_script.py
 #### **Scenario 3: Performance Testing**
 ```bash
 # Local testing for logic validation
-python agentcore_rag_infrastructure_demo.py
+python run_local_example.py
 
 # Cloud testing for performance under load
 # Deploy to AgentCore Runtime and use load testing tools
