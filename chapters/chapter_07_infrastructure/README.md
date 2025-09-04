@@ -1,13 +1,13 @@
 # Chapter 7: Infrastructure
 
-This chapter focuses on building robust and scalable infrastructure for AI applications on AWS, with emphasis on AWS Bedrock, AWS AgentCore, CI/CD pipelines, model routing, and LLM deployment.
+This chapter focuses on building robust and scalable infrastructure for AI applications on AWS, with emphasis on AWS Bedrock, AWS AgentCore Runtime, serverless agent deployment, and production-ready infrastructure patterns.
 
 ## Learning Objectives
-- Master AWS Bedrock infrastructure setup
-- Understand AWS AgentCore runtime
-- Implement CI/CD for AI applications
-- Learn model routing strategies
-- Deploy LLMs at scale
+- Master AWS Bedrock infrastructure setup and model management
+- Deploy AI agents to AWS AgentCore Runtime (serverless platform)
+- Understand containerized AI agent deployment
+- Learn production infrastructure patterns
+- Implement monitoring and observability for AI systems
 
 ## Code Examples
 
@@ -15,13 +15,14 @@ This chapter focuses on building robust and scalable infrastructure for AI appli
 - `bedrock_manager.py` - Model status and management utilities
 - `bedrock_inference_profiles.py` - Inference profiles demonstration and management
 
-### AgentCore Runtime Example
-- `agentcore_runtime_example/` - Complete AgentCore Runtime implementation with Strands Agents
-  - `get_started.py` - Quick setup verification and introduction
-  - `local_strands_agent.py` - Local development version for testing
-  - `agentcore_strands_agent.py` - Production-ready agent for AgentCore Runtime
-  - `agentcore_rag_infrastructure_demo.py` - Comprehensive RAG infrastructure demonstration
-  - `deployment_script.py` - Automated deployment to AWS AgentCore Runtime
+### 🚀 **AgentCore Runtime Example** ✅ **Successfully Deployed**
+- `agentcore_runtime_example/` - **Complete working example deployed to AWS**
+  - `my_agent.py` - Simple AgentCore-compatible agent (✅ deployed)
+  - `agentcore_strands_agent.py` - Enhanced agent with Windows Unicode fixes
+  - `requirements.txt` - Minimal production dependencies
+  - `.bedrock_agentcore.yaml` - Auto-generated deployment configuration
+  - `README.md` - Comprehensive tutorial with troubleshooting guide
+  - **Status**: Agent deployed and accessible via AWS Bedrock Console
 
 ## Prerequisites
 - Completed Chapters 1-6
@@ -30,53 +31,75 @@ This chapter focuses on building robust and scalable infrastructure for AI appli
 - Basic DevOps experience
 
 ## Key Topics Covered
+
 1. **AWS Bedrock Infrastructure**:
-   - Model access and permissions
+   - Model access and permissions management
    - Inference endpoint configuration
    - Cost optimization strategies
-   - Monitoring and logging
+   - Monitoring and logging integration
 
-2. **AWS AgentCore**:
-   - Runtime environment setup
-   - Agent deployment patterns
-   - Scalability considerations
-   - Performance optimization
+2. **AWS AgentCore Runtime** ⭐ **Featured Implementation**:
+   - **Serverless agent hosting platform**
+   - **ARM64 container deployment**
+   - **Auto-scaling and managed infrastructure**
+   - **Production-ready agent deployment**
+   - **Real-world working example included**
 
-3. **CI/CD for AI Applications**:
-   - Automated testing for LLMs
-   - Model versioning strategies
-   - Deployment pipelines
-   - Rollback mechanisms
+3. **Containerized AI Deployment**:
+   - Docker containerization for AI agents
+   - AWS CodeBuild integration for ARM64 builds
+   - ECR (Elastic Container Registry) usage
+   - Deployment automation with agentcore CLI
 
-4. **Model Routing**:
-   - Load balancing strategies
-   - Model selection logic
-   - Failover mechanisms
-   - Performance monitoring
+4. **Production Infrastructure Patterns**:
+   - Minimal dependency management
+   - IAM role-based security
+   - Environment configuration
+   - Monitoring and observability setup
 
-5. **LLM Deployment**:
-   - Containerization strategies
-   - Scaling patterns
-   - Resource management
-   - Cost optimization
+## 🎯 **What You'll Build**
+
+By completing this chapter, you will have:
+
+✅ **Deployed a real AI agent to AWS cloud infrastructure**
+✅ **Learned AWS AgentCore Runtime (serverless platform)**
+✅ **Mastered containerized AI deployment patterns**
+✅ **Implemented production-ready infrastructure**
+✅ **Gained hands-on AWS Bedrock experience**
+
+## 📚 **Student Learning Path**
+
+1. **Start with AgentCore Example**: Explore the `agentcore_runtime_example/` directory
+2. **Follow the Tutorial**: Complete README.md guide with step-by-step instructions
+3. **Deploy Your Agent**: Use `agentcore deploy` to deploy to AWS
+4. **Understand Architecture**: Learn serverless AI agent patterns
+5. **Troubleshoot & Optimize**: Practice real-world deployment scenarios
 
 ## Production Considerations
-- Security best practices
-- Monitoring and alerting
-- Disaster recovery
-- Compliance requirements
+- **Security**: IAM roles, least privilege access, secure environment variables
+- **Monitoring**: CloudWatch logs, metrics, and alerting integration
+- **Scalability**: Auto-scaling serverless architecture with AgentCore
+- **Cost Optimization**: ARM64 containers, efficient resource usage
+- **Disaster Recovery**: Multi-region considerations and backup strategies
 
 ## Tools and Services
-- AWS Bedrock
-- AWS AgentCore
-- AWS CloudFormation/CDK
-- AWS Lambda
-- Amazon ECS/EKS
-- AWS CloudWatch
+- **AWS Bedrock** - Foundation model access and management
+- **AWS AgentCore Runtime** - Serverless AI agent hosting platform ⭐
+- **AWS CodeBuild** - ARM64 container builds
+- **AWS ECR** - Container registry for agent images
+- **AWS CloudWatch** - Logging and monitoring
+- **Docker** - Containerization
+- **agentcore CLI** - Official deployment toolkit
 
 ## Next Steps
-Proceed to Chapter 8 to learn about Observability & Evaluation.
+After mastering infrastructure deployment with AgentCore Runtime, proceed to Chapter 8 to learn about **Observability & Evaluation** for production AI systems.
 
 ## Resources
 - [AWS Bedrock Developer Guide](https://docs.aws.amazon.com/bedrock/)
-- [AWS AgentCore Documentation](https://docs.aws.amazon.com/bedrock-agentcore/)
+- [AWS AgentCore Runtime Documentation](https://docs.aws.amazon.com/bedrock/)
+- [AgentCore Starter Toolkit](https://github.com/aws-samples/bedrock-agentcore-starter-toolkit)
+- [Strands Agents Framework](https://github.com/strands-ai/strands)
+- [Docker ARM64 Best Practices](https://docs.docker.com/build/building/multi-platform/)
+
+---
+**🎉 Congratulations!** You now have hands-on experience deploying AI agents to AWS cloud infrastructure using modern serverless patterns!
