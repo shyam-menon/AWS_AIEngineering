@@ -35,6 +35,8 @@ agentcore_runtime_example/
 ├── agentcore_strands_agent.py     # Enhanced agent with Windows Unicode fixes
 ├── requirements.txt               # Minimal dependencies for AgentCore
 ├── .bedrock_agentcore.yaml        # Deployment configuration (auto-generated)
+├── quick_test.py                  # Quick interactive agent testing
+├── test_agentcore_deployment.py   # Comprehensive test suite
 ├── .venv/                         # Virtual environment
 └── README.md                      # This documentation
 ```
@@ -73,10 +75,27 @@ The deployment process will:
 
 ### 4. Test Your Agent
 
-After deployment, you can invoke your agent via:
-- AWS Bedrock Console (AgentCore section)
-- REST API calls to the provided endpoint
-- AWS SDK integration
+After deployment, you can test your agent using our provided testing tools:
+
+#### Quick Test (Recommended for beginners)
+```powershell
+# Interactive quick test - just enter your endpoint URL
+python quick_test.py
+```
+
+#### Comprehensive Test Suite
+```powershell
+# Full functionality testing with detailed results
+python test_agentcore_deployment.py --endpoint YOUR_ENDPOINT_URL
+
+# Health check only
+python test_agentcore_deployment.py --endpoint YOUR_ENDPOINT_URL --health-only
+```
+
+#### Manual Testing Options
+- **AWS Bedrock Console**: Test directly in the AgentCore section
+- **REST API calls**: Use curl, Postman, or similar tools
+- **AWS SDK integration**: Programmatic access via boto3
 
 ## Understanding the Code
 
@@ -157,7 +176,13 @@ execution_role: arn:aws:iam::ACCOUNT:role/bedrock-agentcore-execution-role
      - `bedrock:*` permissions
      - `codebuild:*` permissions
      - `ecr:*` permissions
-     - `iam:PassRole` for execution role
+5. **Testing Issues**
+   - **Symptom**: Test scripts fail to connect or get responses
+   - **Solution**: 
+     - Verify endpoint URL from AWS Console
+     - Ensure agent status is "Ready" 
+     - Check network connectivity and firewall settings
+     - Install test dependencies: `pip install requests boto3`
 
 ### Deployment Status
 
@@ -165,6 +190,25 @@ Check deployment status in AWS Console:
 1. Go to AWS Bedrock Console
 2. Navigate to "AgentCore" section
 3. Look for your agent with "Ready" status
+
+### Testing Your Deployment
+
+Use the provided test scripts to validate your deployment:
+
+```powershell
+# Quick interactive test (recommended first step)
+python quick_test.py
+
+# Comprehensive test suite with detailed reporting
+python test_agentcore_deployment.py --endpoint YOUR_ENDPOINT_URL
+```
+
+**Test Script Features:**
+- ✅ Health check validation
+- 🧪 Multiple test scenarios
+- 📊 Performance metrics
+- 🔍 Detailed error reporting
+- 💡 Troubleshooting guidance
 
 ### Logs and Monitoring
 
@@ -174,15 +218,16 @@ Check deployment status in AWS Console:
 
 ## Learning Exercises
 
-### Exercise 1: Basic Deployment
+### Exercise 1: Basic Deployment & Testing
 1. Deploy the simple agent using `my_agent.py`
-2. Test it through the AWS Console
-3. Check CloudWatch logs for execution traces
+2. Run the quick test: `python quick_test.py`
+3. Use comprehensive testing: `python test_agentcore_deployment.py --endpoint YOUR_URL`
+4. Check CloudWatch logs for execution traces
 
 ### Exercise 2: Custom Agent Logic
 1. Modify the agent to handle different query types
 2. Add error handling and logging
-3. Redeploy and test the changes
+3. Redeploy and test the changes using the test scripts
 
 ### Exercise 3: Tool Integration
 1. Add external API calls or database connections
