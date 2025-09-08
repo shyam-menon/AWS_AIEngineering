@@ -86,3 +86,4 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+chapters/chapter_08_observability_evaluation/correlation_analysis.png
