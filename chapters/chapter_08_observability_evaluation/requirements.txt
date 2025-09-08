@@ -1,0 +1,28 @@
+# Core Strands Dependencies (using available version)
+strands==0.1.0
+
+# AWS and Bedrock Dependencies
+boto3>=1.34.0
+botocore>=1.34.0
+
+# OpenTelemetry Dependencies (basic setup)
+opentelemetry-api>=1.20.0
+opentelemetry-sdk>=1.20.0
+opentelemetry-exporter-otlp>=1.20.0
+opentelemetry-instrumentation>=0.41b0
+
+# Data Analysis and Visualization
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+numpy>=1.24.0
+
+# JSON and Data Handling
+python-dateutil>=2.8.0
+pytz>=2023.3
+
+# Environment Management
+python-dotenv>=1.0.0
+
+# Logging and monitoring
+structlog>=23.1.0
