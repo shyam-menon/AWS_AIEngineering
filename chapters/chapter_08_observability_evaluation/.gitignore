@@ -1,0 +1,16 @@
+# Chapter 8 Observability - Ignore temporary files
+*.log
+*_202*.json
+*session_*.json
+*summary_report*.json
+performance_dashboard.png
+evaluation_dashboard.png
+session_analysis.png
+__pycache__/
+.env
+.pytest_cache/
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+Thumbs.db
