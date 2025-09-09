@@ -65,7 +65,7 @@ def check_prerequisites():
     # Check Strands Agents
     try:
         from strands import Agent
-        from strands.models import BedrockModel
+        Model
         prerequisites["Strands Agents"] = True
         print("✅ Strands Agents library available")
     except ImportError as e:

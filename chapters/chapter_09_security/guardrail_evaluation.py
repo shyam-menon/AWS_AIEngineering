@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from typing import Dict, List, Any, Tuple
 from strands import Agent
-from strands.models import BedrockModel
+Model
 from shadow_mode_guardrails import ShadowModeGuardrailsHook
 
 

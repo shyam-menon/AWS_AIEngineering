@@ -23,7 +23,7 @@ Date: September 2025
 import json
 import os
 from strands import Agent
-from strands.models import BedrockModel
+Model
 
 def basic_guardrail_example():
     """
