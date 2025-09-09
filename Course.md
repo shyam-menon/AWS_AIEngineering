@@ -93,6 +93,14 @@ Let's get started!
     - [AWS Bedrock Knowledge Bases for RAG](#aws-bedrock-knowledge-bases-for-rag)
 - [Chapter 6: AI Agents](#chapter-6-ai-agents) | [📁 Code](./chapters/chapter_06_ai_agents/)
     - [AI Agent Design Patterns](#ai-agent-design-patterns)
+    - [Core Strands Agent Concepts](#core-strands-agent-concepts)
+        - [Agent Loop](#agent-loop)
+        - [State Management](#state-management)
+        - [Session Management](#session-management)
+        - [Prompts and Prompt Engineering](#prompts-and-prompt-engineering)
+        - [Hooks: Extending Agent Behavior](#hooks-extending-agent-behavior)
+        - [Structured Output](#structured-output)
+        - [Conversation Management](#conversation-management)
     - [Multi-agent Systems](#multi-agent-systems)
     - [Memory](#memory)
     - [Human in the Loop](#human-in-the-loop)
@@ -3860,6 +3868,14 @@ An AI agent is a system that can perceive its environment, make decisions, and t
 In this chapter, we will explore the key concepts and techniques for building and deploying AI agents. We will cover the following topics:
 
 *   **AI Agent Design Patterns**: An overview of the common design patterns for building AI agents.
+*   **Core Strands Agent Concepts**: Deep dive into the fundamental mechanisms that power Strands agents:
+    *   **Agent Loop**: Understanding the recursive cycle of input processing, reasoning, tool execution, and response generation
+    *   **State Management**: Managing conversation history, agent state, and request state for context-aware behavior
+    *   **Session Management**: Persisting agent state and conversations across application restarts using file-based and S3 storage
+    *   **Prompts and Prompt Engineering**: Effective system prompts, multi-modal prompting, and best practices
+    *   **Hooks**: Extending agent behavior through lifecycle event callbacks for monitoring, security, and customization
+    *   **Structured Output**: Type-safe, validated responses using Pydantic models instead of raw text parsing
+    *   **Conversation Management**: Strategies for maintaining relevant context while staying within token limits
 *   **Multi-agent Systems**: A look at how you can create systems of multiple agents that can collaborate to solve complex problems.
 *   **Memory**: The different types of memory that can be used to give agents a sense of history and context.
 *   **Human in the Loop**: Techniques for incorporating human feedback and oversight into your agentic systems.
@@ -3910,7 +3926,962 @@ print(response)
 
 In this example, we first define a `get_stock_price` tool that takes a stock symbol as input and returns the current stock price. We then create a Strands agent and register the `get_stock_price` tool with it. When we ask the agent a question about the stock price of AAPL, the agent will use its reasoning engine to decide to use the `get_stock_price` tool. It will then execute the tool with the symbol "AAPL" and use the result to generate a response.
 
-By understanding and applying these design patterns, you can build more powerful and sophisticated AI agents that can solve a wide range of problems. In the next section, we will explore how you can create systems of multiple agents that can collaborate to solve even more complex problems.
+By understanding and applying these design patterns, you can build more powerful and sophisticated AI agents that can solve a wide range of problems. Before we explore multi-agent systems, let's examine the core concepts that make individual agents powerful and production-ready.
+
+## Core Strands Agent Concepts
+
+Understanding the fundamental concepts behind how Strands agents work is essential for building robust, scalable AI applications. In this section, we'll explore the core mechanisms that power Strands agents, from the basic agent loop to advanced features like hooks and structured output.
+
+### Agent Loop
+
+The **agent loop** is the heartbeat of every Strands agent - the fundamental cycle that processes user input, makes decisions, executes tools, and generates responses. Understanding this loop is crucial for building effective AI agents.
+
+#### What is the Agent Loop?
+
+The agent loop follows a recursive pattern that enables complex, multi-step reasoning:
+
+1. **Input Processing**: Receives user input and contextual information
+2. **Model Reasoning**: Uses the LLM to process input and make decisions
+3. **Tool Selection**: Determines if tools need to be used to gather information or perform actions
+4. **Tool Execution**: Executes selected tools and captures results
+5. **Response Generation**: Produces final response or continues reasoning with new information
+
+```python
+from strands import Agent
+from strands_tools import calculator, current_time
+
+# Create an agent with tools
+agent = Agent(
+    tools=[calculator, current_time],
+    system_prompt="You are a helpful assistant that can calculate and tell time."
+)
+
+# The agent loop handles this automatically:
+# 1. Receives the question
+# 2. Realizes it needs to calculate
+# 3. Uses the calculator tool
+# 4. Generates response with the result
+response = agent("What's 15% of 240, and what time is it?")
+print(response)
+```
+
+#### Advanced Agent Loop Example
+
+Here's a more complex example showing the agent loop in action with multiple tool calls:
+
+```python
+from strands import Agent, tool
+from typing import List
+import json
+
+@tool
+def search_products(query: str, category: str = "all") -> List[dict]:
+    """Search for products in our inventory."""
+    # Simulate product search
+    products = [
+        {"name": "Laptop Pro", "price": 1299, "category": "electronics", "stock": 5},
+        {"name": "Wireless Mouse", "price": 29, "category": "electronics", "stock": 50},
+        {"name": "Office Chair", "price": 199, "category": "furniture", "stock": 12}
+    ]
+    return [p for p in products if query.lower() in p["name"].lower()]
+
+@tool
+def check_inventory(product_name: str) -> dict:
+    """Check detailed inventory for a specific product."""
+    inventory = {
+        "Laptop Pro": {"available": 5, "reserved": 2, "shipping_time": "2-3 days"},
+        "Wireless Mouse": {"available": 50, "reserved": 0, "shipping_time": "1-2 days"},
+        "Office Chair": {"available": 12, "reserved": 3, "shipping_time": "3-5 days"}
+    }
+    return inventory.get(product_name, {"available": 0, "reserved": 0, "shipping_time": "N/A"})
+
+@tool
+def calculate_total_cost(items: List[dict], tax_rate: float = 0.08) -> dict:
+    """Calculate total cost including tax for a list of items."""
+    subtotal = sum(item["price"] * item["quantity"] for item in items)
+    tax = subtotal * tax_rate
+    total = subtotal + tax
+    return {
+        "subtotal": subtotal,
+        "tax": tax,
+        "total": total,
+        "breakdown": items
+    }
+
+# Create shopping assistant agent
+shopping_agent = Agent(
+    tools=[search_products, check_inventory, calculate_total_cost],
+    system_prompt="""You are a helpful shopping assistant. Help customers find products, 
+    check availability, and calculate costs. Always verify inventory before confirming orders."""
+)
+
+# Complex query that triggers multiple tool calls
+response = shopping_agent("""
+I need a laptop and a mouse for my home office. Can you find suitable options, 
+check if they're in stock, and calculate the total cost if I buy one of each?
+""")
+
+print(response)
+```
+
+In this example, the agent loop will:
+1. Process the query and identify the need for product search
+2. Use `search_products` to find laptops and mice
+3. Use `check_inventory` to verify stock levels
+4. Use `calculate_total_cost` to compute the final price
+5. Generate a comprehensive response with all the information
+
+### State Management
+
+Strands agents maintain different types of state to provide context-aware, persistent behavior across interactions.
+
+#### Types of State
+
+**1. Conversation History**: The sequence of messages between user and agent
+**2. Agent State**: Persistent key-value storage outside conversation context
+**3. Request State**: Temporary state for a single interaction
+
+```python
+from strands import Agent, tool
+
+@tool
+def track_user_preference(preference_type: str, value: str, agent: Agent) -> str:
+    """Store user preferences in agent state."""
+    # Get existing preferences or create new dict
+    preferences = agent.state.get("user_preferences") or {}
+    preferences[preference_type] = value
+    
+    # Save back to agent state
+    agent.state.set("user_preferences", preferences)
+    
+    return f"Saved preference: {preference_type} = {value}"
+
+@tool
+def get_user_preferences(agent: Agent) -> dict:
+    """Retrieve stored user preferences."""
+    return agent.state.get("user_preferences") or {}
+
+@tool
+def track_session_activity(activity: str, agent: Agent) -> str:
+    """Track activities in this session."""
+    # Get current activity count
+    activity_count = agent.state.get("activity_count") or 0
+    activities = agent.state.get("session_activities") or []
+    
+    # Update counters and activity log
+    agent.state.set("activity_count", activity_count + 1)
+    activities.append(f"{activity_count + 1}. {activity}")
+    agent.state.set("session_activities", activities)
+    
+    return f"Tracked activity: {activity} (Total: {activity_count + 1})"
+
+# Create agent with state-aware tools
+stateful_agent = Agent(
+    tools=[track_user_preference, get_user_preferences, track_session_activity],
+    system_prompt="You are a personal assistant that learns and remembers user preferences.",
+    state={"activity_count": 0}  # Initialize state
+)
+
+# First interaction - set preferences
+response1 = stateful_agent("I prefer dark mode and want notifications enabled")
+print("Response 1:", response1)
+
+# Track some activities
+stateful_agent("Track that I opened the dashboard")
+stateful_agent("Track that I reviewed my settings")
+
+# Later interaction - agent remembers preferences
+response2 = stateful_agent("What are my current preferences and what have I done today?")
+print("Response 2:", response2)
+
+# Check current state
+print("Current agent state:", stateful_agent.state.get())
+```
+
+#### Conversation History Management
+
+```python
+from strands import Agent
+from strands.agent.conversation_manager import SlidingWindowConversationManager
+
+# Agent with conversation management
+agent_with_memory = Agent(
+    conversation_manager=SlidingWindowConversationManager(
+        window_size=10,  # Keep last 10 message pairs
+        should_truncate_results=True  # Truncate large tool results if needed
+    ),
+    system_prompt="You are a helpful assistant with managed conversation history."
+)
+
+# Initialize with some conversation history
+agent_with_memory.messages = [
+    {"role": "user", "content": [{"text": "Hello, my name is Alice and I work in marketing."}]},
+    {"role": "assistant", "content": [{"text": "Nice to meet you Alice! I'd be happy to help with your marketing needs."}]},
+    {"role": "user", "content": [{"text": "I'm working on a campaign for our new product launch."}]},
+    {"role": "assistant", "content": [{"text": "That sounds exciting! What type of product are you launching?"}]}
+]
+
+# Agent maintains context from previous conversation
+response = agent_with_memory("Can you remind me what we were discussing?")
+print(response)
+
+# View conversation history
+print("Conversation messages:")
+for i, msg in enumerate(agent_with_memory.messages):
+    role = msg["role"]
+    content = msg["content"][0]["text"] if msg["content"] else "No text content"
+    print(f"{i+1}. {role}: {content}")
+```
+
+### Session Management
+
+Session management enables agents to persist state and conversation history across application restarts and distributed environments.
+
+#### File-Based Session Management
+
+```python
+from strands import Agent
+from strands.session.file_session_manager import FileSessionManager
+import os
+
+# Create a session manager
+session_manager = FileSessionManager(
+    session_id="demo-user-session",
+    storage_dir="./agent_sessions"  # Directory for session storage
+)
+
+# Create agent with session persistence
+persistent_agent = Agent(
+    session_manager=session_manager,
+    system_prompt="You are a persistent assistant that remembers across sessions."
+)
+
+# First interaction - will be saved to session
+response1 = persistent_agent("Hello, I'm working on a Python project about data analysis.")
+print("First interaction:", response1)
+
+# Simulate application restart by creating new agent with same session
+print("\n--- Simulating Application Restart ---")
+
+new_session_manager = FileSessionManager(
+    session_id="demo-user-session",  # Same session ID
+    storage_dir="./agent_sessions"
+)
+
+# Agent automatically restores state and conversation history
+restored_agent = Agent(
+    session_manager=new_session_manager,
+    system_prompt="You are a persistent assistant that remembers across sessions."
+)
+
+# Agent remembers previous conversation
+response2 = restored_agent("What was I working on?")
+print("After restart:", response2)
+
+# Check session directory structure
+print("\nSession storage structure:")
+for root, dirs, files in os.walk("./agent_sessions"):
+    level = root.replace("./agent_sessions", "").count(os.sep)
+    indent = " " * 2 * level
+    print(f"{indent}{os.path.basename(root)}/")
+    subindent = " " * 2 * (level + 1)
+    for file in files:
+        print(f"{subindent}{file}")
+```
+
+#### AWS S3 Session Management
+
+```python
+from strands import Agent
+from strands.session.s3_session_manager import S3SessionManager
+import boto3
+
+# For production use with AWS S3
+def create_s3_session_agent():
+    """Create an agent with S3-based session persistence."""
+    # Custom boto3 session (optional)
+    boto_session = boto3.Session(region_name="us-west-2")
+    
+    # S3 session manager
+    s3_session_manager = S3SessionManager(
+        session_id="user-456",
+        bucket="my-agent-sessions-bucket",
+        prefix="production/",
+        boto_session=boto_session
+    )
+    
+    return Agent(
+        session_manager=s3_session_manager,
+        system_prompt="Production agent with S3 persistence."
+    )
+
+# Usage example (requires AWS credentials and S3 bucket)
+# s3_agent = create_s3_session_agent()
+# response = s3_agent("Hello from S3-backed session!")
+```
+
+### Prompts and Prompt Engineering
+
+Effective prompting is crucial for getting the best performance from your Strands agents.
+
+#### System Prompts
+
+```python
+from strands import Agent
+from strands_tools import calculator, current_time
+
+# Financial advisor with specialized system prompt
+financial_advisor = Agent(
+    tools=[calculator, current_time],
+    system_prompt="""
+You are a certified financial advisor with 15 years of experience in retirement planning 
+and investment strategy. Your role is to:
+
+1. Provide personalized financial advice based on user circumstances
+2. Use calculations to demonstrate financial projections
+3. Always explain your reasoning and methodology
+4. Cite relevant financial principles and best practices
+5. Recommend consulting with qualified professionals for major decisions
+6. Focus on long-term financial health and risk management
+
+Guidelines:
+- Be conservative in growth estimates (6-8% annual returns)
+- Always consider inflation (2-3% annually)
+- Emphasize emergency funds (3-6 months expenses)
+- Promote diversification across asset classes
+- Consider tax implications in all recommendations
+""")
+
+# Technical consultant with different specialization
+tech_consultant = Agent(
+    system_prompt="""
+You are a senior software architect specializing in cloud-native applications and AWS services.
+Your expertise includes:
+
+1. Microservices architecture and containerization
+2. AWS services (EC2, Lambda, ECS, EKS, RDS, DynamoDB, S3)
+3. DevOps practices and CI/CD pipelines
+4. Security best practices and compliance
+5. Performance optimization and cost management
+
+Your responses should:
+- Provide specific, actionable technical guidance
+- Include relevant AWS service recommendations
+- Consider scalability, security, and cost implications
+- Reference AWS Well-Architected Framework principles
+- Suggest monitoring and observability strategies
+""")
+
+# Examples of specialized responses
+financial_response = financial_advisor("""
+I'm 30 years old, make $75,000/year, have $10,000 in savings, and want to retire by 65. 
+What should my investment strategy be?
+""")
+
+tech_response = tech_consultant("""
+I need to build a scalable web application that can handle 10,000+ concurrent users. 
+What AWS architecture would you recommend?
+""")
+
+print("Financial Advice:", financial_response)
+print("\nTech Advice:", tech_response)
+```
+
+#### Multi-Modal Prompting
+
+```python
+from strands import Agent
+import base64
+
+def create_multimodal_agent():
+    """Create an agent capable of processing images and documents."""
+    return Agent(
+        system_prompt="""
+You are a multi-modal AI assistant capable of analyzing images, documents, and text.
+Provide detailed, accurate descriptions and analysis of visual content.
+""")
+
+# Example with image processing
+def analyze_image_with_agent(image_path: str, question: str):
+    """Analyze an image with a text question."""
+    agent = create_multimodal_agent()
+    
+    # Read image file
+    with open(image_path, "rb") as fp:
+        image_bytes = fp.read()
+    
+    # Multi-modal prompt with image and text
+    response = agent([
+        {"text": question},
+        {
+            "image": {
+                "format": "png",  # or "jpeg", based on your image
+                "source": {
+                    "bytes": image_bytes,
+                },
+            },
+        },
+    ])
+    
+    return response
+
+# Example with document processing
+def analyze_document_with_agent(doc_path: str, question: str):
+    """Analyze a PDF document with a text question."""
+    agent = create_multimodal_agent()
+    
+    with open(doc_path, "rb") as fp:
+        doc_bytes = fp.read()
+    
+    response = agent([
+        {"text": question},
+        {
+            "document": {
+                "format": "pdf",
+                "name": "analysis_document",
+                "source": {
+                    "bytes": doc_bytes,
+                },
+            },
+        },
+    ])
+    
+    return response
+
+# Usage examples (requires actual image/document files)
+# image_analysis = analyze_image_with_agent("chart.png", "What trends do you see in this chart?")
+# doc_analysis = analyze_document_with_agent("report.pdf", "Summarize the key findings")
+```
+
+### Hooks: Extending Agent Behavior
+
+Hooks provide a powerful way to extend and customize agent behavior by subscribing to events throughout the agent lifecycle.
+
+#### Basic Hook Implementation
+
+```python
+from strands import Agent
+from strands.hooks import HookProvider, HookRegistry
+from strands.experimental.hooks import (
+    BeforeInvocationEvent, 
+    AfterInvocationEvent,
+    BeforeToolInvocationEvent,
+    AfterToolInvocationEvent
+)
+from strands_tools import calculator
+import logging
+import time
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class AgentMonitoringHooks(HookProvider):
+    """Comprehensive monitoring hooks for agent execution."""
+    
+    def __init__(self):
+        self.request_start_times = {}
+        self.tool_execution_stats = {}
+    
+    def register_hooks(self, registry: HookRegistry) -> None:
+        """Register all monitoring callbacks."""
+        registry.add_callback(BeforeInvocationEvent, self.log_request_start)
+        registry.add_callback(AfterInvocationEvent, self.log_request_end)
+        registry.add_callback(BeforeToolInvocationEvent, self.log_tool_start)
+        registry.add_callback(AfterToolInvocationEvent, self.log_tool_end)
+    
+    def log_request_start(self, event: BeforeInvocationEvent) -> None:
+        """Log when a request starts."""
+        request_id = id(event)
+        self.request_start_times[request_id] = time.time()
+        logger.info(f"Request started for agent: {event.agent.name or 'unnamed'}")
+    
+    def log_request_end(self, event: AfterInvocationEvent) -> None:
+        """Log when a request completes."""
+        request_id = id(event)
+        start_time = self.request_start_times.pop(request_id, time.time())
+        duration = time.time() - start_time
+        logger.info(f"Request completed in {duration:.2f}s for agent: {event.agent.name or 'unnamed'}")
+    
+    def log_tool_start(self, event: BeforeToolInvocationEvent) -> None:
+        """Log when a tool is about to be executed."""
+        tool_name = event.tool_use["name"]
+        tool_input = event.tool_use["input"]
+        logger.info(f"Executing tool: {tool_name} with input: {tool_input}")
+    
+    def log_tool_end(self, event: AfterToolInvocationEvent) -> None:
+        """Log tool execution results and track statistics."""
+        tool_name = event.tool_use["name"]
+        
+        # Track tool usage statistics
+        if tool_name not in self.tool_execution_stats:
+            self.tool_execution_stats[tool_name] = {"count": 0, "errors": 0}
+        
+        self.tool_execution_stats[tool_name]["count"] += 1
+        
+        # Check for errors in tool result
+        if any("error" in content for content in event.result.get("content", [])):
+            self.tool_execution_stats[tool_name]["errors"] += 1
+            logger.error(f"Tool {tool_name} execution failed")
+        else:
+            logger.info(f"Tool {tool_name} executed successfully")
+    
+    def get_stats(self) -> dict:
+        """Get execution statistics."""
+        return {
+            "tool_stats": self.tool_execution_stats.copy()
+        }
+
+class SecurityHooks(HookProvider):
+    """Security-focused hooks for input validation and output filtering."""
+    
+    def __init__(self, blocked_tools=None, sensitive_patterns=None):
+        self.blocked_tools = blocked_tools or []
+        self.sensitive_patterns = sensitive_patterns or ["password", "ssn", "credit card"]
+    
+    def register_hooks(self, registry: HookRegistry) -> None:
+        registry.add_callback(BeforeToolInvocationEvent, self.validate_tool_execution)
+        registry.add_callback(AfterToolInvocationEvent, self.filter_sensitive_output)
+    
+    def validate_tool_execution(self, event: BeforeToolInvocationEvent) -> None:
+        """Prevent execution of blocked tools."""
+        tool_name = event.tool_use["name"]
+        if tool_name in self.blocked_tools:
+            logger.warning(f"Blocked execution of restricted tool: {tool_name}")
+            # Could raise an exception here to prevent execution
+            # raise ValueError(f"Tool {tool_name} is not allowed")
+    
+    def filter_sensitive_output(self, event: AfterToolInvocationEvent) -> None:
+        """Filter sensitive information from tool outputs."""
+        tool_name = event.tool_use["name"]
+        
+        # Check tool result content for sensitive information
+        for content_block in event.result.get("content", []):
+            if "text" in content_block:
+                text = content_block["text"]
+                for pattern in self.sensitive_patterns:
+                    if pattern.lower() in text.lower():
+                        logger.warning(f"Sensitive pattern '{pattern}' detected in {tool_name} output")
+                        # Could modify the content here to redact sensitive info
+                        # content_block["text"] = text.replace(pattern, "[REDACTED]")
+
+# Create agent with hooks
+monitoring_hooks = AgentMonitoringHooks()
+security_hooks = SecurityHooks(blocked_tools=["dangerous_tool"])
+
+enhanced_agent = Agent(
+    tools=[calculator],
+    hooks=[monitoring_hooks, security_hooks],
+    system_prompt="You are a monitored agent with security controls."
+)
+
+# Use the agent - hooks will automatically trigger
+response1 = enhanced_agent("What's 25 * 48?")
+print("Response 1:", response1)
+
+response2 = enhanced_agent("Calculate the compound interest on $1000 at 5% for 10 years")
+print("Response 2:", response2)
+
+# Check execution statistics
+stats = monitoring_hooks.get_stats()
+print("Execution Stats:", stats)
+```
+
+#### Advanced Hook: Tool Result Modification
+
+```python
+class ResultEnhancementHooks(HookProvider):
+    """Hooks that enhance tool results with additional context."""
+    
+    def register_hooks(self, registry: HookRegistry) -> None:
+        registry.add_callback(AfterToolInvocationEvent, self.enhance_calculator_results)
+    
+    def enhance_calculator_results(self, event: AfterToolInvocationEvent) -> None:
+        """Add formatting and context to calculator results."""
+        if event.tool_use["name"] == "calculator":
+            for content_block in event.result.get("content", []):
+                if "text" in content_block:
+                    original_result = content_block["text"]
+                    expression = event.tool_use["input"].get("expression", "")
+                    
+                    # Enhance the result with formatting
+                    enhanced_result = f"""
+Calculation: {expression}
+Result: {original_result}
+Computed at: {time.strftime('%Y-%m-%d %H:%M:%S')}
+"""
+                    content_block["text"] = enhanced_result.strip()
+
+# Create agent with result enhancement
+enhanced_calc_agent = Agent(
+    tools=[calculator],
+    hooks=[ResultEnhancementHooks()],
+    system_prompt="You are a calculator agent with enhanced result formatting."
+)
+
+# Test enhanced results
+response = enhanced_calc_agent("What's 15% of 240?")
+print("Enhanced response:", response)
+```
+
+### Structured Output
+
+Structured output enables type-safe, validated responses using Pydantic models, eliminating the need to parse raw text responses.
+
+#### Basic Structured Output
+
+```python
+from pydantic import BaseModel, Field
+from strands import Agent
+from typing import List, Optional
+import json
+
+class PersonInfo(BaseModel):
+    """Structured representation of person information."""
+    name: str = Field(description="Full name of the person")
+    age: int = Field(description="Age in years")
+    occupation: str = Field(description="Job title or profession")
+    location: Optional[str] = Field(default=None, description="City or location")
+    skills: List[str] = Field(default_factory=list, description="Professional skills")
+
+class WeatherForecast(BaseModel):
+    """Structured weather forecast data."""
+    location: str = Field(description="Location for this forecast")
+    current_weather: str = Field(description="Current weather conditions")
+    temperature: float = Field(description="Temperature in Celsius")
+    humidity: int = Field(description="Humidity percentage")
+    forecast_days: List[str] = Field(description="Next few days forecast")
+
+class FinancialAnalysis(BaseModel):
+    """Structured financial analysis results."""
+    investment_amount: float = Field(description="Initial investment amount")
+    annual_return_rate: float = Field(description="Expected annual return rate as decimal")
+    time_period_years: int = Field(description="Investment time period in years")
+    final_amount: float = Field(description="Projected final amount")
+    total_growth: float = Field(description="Total growth amount")
+    growth_percentage: float = Field(description="Growth as percentage of initial investment")
+
+# Create agent for structured outputs
+structured_agent = Agent(
+    system_prompt="""You are an AI assistant that provides accurate, structured information.
+    Always extract and format information according to the requested schema."""
+)
+
+# Example 1: Extract person information
+person_text = """
+Dr. Sarah Johnson is a 35-year-old data scientist living in San Francisco. 
+She specializes in machine learning, Python programming, and statistical analysis.
+"""
+
+person_info = structured_agent.structured_output(
+    PersonInfo,
+    f"Extract person information from this text: {person_text}"
+)
+
+print("Person Info:")
+print(f"  Name: {person_info.name}")
+print(f"  Age: {person_info.age}")
+print(f"  Occupation: {person_info.occupation}")
+print(f"  Location: {person_info.location}")
+print(f"  Skills: {', '.join(person_info.skills)}")
+
+# Example 2: Generate weather forecast
+weather_forecast = structured_agent.structured_output(
+    WeatherForecast,
+    "Create a sample weather forecast for Seattle, WA for today"
+)
+
+print("\nWeather Forecast:")
+print(f"  Location: {weather_forecast.location}")
+print(f"  Current: {weather_forecast.current_weather}")
+print(f"  Temperature: {weather_forecast.temperature}°C")
+print(f"  Humidity: {weather_forecast.humidity}%")
+print(f"  Forecast: {', '.join(weather_forecast.forecast_days)}")
+
+# Example 3: Financial calculation with structured output
+financial_analysis = structured_agent.structured_output(
+    FinancialAnalysis,
+    """
+    Calculate the growth of a $10,000 investment at 7% annual return over 20 years.
+    Provide a complete financial analysis.
+    """
+)
+
+print("\nFinancial Analysis:")
+print(f"  Initial Investment: ${financial_analysis.investment_amount:,.2f}")
+print(f"  Annual Return Rate: {financial_analysis.annual_return_rate:.1%}")
+print(f"  Time Period: {financial_analysis.time_period_years} years")
+print(f"  Final Amount: ${financial_analysis.final_amount:,.2f}")
+print(f"  Total Growth: ${financial_analysis.total_growth:,.2f}")
+print(f"  Growth Percentage: {financial_analysis.growth_percentage:.1%}")
+```
+
+#### Complex Nested Structured Output
+
+```python
+from pydantic import BaseModel, Field
+from typing import List, Optional, Literal
+from datetime import datetime
+
+class Address(BaseModel):
+    """Physical address information."""
+    street: str = Field(description="Street address")
+    city: str = Field(description="City name")
+    state: str = Field(description="State or province")
+    postal_code: str = Field(description="Postal or ZIP code")
+    country: str = Field(description="Country name")
+
+class ContactInfo(BaseModel):
+    """Contact information."""
+    email: Optional[str] = Field(default=None, description="Email address")
+    phone: Optional[str] = Field(default=None, description="Phone number")
+    linkedin: Optional[str] = Field(default=None, description="LinkedIn profile URL")
+
+class WorkExperience(BaseModel):
+    """Work experience entry."""
+    company: str = Field(description="Company name")
+    position: str = Field(description="Job title")
+    start_date: str = Field(description="Start date (YYYY-MM format)")
+    end_date: Optional[str] = Field(default=None, description="End date (YYYY-MM format), null if current")
+    responsibilities: List[str] = Field(description="Key responsibilities")
+    technologies: List[str] = Field(default_factory=list, description="Technologies used")
+
+class Education(BaseModel):
+    """Education information."""
+    institution: str = Field(description="School or university name")
+    degree: str = Field(description="Degree type and field")
+    graduation_year: int = Field(description="Year of graduation")
+    gpa: Optional[float] = Field(default=None, description="GPA if available")
+
+class ComprehensiveProfile(BaseModel):
+    """Complete professional profile."""
+    personal_info: PersonInfo = Field(description="Basic personal information")
+    address: Address = Field(description="Home address")
+    contact: ContactInfo = Field(description="Contact information")
+    work_experience: List[WorkExperience] = Field(description="Work history")
+    education: List[Education] = Field(description="Educational background")
+    certifications: List[str] = Field(default_factory=list, description="Professional certifications")
+    languages: List[str] = Field(default_factory=list, description="Spoken languages")
+
+# Complex structured extraction
+complex_agent = Agent(
+    system_prompt="""You are an expert at extracting and organizing professional information.
+    Create comprehensive, detailed profiles based on the information provided."""
+)
+
+# Sample resume text
+resume_text = """
+John Smith is a 32-year-old Senior Software Engineer currently living at 123 Tech Street, 
+Austin, TX 78701, USA. He can be reached at john.smith@email.com or 555-123-4567.
+
+Work Experience:
+- Senior Software Engineer at Google (2020-present): Led development of cloud infrastructure, 
+  worked with Kubernetes, Python, and Go. Managed a team of 5 engineers.
+- Software Engineer at Microsoft (2018-2020): Developed web applications using React, Node.js, 
+  and Azure services. Implemented CI/CD pipelines.
+- Junior Developer at StartupCorp (2016-2018): Built mobile apps with React Native and Firebase.
+
+Education:
+- Bachelor of Science in Computer Science from UT Austin (2016), GPA: 3.8
+- Master of Science in Software Engineering from Stanford (2018), GPA: 3.9
+
+Certifications: AWS Solutions Architect, Google Cloud Professional, Certified Kubernetes Administrator
+
+Languages: English (native), Spanish (fluent), Mandarin (conversational)
+"""
+
+profile = complex_agent.structured_output(
+    ComprehensiveProfile,
+    f"Extract a comprehensive professional profile from this resume: {resume_text}"
+)
+
+print("Comprehensive Profile:")
+print(f"Name: {profile.personal_info.name}")
+print(f"Age: {profile.personal_info.age}")
+print(f"Occupation: {profile.personal_info.occupation}")
+
+print(f"\nAddress: {profile.address.street}, {profile.address.city}, {profile.address.state}")
+print(f"Email: {profile.contact.email}")
+print(f"Phone: {profile.contact.phone}")
+
+print("\nWork Experience:")
+for exp in profile.work_experience:
+    end_date = exp.end_date or "Present"
+    print(f"  {exp.position} at {exp.company} ({exp.start_date} - {end_date})")
+    print(f"    Technologies: {', '.join(exp.technologies)}")
+
+print("\nEducation:")
+for edu in profile.education:
+    gpa_str = f", GPA: {edu.gpa}" if edu.gpa else ""
+    print(f"  {edu.degree} from {edu.institution} ({edu.graduation_year}){gpa_str}")
+
+print(f"\nCertifications: {', '.join(profile.certifications)}")
+print(f"Languages: {', '.join(profile.languages)}")
+```
+
+#### Error Handling with Structured Output
+
+```python
+from pydantic import ValidationError, BaseModel, Field, validator
+from strands import Agent
+
+class ValidatedTaskResult(BaseModel):
+    """Task result with validation."""
+    task_id: str = Field(description="Unique task identifier")
+    status: Literal["completed", "failed", "in_progress"] = Field(description="Task status")
+    result: Optional[str] = Field(default=None, description="Task result if completed")
+    error_message: Optional[str] = Field(default=None, description="Error message if failed")
+    completion_percentage: int = Field(description="Completion percentage (0-100)")
+    
+    @validator('completion_percentage')
+    def validate_percentage(cls, v):
+        if not 0 <= v <= 100:
+            raise ValueError('Completion percentage must be between 0 and 100')
+        return v
+    
+    @validator('result', 'error_message')
+    def validate_status_consistency(cls, v, values):
+        status = values.get('status')
+        field_name = cls.__fields__[v].name if hasattr(cls.__fields__, v) else 'unknown'
+        
+        if status == 'completed' and field_name == 'result' and not v:
+            raise ValueError('Result must be provided when status is completed')
+        if status == 'failed' and field_name == 'error_message' and not v:
+            raise ValueError('Error message must be provided when status is failed')
+        return v
+
+def safe_structured_output(agent: Agent, model_class: BaseModel, prompt: str, max_retries: int = 3):
+    """Safely extract structured output with retry logic."""
+    for attempt in range(max_retries):
+        try:
+            result = agent.structured_output(model_class, prompt)
+            return result, None
+        except ValidationError as e:
+            error_msg = f"Validation failed on attempt {attempt + 1}: {e}"
+            print(error_msg)
+            
+            if attempt < max_retries - 1:
+                # Modify prompt to address validation errors
+                improved_prompt = f"""
+{prompt}
+
+IMPORTANT: The previous attempt failed validation with these errors:
+{e}
+
+Please ensure the response strictly follows the required format and all validation rules.
+"""
+                prompt = improved_prompt
+            else:
+                return None, error_msg
+    
+    return None, "Max retries exceeded"
+
+# Example with error handling
+error_handling_agent = Agent(
+    system_prompt="You provide accurate task status information in the requested format."
+)
+
+# Test with various scenarios
+test_prompts = [
+    "Create a task result for task-001 that is 100% completed with result 'Data processing finished'",
+    "Create a task result for task-002 that failed with error 'Database connection timeout'",
+    "Create a task result for task-003 that is 75% in progress"
+]
+
+for prompt in test_prompts:
+    result, error = safe_structured_output(error_handling_agent, ValidatedTaskResult, prompt)
+    if result:
+        print(f"Success: {result.dict()}")
+    else:
+        print(f"Failed: {error}")
+```
+
+### Conversation Management
+
+Conversation management strategies help maintain relevant context while staying within model token limits.
+
+```python
+from strands import Agent
+from strands.agent.conversation_manager import (
+    SlidingWindowConversationManager,
+    SummarizingConversationManager,
+    NullConversationManager
+)
+
+# 1. Sliding Window Strategy
+sliding_window_agent = Agent(
+    conversation_manager=SlidingWindowConversationManager(
+        window_size=15,  # Keep 15 most recent message pairs
+        should_truncate_results=True  # Truncate large tool results
+    ),
+    system_prompt="I maintain a sliding window of recent conversation history."
+)
+
+# 2. Summarizing Strategy
+summarizing_agent = Agent(
+    conversation_manager=SummarizingConversationManager(
+        summary_ratio=0.3,  # Summarize 30% of messages when reducing context
+        preserve_recent_messages=8,  # Always keep 8 most recent messages
+    ),
+    system_prompt="I summarize older parts of our conversation to maintain context."
+)
+
+# 3. Custom summarization prompt
+custom_summarizing_agent = Agent(
+    conversation_manager=SummarizingConversationManager(
+        summarization_system_prompt="""
+        You are summarizing a technical conversation. Create a concise summary that:
+        - Focuses on key decisions, requirements, and technical details
+        - Preserves specific function names, configurations, and code snippets
+        - Organizes information by topic (requirements, architecture, implementation)
+        - Uses bullet points for clarity
+        - Omits conversational elements and focuses on technical content
+        """
+    ),
+    system_prompt="I provide technical assistance with intelligent conversation summarization."
+)
+
+# Example: Long conversation that triggers management
+def demonstrate_conversation_management():
+    """Demonstrate different conversation management strategies."""
+    
+    print("=== Testing Sliding Window Management ===")
+    
+    # Build up a long conversation
+    topics = [
+        "Tell me about Python web frameworks",
+        "What's the difference between Django and Flask?",
+        "How do I set up a REST API with FastAPI?",
+        "What about database integration with SQLAlchemy?",
+        "How do I handle authentication in FastAPI?",
+        "What's the best way to deploy a FastAPI app to AWS?",
+        "How do I set up CI/CD for my FastAPI project?",
+        "What monitoring tools should I use?",
+        "How do I optimize performance?",
+        "What about security best practices?"
+    ]
+    
+    for i, question in enumerate(topics):
+        response = sliding_window_agent(question)
+        print(f"Question {i+1}: {question}")
+        print(f"Response length: {len(response)} characters")
+        print(f"Total messages in history: {len(sliding_window_agent.messages)}")
+        print("---")
+    
+    print("\n=== Final State ===")
+    print(f"Final message count: {len(sliding_window_agent.messages)}")
+    
+    # Test conversation continuity
+    continuity_response = sliding_window_agent("Can you summarize what we've discussed?")
+    print(f"Continuity test: {continuity_response[:200]}...")
+
+# Run demonstration
+demonstrate_conversation_management()
+```
+
+These core Strands Agent concepts provide the foundation for building sophisticated AI applications. Understanding the agent loop helps you design effective tool-augmented workflows, state management enables persistent and context-aware behavior, session management ensures continuity across application restarts, hooks allow deep customization of agent behavior, structured output provides type-safe responses, and conversation management keeps interactions efficient and relevant.
+
+With these fundamentals in place, you're ready to explore how multiple agents can collaborate to solve complex problems through multi-agent systems.
 
 
 
