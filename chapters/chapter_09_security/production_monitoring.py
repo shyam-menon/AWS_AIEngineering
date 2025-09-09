@@ -32,7 +32,7 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 from collections import defaultdict, deque
 from strands import Agent
-from strands.models import BedrockModel
+Model
 from strands.hooks import HookProvider, HookRegistry, MessageAddedEvent, AfterInvocationEvent
 
 
