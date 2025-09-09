@@ -21,7 +21,7 @@ By the end of this chapter, you will understand:
 - **`shadow_mode_guardrails.py`** - Advanced monitoring using hooks for non-blocking evaluation  
 - **`guardrail_evaluation.py`** - Systematic testing framework with metrics and visualization
 
-### Security-Focused Prompt Engineering (NEW)
+### Security-Focused Prompt Engineering 
 - **`secure_prompt_engineering.py`** - Comprehensive examples of all five security techniques from Strands documentation
 - **`prompt_injection_defense.py`** - Advanced defense mechanisms against prompt injection attacks
 - **`input_validation_agent.py`** - Input validation and sanitization with comprehensive pattern detection
