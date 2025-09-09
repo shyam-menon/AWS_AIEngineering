@@ -1,23 +1,32 @@
-# Chapter 9: Security with Guardrails
+# Chapter 9: Security with Guardrails and Prompt Engineering
 
-This chapter demonstrates how to implement robust security measures in AI applications using Amazon Bedrock Guardrails with the Strands Agents framework.
+This chapter demonstrates how to implement robust security measures in AI applications using Amazon Bedrock Guardrails and security-focused prompt engineering with the Strands Agents framework.
 
 ## 🎯 Learning Objectives
 
 By the end of this chapter, you will understand:
 - How to configure and use Amazon Bedrock Guardrails
-- Implementation patterns for input/output filtering
+- Security-focused prompt engineering techniques with Strands Agents
+- Implementation patterns for input/output filtering and validation
+- Defense strategies against prompt injection and adversarial attacks
 - Shadow mode testing for safe guardrail deployment
-- Systematic evaluation of guardrail effectiveness
+- Systematic evaluation of security effectiveness
 - Production monitoring and observability
 - Best practices for AI security
 
 ## 📁 Files Overview
 
-### Core Examples
+### Core Guardrails Examples
 - **`basic_bedrock_guardrails.py`** - Introduction to Bedrock guardrails with automatic filtering
 - **`shadow_mode_guardrails.py`** - Advanced monitoring using hooks for non-blocking evaluation  
 - **`guardrail_evaluation.py`** - Systematic testing framework with metrics and visualization
+
+### Security-Focused Prompt Engineering (NEW)
+- **`secure_prompt_engineering.py`** - Comprehensive examples of all five security techniques from Strands documentation
+- **`prompt_injection_defense.py`** - Advanced defense mechanisms against prompt injection attacks
+- **`input_validation_agent.py`** - Input validation and sanitization with comprehensive pattern detection
+- **`adversarial_testing.py`** - Testing framework for adversarial examples and attack simulation
+- **`security_validation_agent.py`** - Parameter verification and validation systems
 - **`production_monitoring.py`** - Production-grade monitoring with real-time metrics
 - **`comprehensive_security_demo.py`** - Interactive demonstration runner with guided tutorials
 
