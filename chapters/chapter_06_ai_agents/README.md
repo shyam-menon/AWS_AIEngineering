@@ -12,6 +12,15 @@ This chapter explores the exciting world of AI agents, including design patterns
 
 ## Code Examples
 
+### Core Strands Agent Concepts
+
+#### Comprehensive Concepts Demo ✅ NEW
+**All Core Concepts in One Example**
+- **Files**: `comprehensive_strands_concepts_demo.py` + `COMPREHENSIVE_CONCEPTS_README.md`
+- **Concepts**: Agent Loop, State Management, Session Management, Hooks, Structured Output, Conversation Management
+- **Demo**: Enterprise quoting system with business rules, persistence, and type-safe extraction
+- **Architecture**: Production-ready agent with full lifecycle management, guardrails, and observability
+
 ### Basic Agent Patterns
 
 #### Simple Tool-Augmented Agents
@@ -290,6 +299,23 @@ response = agent("Check AWS costs, if over budget, handoff to user for approval"
 agent.tool.handoff_to_user("Approve $500 spending?", breakout_of_loop=False)  # Continue
 agent.tool.handoff_to_user("Critical alert!", breakout_of_loop=True)         # Stop
 ```
+
+## Comprehensive Learning Path
+
+### Recommended Order
+1. **Start with Core Concepts** - Run `comprehensive_strands_concepts_demo.py` to understand all fundamental mechanisms
+2. **Basic Patterns** - Explore `simple_tool_agent.py` for foundational tool usage
+3. **Multi-Agent Systems** - Progress through Agents as Tools → Swarm → Graph → Workflow
+4. **Advanced Integration** - Experiment with AWS Cost Monitoring HITL example
+
+### Key Learning Outcomes
+- **Agent Loop**: Understanding the request-response-tool execution cycle
+- **State Management**: Conversation history, agent state, and request state usage
+- **Session Management**: Persistence across application restarts
+- **Hooks System**: Lifecycle event customization for monitoring, security, and business rules
+- **Structured Output**: Type-safe data extraction using Pydantic models
+- **Conversation Management**: Context optimization strategies
+- **Multi-Agent Coordination**: Collaboration patterns for complex problem solving
 
 ## AWS Services Integration
 
