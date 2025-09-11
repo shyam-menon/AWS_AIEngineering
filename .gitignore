@@ -91,3 +91,4 @@ chapters/chapter_08_observability_evaluation/correlation_analysis.png
 # Agent session files (Strands runtime)
 agent_sessions/
 **/agent_sessions/
+Course.pdf

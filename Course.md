@@ -2252,9 +2252,6 @@ In this chapter, we will cover the following key topics:
 
 By the end of this chapter, you will have a solid understanding of how to build and deploy powerful RAG and Agentic RAG systems on AWS. Let's get started!
 
-
-
-
 ## Data Preparation
 
 The performance of a Retrieval-Augmented Generation (RAG) system is highly dependent on the quality of the data that it has access to. Therefore, **data preparation** is a critical first step in building a successful RAG system. The goal of data preparation is to clean, structure, and enrich your data to make it as useful as possible for the retrieval and generation processes.
@@ -2298,8 +2295,6 @@ print(chunks)
 This script first removes any HTML tags and special characters from the text. It then converts the text to lowercase and splits it into chunks of 512 characters. These chunks can then be embedded and indexed in a vector database for use in a RAG system.
 
 By taking the time to properly prepare your data, you can significantly improve the performance and accuracy of your RAG system. In the next section, we will explore the core components of a RAG system: data retrieval and generation.
-
-
 
 
 ## Data Retrieval and Generation
@@ -2381,8 +2376,6 @@ In this example, the `rag_query` function first encodes the user's query into a 
 By combining the power of retrieval and generation, RAG systems can overcome many of the limitations of traditional LLMs and provide users with more accurate, relevant, and up-to-date information. In the next section, we will explore a technique for further improving the quality of the retrieved information: reranking.
 
 
-
-
 ## Reranking
 
 While the retrieval component of a RAG system is designed to find the most relevant documents, it is not always perfect. Sometimes, the top-ranked documents may not be the most relevant to the user's query. This is where **reranking** comes in. Reranking is a technique for improving the relevance of the retrieved information by reordering the search results based on a more sophisticated relevance model.
@@ -2416,7 +2409,776 @@ AWS provides several options for implementing reranking in your RAG system:
 *   **Amazon SageMaker**: You can use Amazon SageMaker to train and deploy your own custom reranking model. SageMaker provides a variety of built-in algorithms and frameworks that you can use to build your model, or you can bring your own custom code.
 *   **Third-party Reranking Services**: There are also a number of third-party reranking services that you can use, such as Cohere Rerank. These services provide a simple API that you can use to rerank your search results.
 
-By adding a reranking step to your RAG pipeline, you can significantly improve the quality of the retrieved information and generate more accurate and relevant responses. In the next section, we will explore a protocol for providing LLMs with access to external tools and APIs in a structured way: the Model Context Protocol (MCP).
+By adding a reranking step to your RAG pipeline, you can significantly improve the quality of the retrieved information and generate more accurate and relevant responses. In the next section, we will explore a critical aspect of building production-ready RAG systems: evaluation and monitoring.
+
+## RAG Evaluation and Monitoring
+
+Building a RAG system is only half the journey - ensuring its reliability, accuracy, and performance in production is equally critical. **RAG evaluation** is the process of systematically measuring and monitoring the quality of your retrieval-augmented generation system to ensure it meets your application's requirements and user expectations.
+
+### Why RAG Evaluation Matters
+
+RAG systems present unique evaluation challenges due to their multi-component architecture. Unlike traditional machine learning models with well-defined inputs and outputs, RAG systems involve:
+
+*   **Complex Multi-Stage Processing**: Retrieval, reranking, and generation components that each contribute to the final output
+*   **Dynamic Knowledge Sources**: External knowledge bases that may change over time
+*   **Context-Dependent Quality**: Performance that varies significantly based on the query type and available context
+*   **Cascading Errors**: Issues in one component can compound and affect downstream performance
+
+### Key RAG Evaluation Challenges
+
+Before diving into evaluation techniques, it's important to understand the specific challenges that make RAG evaluation complex:
+
+#### 1. **Lack of Ground Truth References**
+Unlike traditional NLP tasks, many RAG applications deal with open-ended questions where multiple valid answers exist, making it difficult to establish definitive ground truth.
+
+#### 2. **Faithfulness vs. Coherence Trade-off**
+The generated response must be both factually accurate (faithful to retrieved context) and naturally readable (coherent and fluent).
+
+#### 3. **Context Relevance Assessment**
+Automatically determining whether retrieved documents are relevant to the user's query requires sophisticated evaluation approaches.
+
+#### 4. **Compounding Errors and Diagnosis**
+When a RAG system produces poor results, it's challenging to determine whether the issue stems from retrieval failure, irrelevant context, or generation problems.
+
+#### 5. **Scale and Cost Considerations**
+Human evaluation is expensive and doesn't scale, while automated metrics may not capture nuanced quality aspects.
+
+### The RAG Evaluation Framework
+
+Effective RAG evaluation requires a systematic approach that measures different aspects of system performance. We can organize RAG evaluation into three main categories inspired by the **RAG Triad**:
+
+#### 1. **Retrieval Metrics**
+These metrics evaluate how well your system finds relevant information:
+
+*   **Context Relevance**: Whether retrieved documents contain information necessary to answer the query
+*   **Context Recall**: How well the retrieved context matches the ground truth (when available)
+*   **Context Precision**: Whether the most relevant information is ranked highest in retrieval results
+
+#### 2. **Generation Metrics**
+These metrics evaluate the quality of the generated response:
+
+*   **Faithfulness**: Whether the generated answer is grounded in the retrieved context (avoiding hallucinations)
+*   **Answer Relevance**: Whether the generated response actually answers the user's question
+*   **Answer Semantic Similarity**: How closely the generated answer matches expected responses
+
+#### 3. **End-to-End Quality Metrics**
+These metrics evaluate overall system performance:
+
+*   **Harmfulness**: Whether the response could cause harm
+*   **Correctness**: Factual accuracy of the response
+*   **Coherence**: Logical organization and readability
+*   **Conciseness**: Efficiency in conveying information
+
+### Implementing RAG Evaluation with Amazon Bedrock
+
+Let's implement a comprehensive RAG evaluation system using Amazon Bedrock as the judge model. This approach uses LLMs to automatically evaluate different aspects of RAG performance.
+
+#### Setting Up the Evaluation Framework
+
+```python
+import boto3
+import json
+import pandas as pd
+from typing import Dict, List, Tuple, Optional
+from dataclasses import dataclass
+from datetime import datetime
+import asyncio
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+@dataclass
+class RAGEvaluationResult:
+    """Data class to store evaluation results"""
+    query: str
+    retrieved_context: str
+    generated_answer: str
+    ground_truth: Optional[str] = None
+    faithfulness_score: Optional[float] = None
+    context_relevance_score: Optional[float] = None
+    answer_relevance_score: Optional[float] = None
+    overall_score: Optional[float] = None
+    evaluation_timestamp: str = None
+    
+    def __post_init__(self):
+        if self.evaluation_timestamp is None:
+            self.evaluation_timestamp = datetime.now().isoformat()
+
+class RAGEvaluator:
+    """Comprehensive RAG evaluation system using Amazon Bedrock"""
+    
+    def __init__(self, region_name: str = "us-east-1"):
+        self.bedrock_runtime = boto3.client(
+            service_name="bedrock-runtime",
+            region_name=region_name
+        )
+        self.judge_model_id = "anthropic.claude-3-sonnet-20240229-v1:0"
+        
+        # Define evaluation prompt templates
+        self.faithfulness_prompt = """
+You are an AI assistant trained to evaluate interactions between a Human and an AI Assistant. Your goal is to classify the AI answer as either "factual" or "hallucinated".
+
+"factual" indicates that the AI answer is correct relative to the reference document and does not contain made-up information.
+"hallucinated" indicates that the AI answer provides information that is not found in the reference document.
+
+Human query: {query}
+Reference document: {reference}
+AI answer: {answer}
+
+Classify the AI's response as: "factual" or "hallucinated". Provide only the classification word.
+"""
+
+        self.context_relevance_prompt = """
+You are an AI assistant trained to evaluate a knowledge base search system. Your goal is to classify the reference document as either "relevant" or "irrelevant".
+
+"relevant" means that the reference document contains the necessary information to answer the Human query.
+"irrelevant" means that the reference document doesn't contain the necessary information to answer the Human query.
+
+Human query: {query}
+Reference document: {reference}
+
+Classify the reference document as: "relevant" or "irrelevant". Provide only the classification word.
+"""
+
+        self.answer_relevance_prompt = """
+You are an AI assistant trained to evaluate interactions between a Human and an AI Assistant. Your goal is to classify the AI answer as either "relevant" or "irrelevant".
+
+"relevant" means that the AI answer answers the Human query appropriately, even if the reference document lacks full information.
+"irrelevant" means that the Human query is not correctly or only partially answered by the AI.
+
+Human query: {query}
+Reference document: {reference}
+AI answer: {answer}
+
+Classify the AI's response as: "relevant" or "irrelevant". Provide only the classification word.
+"""
+
+    def _call_bedrock_judge(self, prompt: str) -> str:
+        """Call Bedrock model for evaluation"""
+        try:
+            body = json.dumps({
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": 10,
+                "temperature": 0.0,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            })
+            
+            response = self.bedrock_runtime.invoke_model(
+                modelId=self.judge_model_id,
+                body=body
+            )
+            
+            response_body = json.loads(response.get('body').read())
+            return response_body['content'][0]['text'].strip().lower()
+            
+        except Exception as e:
+            logger.error(f"Error calling Bedrock judge: {e}")
+            return "error"
+
+    def evaluate_faithfulness(self, query: str, reference: str, answer: str) -> float:
+        """Evaluate if the answer is faithful to the reference context"""
+        prompt = self.faithfulness_prompt.format(
+            query=query,
+            reference=reference,
+            answer=answer
+        )
+        
+        result = self._call_bedrock_judge(prompt)
+        return 1.0 if result == "factual" else 0.0
+
+    def evaluate_context_relevance(self, query: str, reference: str) -> float:
+        """Evaluate if the retrieved context is relevant to the query"""
+        prompt = self.context_relevance_prompt.format(
+            query=query,
+            reference=reference
+        )
+        
+        result = self._call_bedrock_judge(prompt)
+        return 1.0 if result == "relevant" else 0.0
+
+    def evaluate_answer_relevance(self, query: str, reference: str, answer: str) -> float:
+        """Evaluate if the answer is relevant to the query"""
+        prompt = self.answer_relevance_prompt.format(
+            query=query,
+            reference=reference,
+            answer=answer
+        )
+        
+        result = self._call_bedrock_judge(prompt)
+        return 1.0 if result == "relevant" else 0.0
+
+    def evaluate_single_interaction(
+        self, 
+        query: str, 
+        retrieved_context: str, 
+        generated_answer: str,
+        ground_truth: Optional[str] = None
+    ) -> RAGEvaluationResult:
+        """Evaluate a single RAG interaction"""
+        
+        logger.info(f"Evaluating query: {query[:50]}...")
+        
+        # Evaluate all metrics
+        faithfulness = self.evaluate_faithfulness(query, retrieved_context, generated_answer)
+        context_relevance = self.evaluate_context_relevance(query, retrieved_context)
+        answer_relevance = self.evaluate_answer_relevance(query, retrieved_context, generated_answer)
+        
+        # Calculate overall score (simple average)
+        overall_score = (faithfulness + context_relevance + answer_relevance) / 3
+        
+        return RAGEvaluationResult(
+            query=query,
+            retrieved_context=retrieved_context,
+            generated_answer=generated_answer,
+            ground_truth=ground_truth,
+            faithfulness_score=faithfulness,
+            context_relevance_score=context_relevance,
+            answer_relevance_score=answer_relevance,
+            overall_score=overall_score
+        )
+
+    def evaluate_batch(self, evaluation_data: List[Dict]) -> List[RAGEvaluationResult]:
+        """Evaluate a batch of RAG interactions"""
+        results = []
+        
+        for i, data in enumerate(evaluation_data):
+            logger.info(f"Processing evaluation {i+1}/{len(evaluation_data)}")
+            
+            result = self.evaluate_single_interaction(
+                query=data['query'],
+                retrieved_context=data['retrieved_context'],
+                generated_answer=data['generated_answer'],
+                ground_truth=data.get('ground_truth')
+            )
+            
+            results.append(result)
+            
+        return results
+
+    def generate_evaluation_report(self, results: List[RAGEvaluationResult]) -> Dict:
+        """Generate a comprehensive evaluation report"""
+        if not results:
+            return {"error": "No evaluation results provided"}
+        
+        # Calculate aggregate metrics
+        faithfulness_scores = [r.faithfulness_score for r in results if r.faithfulness_score is not None]
+        context_relevance_scores = [r.context_relevance_score for r in results if r.context_relevance_score is not None]
+        answer_relevance_scores = [r.answer_relevance_score for r in results if r.answer_relevance_score is not None]
+        overall_scores = [r.overall_score for r in results if r.overall_score is not None]
+        
+        report = {
+            "evaluation_summary": {
+                "total_evaluations": len(results),
+                "evaluation_timestamp": datetime.now().isoformat(),
+                "model_used": self.judge_model_id
+            },
+            "aggregate_metrics": {
+                "faithfulness": {
+                    "average": sum(faithfulness_scores) / len(faithfulness_scores) if faithfulness_scores else 0,
+                    "passing_rate": sum(1 for s in faithfulness_scores if s >= 0.5) / len(faithfulness_scores) if faithfulness_scores else 0
+                },
+                "context_relevance": {
+                    "average": sum(context_relevance_scores) / len(context_relevance_scores) if context_relevance_scores else 0,
+                    "passing_rate": sum(1 for s in context_relevance_scores if s >= 0.5) / len(context_relevance_scores) if context_relevance_scores else 0
+                },
+                "answer_relevance": {
+                    "average": sum(answer_relevance_scores) / len(answer_relevance_scores) if answer_relevance_scores else 0,
+                    "passing_rate": sum(1 for s in answer_relevance_scores if s >= 0.5) / len(answer_relevance_scores) if answer_relevance_scores else 0
+                },
+                "overall_score": {
+                    "average": sum(overall_scores) / len(overall_scores) if overall_scores else 0,
+                    "passing_rate": sum(1 for s in overall_scores if s >= 0.5) / len(overall_scores) if overall_scores else 0
+                }
+            },
+            "detailed_results": [
+                {
+                    "query": r.query,
+                    "faithfulness": r.faithfulness_score,
+                    "context_relevance": r.context_relevance_score,
+                    "answer_relevance": r.answer_relevance_score,
+                    "overall_score": r.overall_score
+                }
+                for r in results
+            ]
+        }
+        
+        # Identify problematic areas
+        low_faithfulness = [r for r in results if r.faithfulness_score == 0.0]
+        low_context_relevance = [r for r in results if r.context_relevance_score == 0.0]
+        low_answer_relevance = [r for r in results if r.answer_relevance_score == 0.0]
+        
+        report["issues_analysis"] = {
+            "hallucination_cases": len(low_faithfulness),
+            "irrelevant_context_cases": len(low_context_relevance),
+            "irrelevant_answer_cases": len(low_answer_relevance)
+        }
+        
+        # Optimization recommendations
+        recommendations = []
+        
+        if len(low_context_relevance) > len(results) * 0.3:  # More than 30% have low context relevance
+            recommendations.append("Consider improving your chunking strategy and embedding model")
+            recommendations.append("Review your retrieval algorithm parameters")
+            
+        if len(low_faithfulness) > len(results) * 0.2:  # More than 20% hallucinate
+            recommendations.append("Consider improving your prompt engineering")
+            recommendations.append("Review your model choice and generation parameters")
+            
+        if len(low_answer_relevance) > len(results) * 0.2:  # More than 20% have irrelevant answers
+            recommendations.append("Consider refining your prompt templates")
+            recommendations.append("Review query understanding and routing logic")
+        
+        report["recommendations"] = recommendations
+        
+        return report
+
+# Example usage and demonstration
+def create_sample_evaluation_data() -> List[Dict]:
+    """Create sample data for RAG evaluation demonstration"""
+    return [
+        {
+            "query": "What are the benefits of using vector databases for AI applications?",
+            "retrieved_context": "Vector databases are specialized databases designed to store and query high-dimensional vectors (embeddings). They enable semantic search, recommendation systems, and similarity matching. Key benefits include fast similarity search, scalability for large datasets, and support for various AI use cases like retrieval-augmented generation.",
+            "generated_answer": "Vector databases offer several key benefits for AI applications: 1) Fast semantic search capabilities allowing you to find conceptually similar items, 2) Scalable storage and querying of high-dimensional embedding vectors, 3) Support for recommendation systems and similarity matching, 4) Essential infrastructure for RAG systems that need to quickly retrieve relevant context.",
+            "ground_truth": "Vector databases enable semantic search and are essential for RAG systems, providing fast similarity search and scalable storage."
+        },
+        {
+            "query": "How do I configure AWS Bedrock Knowledge Bases?",
+            "retrieved_context": "Amazon S3 is a cloud storage service that offers industry-leading scalability, data availability, security, and performance.",
+            "generated_answer": "To configure AWS Bedrock Knowledge Bases, you need to: 1) Create a knowledge base in the AWS console, 2) Configure your data source (like S3), 3) Set up embeddings and vector storage, 4) Configure chunking parameters, 5) Test your retrieval system.",
+            "ground_truth": "Configure Bedrock Knowledge Bases by creating a knowledge base, setting up data sources, and configuring embeddings."
+        },
+        {
+            "query": "What is the capital of France?",
+            "retrieved_context": "France is a country in Western Europe. It is known for its culture, cuisine, and landmarks. Paris is the capital and largest city of France.",
+            "generated_answer": "The capital of France is Paris.",
+            "ground_truth": "Paris"
+        }
+    ]
+
+# Demonstration script
+def run_rag_evaluation_demo():
+    """Run a complete RAG evaluation demonstration"""
+    print("🔍 RAG Evaluation Demonstration")
+    print("=" * 50)
+    
+    # Initialize evaluator
+    evaluator = RAGEvaluator()
+    
+    # Create sample data
+    evaluation_data = create_sample_evaluation_data()
+    
+    print(f"📊 Evaluating {len(evaluation_data)} RAG interactions...")
+    print()
+    
+    # Run evaluation
+    results = evaluator.evaluate_batch(evaluation_data)
+    
+    # Generate report
+    report = evaluator.generate_evaluation_report(results)
+    
+    # Display results
+    print("📈 EVALUATION RESULTS")
+    print("=" * 30)
+    
+    print(f"📋 Summary:")
+    print(f"   Total evaluations: {report['evaluation_summary']['total_evaluations']}")
+    print(f"   Model used: {report['evaluation_summary']['model_used']}")
+    print()
+    
+    print(f"📊 Aggregate Metrics:")
+    for metric_name, metric_data in report['aggregate_metrics'].items():
+        print(f"   {metric_name.replace('_', ' ').title()}:")
+        print(f"     Average Score: {metric_data['average']:.2f}")
+        print(f"     Passing Rate: {metric_data['passing_rate']:.1%}")
+    print()
+    
+    print(f"⚠️  Issues Analysis:")
+    issues = report['issues_analysis']
+    print(f"   Hallucination cases: {issues['hallucination_cases']}")
+    print(f"   Irrelevant context cases: {issues['irrelevant_context_cases']}")
+    print(f"   Irrelevant answer cases: {issues['irrelevant_answer_cases']}")
+    print()
+    
+    if report['recommendations']:
+        print(f"💡 Optimization Recommendations:")
+        for i, rec in enumerate(report['recommendations'], 1):
+            print(f"   {i}. {rec}")
+    
+    print()
+    print("✅ Evaluation complete!")
+    
+    return report
+
+if __name__ == "__main__":
+    run_rag_evaluation_demo()
+```
+
+### Advanced RAG Evaluation Techniques
+
+#### 1. **Continuous Evaluation Pipeline**
+
+For production RAG systems, implement continuous evaluation that monitors performance over time:
+
+```python
+import schedule
+import time
+from datetime import datetime, timedelta
+
+class ContinuousRAGEvaluator:
+    """Continuous evaluation system for production RAG monitoring"""
+    
+    def __init__(self, evaluator: RAGEvaluator, data_source_func):
+        self.evaluator = evaluator
+        self.data_source_func = data_source_func
+        self.evaluation_history = []
+        
+    def run_scheduled_evaluation(self):
+        """Run evaluation on recent RAG interactions"""
+        logger.info("Starting scheduled RAG evaluation...")
+        
+        # Get recent data (last 24 hours)
+        end_time = datetime.now()
+        start_time = end_time - timedelta(hours=24)
+        
+        evaluation_data = self.data_source_func(start_time, end_time)
+        
+        if not evaluation_data:
+            logger.info("No data available for evaluation")
+            return
+        
+        # Run evaluation
+        results = self.evaluator.evaluate_batch(evaluation_data)
+        report = self.evaluator.generate_evaluation_report(results)
+        
+        # Store results
+        self.evaluation_history.append({
+            "timestamp": datetime.now().isoformat(),
+            "report": report
+        })
+        
+        # Check for performance degradation
+        self._check_performance_alerts(report)
+        
+        logger.info(f"Evaluation complete. Overall score: {report['aggregate_metrics']['overall_score']['average']:.2f}")
+    
+    def _check_performance_alerts(self, report):
+        """Check for performance issues and send alerts"""
+        overall_score = report['aggregate_metrics']['overall_score']['average']
+        
+        if overall_score < 0.7:  # Threshold for performance degradation
+            logger.warning(f"⚠️ RAG Performance Alert: Overall score dropped to {overall_score:.2f}")
+            # Here you could integrate with AWS SNS, CloudWatch, or other alerting systems
+        
+        faithfulness_rate = report['aggregate_metrics']['faithfulness']['passing_rate']
+        if faithfulness_rate < 0.8:  # High hallucination rate
+            logger.warning(f"⚠️ Hallucination Alert: Faithfulness rate dropped to {faithfulness_rate:.1%}")
+    
+    def start_monitoring(self):
+        """Start continuous monitoring with scheduled evaluations"""
+        # Schedule evaluation every 6 hours
+        schedule.every(6).hours.do(self.run_scheduled_evaluation)
+        
+        logger.info("Started continuous RAG evaluation monitoring")
+        
+        while True:
+            schedule.run_pending()
+            time.sleep(60)  # Check every minute
+
+# Example data source function for continuous evaluation
+def get_rag_interactions_from_logs(start_time: datetime, end_time: datetime) -> List[Dict]:
+    """
+    Retrieve RAG interactions from your application logs or database
+    This is a placeholder - implement based on your logging/storage system
+    """
+    # This would typically query your application logs, database, or monitoring system
+    # For demonstration, return empty list
+    return []
+```
+
+#### 2. **A/B Testing for RAG Systems**
+
+Implement A/B testing to compare different RAG configurations:
+
+```python
+import random
+from typing import Dict, Any
+from enum import Enum
+
+class RAGVariant(Enum):
+    CONTROL = "control"
+    TREATMENT = "treatment"
+
+class RAGABTester:
+    """A/B testing framework for RAG systems"""
+    
+    def __init__(self, control_config: Dict[str, Any], treatment_config: Dict[str, Any]):
+        self.control_config = control_config
+        self.treatment_config = treatment_config
+        self.results = {RAGVariant.CONTROL: [], RAGVariant.TREATMENT: []}
+        
+    def assign_variant(self, user_id: str) -> RAGVariant:
+        """Assign user to control or treatment group"""
+        # Simple hash-based assignment for consistent user experience
+        hash_value = hash(user_id) % 100
+        return RAGVariant.TREATMENT if hash_value < 50 else RAGVariant.CONTROL
+    
+    def process_query(self, user_id: str, query: str) -> Dict[str, Any]:
+        """Process query using assigned variant"""
+        variant = self.assign_variant(user_id)
+        
+        if variant == RAGVariant.CONTROL:
+            result = self._process_with_config(query, self.control_config)
+        else:
+            result = self._process_with_config(query, self.treatment_config)
+        
+        # Log the interaction for later evaluation
+        self.results[variant].append({
+            "user_id": user_id,
+            "query": query,
+            "result": result,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+        return result
+    
+    def _process_with_config(self, query: str, config: Dict[str, Any]) -> Dict[str, Any]:
+        """Process query with specific RAG configuration"""
+        # This would implement your actual RAG logic with the given configuration
+        # For demonstration, return a placeholder
+        return {
+            "answer": f"Processed with {config['name']}: {query}",
+            "config_used": config
+        }
+    
+    def evaluate_experiment(self, evaluator: RAGEvaluator) -> Dict[str, Any]:
+        """Evaluate the A/B test results"""
+        control_data = self._prepare_evaluation_data(self.results[RAGVariant.CONTROL])
+        treatment_data = self._prepare_evaluation_data(self.results[RAGVariant.TREATMENT])
+        
+        control_results = evaluator.evaluate_batch(control_data)
+        treatment_results = evaluator.evaluate_batch(treatment_data)
+        
+        control_report = evaluator.generate_evaluation_report(control_results)
+        treatment_report = evaluator.generate_evaluation_report(treatment_results)
+        
+        # Statistical comparison
+        comparison = self._compare_variants(control_report, treatment_report)
+        
+        return {
+            "control": control_report,
+            "treatment": treatment_report,
+            "comparison": comparison,
+            "sample_sizes": {
+                "control": len(control_data),
+                "treatment": len(treatment_data)
+            }
+        }
+    
+    def _prepare_evaluation_data(self, raw_results: List[Dict]) -> List[Dict]:
+        """Convert raw results to evaluation format"""
+        # This would extract the necessary fields for evaluation
+        # For demonstration, return empty list
+        return []
+    
+    def _compare_variants(self, control_report: Dict, treatment_report: Dict) -> Dict:
+        """Compare control and treatment variants"""
+        control_score = control_report['aggregate_metrics']['overall_score']['average']
+        treatment_score = treatment_report['aggregate_metrics']['overall_score']['average']
+        
+        improvement = (treatment_score - control_score) / control_score * 100
+        
+        return {
+            "control_score": control_score,
+            "treatment_score": treatment_score,
+            "relative_improvement": improvement,
+            "winner": "treatment" if treatment_score > control_score else "control",
+            "significance": "requires_statistical_test"  # Implement proper statistical testing
+        }
+```
+
+### Integration with AWS Services
+
+#### CloudWatch Integration for Monitoring
+
+```python
+import boto3
+from datetime import datetime
+
+class CloudWatchRAGMonitor:
+    """Integration with AWS CloudWatch for RAG monitoring"""
+    
+    def __init__(self, namespace: str = "RAG/Evaluation"):
+        self.cloudwatch = boto3.client('cloudwatch')
+        self.namespace = namespace
+    
+    def publish_evaluation_metrics(self, report: Dict):
+        """Publish evaluation metrics to CloudWatch"""
+        timestamp = datetime.now()
+        
+        # Publish aggregate metrics
+        metrics_data = []
+        
+        for metric_name, metric_data in report['aggregate_metrics'].items():
+            metrics_data.extend([
+                {
+                    'MetricName': f'{metric_name}_average',
+                    'Value': metric_data['average'],
+                    'Unit': 'None',
+                    'Timestamp': timestamp
+                },
+                {
+                    'MetricName': f'{metric_name}_passing_rate',
+                    'Value': metric_data['passing_rate'],
+                    'Unit': 'Percent',
+                    'Timestamp': timestamp
+                }
+            ])
+        
+        # Publish issues metrics
+        for issue_type, count in report['issues_analysis'].items():
+            metrics_data.append({
+                'MetricName': issue_type,
+                'Value': count,
+                'Unit': 'Count',
+                'Timestamp': timestamp
+            })
+        
+        # Send metrics to CloudWatch in batches
+        batch_size = 20  # CloudWatch limit
+        for i in range(0, len(metrics_data), batch_size):
+            batch = metrics_data[i:i + batch_size]
+            
+            self.cloudwatch.put_metric_data(
+                Namespace=self.namespace,
+                MetricData=batch
+            )
+    
+    def create_dashboard(self):
+        """Create CloudWatch dashboard for RAG monitoring"""
+        dashboard_body = {
+            "widgets": [
+                {
+                    "type": "metric",
+                    "properties": {
+                        "metrics": [
+                            [self.namespace, "overall_score_average"],
+                            [self.namespace, "faithfulness_average"],
+                            [self.namespace, "context_relevance_average"],
+                            [self.namespace, "answer_relevance_average"]
+                        ],
+                        "period": 300,
+                        "stat": "Average",
+                        "region": "us-east-1",
+                        "title": "RAG Evaluation Scores"
+                    }
+                },
+                {
+                    "type": "metric",
+                    "properties": {
+                        "metrics": [
+                            [self.namespace, "hallucination_cases"],
+                            [self.namespace, "irrelevant_context_cases"],
+                            [self.namespace, "irrelevant_answer_cases"]
+                        ],
+                        "period": 300,
+                        "stat": "Sum",
+                        "region": "us-east-1",
+                        "title": "RAG Issues Count"
+                    }
+                }
+            ]
+        }
+        
+        self.cloudwatch.put_dashboard(
+            DashboardName='RAG-Evaluation-Dashboard',
+            DashboardBody=json.dumps(dashboard_body)
+        )
+```
+
+### Best Practices for RAG Evaluation
+
+#### 1. **Establish Baseline Metrics**
+Before implementing improvements, establish baseline performance metrics across all evaluation dimensions.
+
+#### 2. **Use Representative Test Data**
+Ensure your evaluation dataset represents real user queries and use cases.
+
+#### 3. **Implement Gradual Rollouts**
+When making changes based on evaluation results, implement them gradually and monitor impact.
+
+#### 4. **Combine Automated and Human Evaluation**
+While automated evaluation scales well, periodic human evaluation provides qualitative insights.
+
+#### 5. **Monitor Long-term Trends**
+Track evaluation metrics over time to identify gradual performance degradation or improvement.
+
+### RAG Optimization Based on Evaluation Results
+
+Based on evaluation results, here's how to optimize different components:
+
+#### Low Context Relevance (< 70%)
+```python
+# Optimization strategies for retrieval issues
+optimization_strategies = {
+    "chunking": {
+        "description": "Improve document chunking strategy",
+        "actions": [
+            "Adjust chunk size and overlap",
+            "Use semantic chunking instead of fixed-size",
+            "Preserve document structure in chunks"
+        ]
+    },
+    "embeddings": {
+        "description": "Improve embedding quality",
+        "actions": [
+            "Try different embedding models",
+            "Fine-tune embeddings on domain data",
+            "Use hybrid search (semantic + keyword)"
+        ]
+    },
+    "retrieval": {
+        "description": "Optimize retrieval parameters",
+        "actions": [
+            "Increase number of retrieved documents",
+            "Implement reranking",
+            "Add metadata filtering"
+        ]
+    }
+}
+```
+
+#### Low Faithfulness (< 80%)
+```python
+# Optimization strategies for hallucination issues
+faithfulness_strategies = {
+    "prompt_engineering": {
+        "description": "Improve generation prompts",
+        "actions": [
+            "Add explicit instructions to stick to context",
+            "Include examples of good responses",
+            "Use chain-of-thought prompting"
+        ]
+    },
+    "model_selection": {
+        "description": "Choose better generation model",
+        "actions": [
+            "Try models with better instruction following",
+            "Adjust temperature and other parameters",
+            "Consider fine-tuning for your domain"
+        ]
+    }
+}
+```
+
+RAG evaluation is essential for maintaining and improving the quality of your retrieval-augmented generation systems. By implementing comprehensive evaluation frameworks, continuous monitoring, and data-driven optimization strategies, you can build RAG systems that consistently deliver high-quality, reliable responses to your users.
 
 
 
