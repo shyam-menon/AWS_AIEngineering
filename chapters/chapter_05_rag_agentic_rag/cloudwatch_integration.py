@@ -67,7 +67,9 @@ class CloudWatchRAGMonitor:
             dimensions: Additional dimensions for metrics (e.g., environment, version)
         """
         try:
-            timestamp = datetime.now()
+            # Use UTC timezone-aware timestamp for CloudWatch
+            from datetime import timezone
+            timestamp = datetime.now(timezone.utc)
             metrics_data = []
             
             # Default dimensions

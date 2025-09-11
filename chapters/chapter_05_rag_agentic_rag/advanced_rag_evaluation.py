@@ -137,7 +137,9 @@ class ContinuousRAGEvaluator:
     def _publish_metrics_to_cloudwatch(self, report: Dict):
         """Publish evaluation metrics to CloudWatch"""
         try:
-            timestamp = datetime.now()
+            # Use UTC timezone-aware timestamp for CloudWatch
+            from datetime import timezone
+            timestamp = datetime.now(timezone.utc)
             metrics_data = []
             
             # Aggregate metrics
