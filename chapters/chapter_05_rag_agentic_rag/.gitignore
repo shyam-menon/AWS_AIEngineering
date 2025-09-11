@@ -1,0 +1,15 @@
+# RAG Evaluation output files
+rag_evaluation_results_*.csv
+rag_evaluation_detailed_*.json
+
+# Temporary test files
+test_nova_api.py
+quick_rag_test.py
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Temporary files
+temp_*.py

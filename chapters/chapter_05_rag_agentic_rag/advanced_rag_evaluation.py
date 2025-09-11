@@ -44,9 +44,9 @@ class RAGConfiguration:
     embedding_model: str
     retrieval_top_k: int
     reranking_enabled: bool
-    generation_model: str = "amazon.nova-lite-v1:0"
     generation_temperature: float
     prompt_template: str
+    generation_model: str = "amazon.nova-lite-v1:0"
     knowledge_base_id: str = "PIWCGRFREL"
     metadata: Optional[Dict[str, Any]] = None
 
