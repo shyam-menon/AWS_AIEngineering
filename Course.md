@@ -88,6 +88,7 @@ Let's get started!
     - [Data Preparation](#data-preparation)
     - [Data Retrieval and Generation](#data-retrieval-and-generation)
     - [Reranking](#reranking)
+    - [RAG Evaluation and Monitoring](#rag-evaluation-and-monitoring)
     - [MCP (Model Context Protocol)](#mcp-model-context-protocol)
     - [Strands Agent Framework for RAG](#strands-agent-framework-for-rag)
     - [AWS Bedrock Knowledge Bases for RAG](#aws-bedrock-knowledge-bases-for-rag)
