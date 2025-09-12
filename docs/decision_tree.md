@@ -476,7 +476,336 @@ Operational Excellence Achieved
 
 ---
 
-## 📝 Use Case Assessment Template
+## � Practical Decision Flows
+
+### 🔧 Model Selection Decision Flow
+
+```
+💭 Question: What's your primary task type?
+
+Text Generation & Creative Tasks?
+    ↓ YES
+📝 Choose Generation-Optimized Models
+    • Claude 3.5 Sonnet (complex creativity)
+    • GPT-4 (general generation)
+    • Titan Text Express (cost-effective)
+    
+    ↓ CONSIDERATIONS:
+    • Token limits vs content length
+    • Creativity vs consistency needs
+    • Cost vs quality trade-offs
+
+Code & Technical Analysis?
+    ↓ YES
+💻 Choose Code-Specialized Models
+    • Claude 3.5 Sonnet (best for code)
+    • GPT-4 (code + explanation)
+    • Llama 3.1 70B (open source option)
+    
+    ↓ CONSIDERATIONS:
+    • Programming language support
+    • Code explanation needs
+    • Security review requirements
+
+Quick Q&A & High Volume?
+    ↓ YES
+⚡ Choose Fast/Cost-Effective Models
+    • Claude 3 Haiku (fastest)
+    • Titan Text Lite (cheapest)
+    • Cohere Command (balanced)
+    
+    ↓ CONSIDERATIONS:
+    • Response time requirements
+    • Budget constraints
+    • Accuracy vs speed trade-offs
+
+Complex Analysis & Reasoning?
+    ↓ YES
+🧠 Choose Reasoning-Optimized Models
+    • Claude 3 Opus (highest capability)
+    • GPT-4 (strong reasoning)
+    • Llama 3.1 405B (open source powerhouse)
+    
+    ↓ CONSIDERATIONS:
+    • Reasoning depth required
+    • Context window needs
+    • Processing time tolerance
+```
+
+### 🏗️ Architecture Pattern Decision Flow
+
+```
+🏛️ Question: What's your system complexity?
+
+Simple Question-Answer System?
+    ↓ YES
+📞 Direct API Pattern
+    • Single model calls
+    • Prompt engineering focus
+    • Minimal infrastructure
+    • Good for: Chatbots, content generation, simple Q&A
+    
+    ↓ IMPLEMENTATION:
+    • AWS Bedrock direct invoke
+    • Lambda functions
+    • API Gateway frontend
+
+Need External Data/Tools?
+    ↓ YES
+🔧 Tool-Enhanced Agent Pattern
+    • Single agent with multiple tools
+    • Moderate complexity
+    • Good for: Enhanced chatbots, data analysis, system integration
+    
+    ↓ IMPLEMENTATION:
+    • Strands Agents framework
+    • Custom tool definitions
+    • API integrations
+
+Complex Workflows & Coordination?
+    ↓ YES
+🤖 Multi-Agent System Pattern
+    • Specialized agents for different tasks
+    • Agent coordination and communication
+    • High complexity but powerful
+    • Good for: Enterprise workflows, complex automation
+    
+    ↓ IMPLEMENTATION:
+    • AWS AgentCore for orchestration
+    • Multiple Strands Agents
+    • Event-driven architecture
+
+Enterprise-Scale with Governance?
+    ↓ YES
+🏢 Platform Pattern
+    • Centralized model management
+    • Governance and compliance
+    • Multi-tenant support
+    • Good for: Large organizations, regulated industries
+    
+    ↓ IMPLEMENTATION:
+    • AWS Bedrock with custom models
+    • IAM-based access control
+    • Comprehensive monitoring
+```
+
+### 💾 Storage Strategy Decision Flow
+
+```
+📊 Question: What's your data characteristics?
+
+Primarily Text Documents?
+    ↓ YES
+🔍 Vector Database Pattern
+    • Semantic search capabilities
+    • Good for: Document Q&A, content discovery
+    • Options: Pinecone, Chroma, OpenSearch
+    
+    ↓ CONSIDERATIONS:
+    • Document size and chunking strategy
+    • Search accuracy requirements
+    • Update frequency
+
+Complex Relationships & Connections?
+    ↓ YES
+🕸️ Graph Database Pattern
+    • Relationship-aware queries
+    • Good for: Knowledge graphs, recommendation systems
+    • Options: Neo4j, Amazon Neptune
+    
+    ↓ CONSIDERATIONS:
+    • Relationship complexity
+    • Query pattern needs
+    • Scale requirements
+
+Structured Data with Some Text?
+    ↓ YES
+🗃️ Hybrid Database Pattern
+    • Relational + vector capabilities
+    • Good for: Business applications with search
+    • Options: PostgreSQL with pgvector, Aurora
+    
+    ↓ CONSIDERATIONS:
+    • Data consistency needs
+    • Transaction requirements
+    • Search vs query balance
+
+High-Scale, Multi-Modal Data?
+    ↓ YES
+☁️ Multi-Storage Pattern
+    • Different storage for different data types
+    • Good for: Enterprise applications, complex systems
+    • Options: S3 + DynamoDB + Vector DB
+    
+    ↓ CONSIDERATIONS:
+    • Data synchronization needs
+    • Cost optimization
+    • Management complexity
+```
+
+### 🤔 RAG vs Agentic RAG Decision Flow
+
+```
+📋 Question: What type of responses do you need?
+
+Can the answer come from documents/tables you've indexed?
+    ↓ YES
+🗂️ Start with Knowledge Base RAG
+    • AWS Bedrock Knowledge Bases
+    • Vector search + document retrieval
+    • Good for: FAQ, documentation Q&A, content lookup
+    • Best when: Static knowledge, well-defined domains
+    
+    ↓ EXAMPLE USE CASES:
+    • "What's our return policy?"
+    • "Find pricing information for Product X"
+    • "Show me compliance requirements for GDPR"
+
+Do you also need to call operational systems or ask clarifying questions?
+    ↓ YES
+🤖 Move to Agentic RAG
+    • Bedrock Agents/AgentCore or custom framework
+    • Multi-step reasoning + tool use
+    • Good for: Complex workflows, system integration
+    • Best when: Dynamic data, multi-system queries
+    
+    ↓ EXAMPLE USE CASES:
+    • "What's the current status of order #12345 and when will it ship?"
+    • "Create a report on last quarter's performance and email it to the team"
+    • "Find similar support tickets and suggest resolution steps"
+
+🔄 HYBRID APPROACH: Knowledge Base + Agent Tools
+    • Use KB for document retrieval
+    • Add agent tools for Jira/ADO/GitHub/APIs
+    • Agent coordinates between KB and operational systems
+    • Best for: Complex enterprise scenarios
+    
+    ↓ EXAMPLE USE CASES:
+    • "Based on our documentation, create a Jira ticket for this bug report"
+    • "Find relevant policies and check current compliance status in our systems"
+    • "Research this topic in our KB and schedule a follow-up meeting"
+```
+
+### 🚀 Deployment Strategy Decision Flow
+
+```
+⚙️ Question: What are your operational requirements?
+
+Development/Prototyping?
+    ↓ YES
+🧪 Serverless Pattern
+    • Quick deployment
+    • Pay-per-use
+    • Minimal ops overhead
+    • Good for: Prototypes, low-traffic apps
+    
+    ↓ IMPLEMENTATION:
+    • AWS Lambda
+    • API Gateway
+    • DynamoDB
+    • Bedrock direct integration
+
+Production with Predictable Load?
+    ↓ YES
+🏭 Container Pattern
+    • Predictable performance
+    • Better cost control
+    • Good for: Production apps, steady traffic
+    
+    ↓ IMPLEMENTATION:
+    • ECS/EKS
+    • Application Load Balancer
+    • RDS/DynamoDB
+    • Bedrock with provisioned throughput
+
+High Availability & Scale?
+    ↓ YES
+🌐 Multi-Region Pattern
+    • Global distribution
+    • Disaster recovery
+    • Good for: Mission-critical apps, global users
+    
+    ↓ IMPLEMENTATION:
+    • Multi-region deployment
+    • CloudFront distribution
+    • Cross-region replication
+    • Multiple Bedrock regions
+
+Enterprise with Compliance?
+    ↓ YES
+🔒 Secure Enterprise Pattern
+    • Enhanced security controls
+    • Audit logging
+    • Good for: Regulated industries, enterprise
+    
+    ↓ IMPLEMENTATION:
+    • VPC with private subnets
+    • WAF and security groups
+    • CloudTrail and Config
+    • Custom model endpoints
+```
+
+### 📈 Scaling Decision Flow
+
+```
+📊 Question: What's your growth trajectory?
+
+Starting Small, Uncertain Growth?
+    ↓ YES
+📱 Start Simple, Scale Later
+    • Begin with basic implementation
+    • Plan for evolution
+    • Focus on learning and iteration
+    
+    ↓ APPROACH:
+    • Direct API calls
+    • Simple caching
+    • Basic monitoring
+    • Gradual enhancement
+
+Known High Volume from Start?
+    ↓ YES
+🚀 Build for Scale Day One
+    • Implement scalability patterns early
+    • Invest in infrastructure
+    • Plan for operational complexity
+    
+    ↓ APPROACH:
+    • Microservices architecture
+    • Distributed caching
+    • Comprehensive monitoring
+    • Auto-scaling groups
+
+Seasonal/Burst Traffic Patterns?
+    ↓ YES
+🌊 Elastic Scaling Pattern
+    • Dynamic resource allocation
+    • Cost optimization focus
+    • Handle traffic spikes gracefully
+    
+    ↓ APPROACH:
+    • Auto-scaling infrastructure
+    • Bedrock on-demand pricing
+    • CloudFront caching
+    • Queue-based processing
+
+Global User Base?
+    ↓ YES
+🌍 Global Distribution Pattern
+    • Multi-region deployment
+    • Latency optimization
+    • Local compliance considerations
+    
+    ↓ APPROACH:
+    • Edge computing
+    • Regional data centers
+    • Content delivery networks
+    • Local model endpoints
+```
+
+---
+
+## �📝 Use Case Assessment Template
 
 ### 🎯 Use Case: [Name]
 **Description**: [Brief description of the AI application]
