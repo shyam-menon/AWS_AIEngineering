@@ -169,6 +169,7 @@ Focus on detecting escalation triggers like:
             customer_emotion = intent_data.get("customer_emotion", "neutral")
             
             print(f"🔍 Looking up knowledge for intent: {intent}")
+            print(f"🔍 DEBUG - Full intent_data received: {intent_data}")
             
             # Mock knowledge base responses based on intent
             knowledge_base = {
@@ -214,6 +215,25 @@ Focus on detecting escalation triggers like:
                         "Hardware replacement needed"
                     ]
                 },
+                "GENERAL_INQUIRY": {
+                    "relevant_articles": [
+                        "General support information",
+                        "Company policies overview",
+                        "Contact information",
+                        "Service descriptions"
+                    ],
+                    "procedures": [
+                        "Identify specific customer need",
+                        "Provide relevant information",
+                        "Offer additional assistance",
+                        "Follow up if needed"
+                    ],
+                    "policies": "We're here to help with any questions about our products and services. Our support team is available to provide information and assistance.",
+                    "escalation_triggers": [
+                        "Complex questions requiring specialist knowledge",
+                        "Multiple related inquiries"
+                    ]
+                },
                 "BILLING": {
                     "relevant_articles": [
                         "Billing cycle information",
@@ -232,6 +252,48 @@ Focus on detecting escalation triggers like:
                         "Disputed charges over $100",
                         "Multiple billing complaints",
                         "Payment processing errors"
+                    ]
+                },
+                "COMPLAINT": {
+                    "relevant_articles": [
+                        "Complaint resolution process",
+                        "Customer satisfaction guarantee",
+                        "Escalation procedures",
+                        "Feedback and improvement process"
+                    ],
+                    "procedures": [
+                        "Listen actively to customer concerns",
+                        "Document complaint details thoroughly",
+                        "Investigate issue promptly",
+                        "Provide resolution or escalation path",
+                        "Follow up to ensure satisfaction"
+                    ],
+                    "policies": "All complaints taken seriously and investigated within 24 hours. Customer satisfaction is our priority. Escalation to management available for unresolved issues.",
+                    "escalation_triggers": [
+                        "Product quality complaints",
+                        "Service delivery issues",
+                        "Repeated problems",
+                        "Customer expressing strong dissatisfaction"
+                    ]
+                },
+                "PRODUCT_INFO": {
+                    "relevant_articles": [
+                        "Product specifications",
+                        "Feature comparisons",
+                        "User manuals and guides",
+                        "Compatibility information"
+                    ],
+                    "procedures": [
+                        "Identify specific product inquired about",
+                        "Provide detailed specifications",
+                        "Explain key features and benefits",
+                        "Offer additional resources or demos"
+                    ],
+                    "policies": "Complete product information available to help customers make informed decisions. Product experts available for detailed technical questions.",
+                    "escalation_triggers": [
+                        "Highly technical product questions",
+                        "Custom integration requirements",
+                        "Enterprise-level inquiries"
                     ]
                 }
             }
@@ -636,8 +698,8 @@ Is there anything specific I can help clarify or any additional questions you ha
                 lookup_knowledge_base, 
                 check_escalation_needed,
                 prepare_human_handoff,
-                generate_customer_response,
-                handoff_to_user  # Now using proper community tool
+                generate_customer_response
+                # handoff_to_user removed - only called programmatically when escalation needed
             ],
             model="amazon.nova-lite-v1:0"
         )
