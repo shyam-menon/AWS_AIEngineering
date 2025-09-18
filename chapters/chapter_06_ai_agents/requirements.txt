@@ -1,0 +1,26 @@
+# Chapter 6: AI Agents - Requirements
+# Simple Tool-Augmented Agent with Strands and Multi-Agent Systems
+
+# Core Strands packages
+strands-agents>=1.0.0
+strands-agents-tools>=0.2.0
+
+# AWS SDK for Bedrock integration
+boto3>=1.26.0
+
+# Additional dependencies for examples
+typing-extensions>=4.0.0
+
+# Web UI demo dependencies
+flask>=2.3.0
+
+# Multi-agent system dependencies
+# (All included in strands-agents core package)
+
+# Community tools package for advanced examples
+# Includes: use_aws, handoff_to_user, and other production tools
+# Install with: pip install strands-agents-tools
+
+# Customer Support Agent specific dependencies
+# Amazon Nova Lite model access required in AWS Bedrock
+# Model ID: amazon.nova-lite-v1:0

@@ -51,12 +51,18 @@ Master AI agent design patterns, multi-agent systems, and production-ready imple
    - **Key Features**: AWS Bedrock Nova Lite, human handoff, knowledge lookup
    - **Architecture**: Multi-tool workflow with intelligent routing
 
-8. **Human-in-the-Loop Testing**
+8. **Interactive Web UI Demo** ⭐ **VISUAL HIGHLIGHT**
+   - **Web Interface**: `python customer_support_ui.py`
+   - Interactive chat interface with real-time workflow visualization
+   - **Features**: Intent classification display, escalation detection, tone analysis
+   - **Perfect for**: Testing scenarios and seeing agent decision-making process
+
+9. **Human-in-the-Loop Testing**
    - **Focused Demo**: `python simple_handoff_demo.py`
    - Learn how agents hand off to humans for complex decisions
    - **Key Tool**: `handoff_to_user` from strands-tools
 
-9. **AWS Cost Monitoring** (Optional)
+10. **AWS Cost Monitoring** (Optional)
    - **Quick Test**: `python test_aws_cost_hitl.py`
    - **Full Example**: `python aws_cost_monitor_hitl_example.py` (requires AWS setup)
    - Production workflow with AWS services integration
@@ -92,6 +98,7 @@ python simple_tool_agent.py
 - `simple_tool_agent.py` - **Basic patterns** 
 - `test_workflow.py` - **Quick multi-agent test**
 - `customer_support_examples.py` - **Advanced agent workflow**
+- `customer_support_ui.py` - **🎮 Interactive Web UI Demo** ⭐ **MUST TRY**
 
 ### 🟡 Intermediate Examples
 - `agents_as_tools_example.py` - **Hierarchical agents**
@@ -107,7 +114,12 @@ python simple_tool_agent.py
 
 ### Customer Support Agent Demo
 ```python
-# Run this for complete interactive experience
+# 🎮 BEST OPTION: Interactive Web UI (Recommended!)
+python customer_support_ui.py
+# Opens browser at http://localhost:5000
+# Features: Real-time workflow visualization, escalation detection, example scenarios
+
+# Command Line Version
 python customer_support_examples.py
 
 # Test different customer scenarios:

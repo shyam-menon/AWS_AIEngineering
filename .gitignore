@@ -88,6 +88,11 @@ logs/
 *.temp
 chapters/chapter_08_observability_evaluation/correlation_analysis.png
 
+# Debug and temporary test files
+debug_*.py
+test_handoff.py
+test_hitl_api.py
+
 # Agent session files (Strands runtime)
 agent_sessions/
 **/agent_sessions/

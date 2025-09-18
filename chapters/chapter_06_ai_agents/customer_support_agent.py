@@ -25,8 +25,18 @@ from datetime import datetime
 try:
     from strands import Agent
     from strands.tools import tool
-    from strands_tools import handoff_to_user
     import boto3
+    
+    # Custom non-blocking handoff for web UI
+    @tool
+    def handoff_to_user(message: str) -> str:
+        """
+        Custom handoff that signals completion without blocking.
+        The web UI will handle the actual human interaction separately.
+        """
+        print(f"🔄 HANDOFF INITIATED: {message[:100]}...")
+        # Return a signal that handoff was initiated (not blocking)
+        return "HANDOFF_INITIATED: Human agent intervention requested. Awaiting web-based feedback."
     
     print("✅ All required libraries imported successfully!")
     
@@ -493,7 +503,7 @@ Requires careful, empathetic handling with focus on immediate resolution."""
     
     # === RESPONSE GENERATION TOOL ===
     @tool
-    def generate_customer_response(intent_data: Dict[str, Any], knowledge_data: Dict[str, Any], escalation_data: Dict[str, Any]) -> Dict[str, Any]:
+    def generate_customer_response(intent_data: Dict[str, Any], knowledge_data: Dict[str, Any], escalation_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Generate appropriate customer response based on all available context.
         
@@ -515,7 +525,7 @@ Requires careful, empathetic handling with focus on immediate resolution."""
             intent = intent_data.get("intent", "GENERAL_INQUIRY")
             emotion = intent_data.get("customer_emotion", "neutral")
             urgency = intent_data.get("urgency", "medium")
-            escalate = escalation_data.get("escalate", False)
+            escalate = escalation_data.get("escalate", False) if escalation_data else False
             policies = knowledge_data.get("policies", "")
             
             # Response templates based on emotion and intent
@@ -625,8 +635,8 @@ Is there anything specific I can help clarify or any additional questions you ha
                 lookup_knowledge_base, 
                 check_escalation_needed,
                 prepare_human_handoff,
-                generate_customer_response,
-                handoff_to_user
+                generate_customer_response
+                # handoff_to_user removed - handled by UI system instead
             ],
             model="amazon.nova-lite-v1:0"
         )
