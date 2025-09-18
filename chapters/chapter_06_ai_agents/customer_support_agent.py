@@ -32,18 +32,8 @@ from datetime import datetime
 try:
     from strands import Agent
     from strands.tools import tool
+    from strands_tools import handoff_to_user
     import boto3
-    
-    # Custom non-blocking handoff for web UI
-    @tool
-    def handoff_to_user(message: str) -> str:
-        """
-        Custom handoff that signals completion without blocking.
-        The web UI will handle the actual human interaction separately.
-        """
-        print(f"🔄 HANDOFF INITIATED: {message[:100]}...")
-        # Return a signal that handoff was initiated (not blocking)
-        return "HANDOFF_INITIATED: Human agent intervention requested. Awaiting web-based feedback."
     
     print("✅ All required libraries imported successfully!")
     
@@ -494,9 +484,9 @@ Requires careful, empathetic handling with focus on immediate resolution."""
             print(f"✅ Handoff package prepared for {department} team")
             print(f"📊 Package includes {len(attempted_solutions)} attempted solutions")
             
-            # Initiate the actual handoff
-            handoff_result = handoff_to_user(handoff_message)
-            handoff_package["handoff_initiated"] = handoff_result
+            # Mark that handoff is needed - the agent will call handoff_to_user separately
+            handoff_package["handoff_needed"] = True
+            handoff_package["handoff_signal"] = "HANDOFF_INITIATED"
             
             return handoff_package
             
@@ -646,8 +636,8 @@ Is there anything specific I can help clarify or any additional questions you ha
                 lookup_knowledge_base, 
                 check_escalation_needed,
                 prepare_human_handoff,
-                generate_customer_response
-                # handoff_to_user removed - handled by UI system instead
+                generate_customer_response,
+                handoff_to_user  # Now using proper community tool
             ],
             model="amazon.nova-lite-v1:0"
         )
