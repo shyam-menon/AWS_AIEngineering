@@ -67,7 +67,7 @@ This chapter explores the exciting world of AI agents, including design patterns
 
 #### Customer Support Agent with Intent Classification & Human Handoff ✅ NEW
 **Pattern**: Multi-tool workflow with intelligent escalation and human-in-the-loop
-- **Files**: `customer_support_agent.py` + `CUSTOMER_SUPPORT_AGENT_README.md` + `test_customer_support_agent.py`
+- **Files**: `customer_support_agent.py` + `CUSTOMER_SUPPORT_AGENT_README.md` + `customer_support_examples.py` + `simple_handoff_demo.py`
 - **Tools Used**: Custom intent classifier + knowledge lookup + escalation check + `handoff_to_user`
 - **Model**: Amazon Nova Lite (amazon.nova-lite-v1:0) for intent classification
 - **Concept**: Sophisticated customer support workflow with automated analysis and smart escalation
@@ -84,8 +84,15 @@ This chapter explores the exciting world of AI agents, including design patterns
 Customer Query → Intent Classification → Knowledge Lookup + Escalation Check → Human Handoff OR Response Generation
 ```
 
-**Example Scenarios**:
+**Testing & Examples**:
 ```python
+# Run complete customer support scenarios
+python customer_support_examples.py
+
+# Test human-in-the-loop handoff functionality
+python simple_handoff_demo.py
+
+# Example Scenarios:
 # Angry customer - automatic escalation to management
 "This product is complete garbage! I want my money back RIGHT NOW!"
 # → Escalated with high priority + empathy guidance
@@ -124,7 +131,15 @@ agent.approve_high_cost_operation("Scale RDS cluster", estimated_cost=800.0)
 agent.check_service_costs("EC2")  # AI analysis + human decision making
 ```
 
-## Quick Start
+## 🎓 Student Quick Start
+
+### For Students - Start Here!
+📚 **See `STUDENT_LEARNING_GUIDE.md` for complete step-by-step learning path**
+
+**Recommended First Steps:**
+1. Run `python comprehensive_strands_concepts_demo.py` - Learn all core concepts
+2. Try `python customer_support_examples.py` - See advanced agent in action  
+3. Test `python simple_handoff_demo.py` - Understand human-in-the-loop patterns
 
 ### Prerequisites
 ```bash
@@ -151,6 +166,10 @@ python test_workflow.py    # Quick Workflow demo
 # Test advanced tool integration
 python test_aws_cost_hitl.py          # Quick AWS tools test
 python aws_cost_monitor_hitl_example.py # Full cost monitoring demo
+
+# Test customer support agent and human-in-the-loop
+python customer_support_examples.py   # Complete customer support workflows
+python simple_handoff_demo.py        # Human handoff demonstrations
 
 # Run full examples
 python agents_as_tools_example.py  # Complete hierarchical system
@@ -305,7 +324,12 @@ chapter_06_ai_agents/
 │
 ├── aws_cost_monitor_hitl_example.py   # AWS tools + HITL integration
 ├── AWS_COST_MONITOR_HITL_README.md    # AWS cost monitoring guide
-└── test_aws_cost_hitl.py              # Quick AWS tools test
+├── test_aws_cost_hitl.py              # Quick AWS tools test
+│
+├── customer_support_agent.py          # Advanced customer support with HITL
+├── CUSTOMER_SUPPORT_AGENT_README.md   # Customer support guide
+├── customer_support_examples.py       # Customer support demonstrations
+└── simple_handoff_demo.py             # Human-in-the-loop testing
 ```
 
 ## Community Tools Integration
