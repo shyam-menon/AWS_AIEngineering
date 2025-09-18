@@ -20,6 +20,13 @@ Thumbs.db
 env/
 venv/
 
+# Log files
+*.log
+logs/
+
+# Session files (for AI usage tracking)
+*_session.json
+
 # Test outputs
 test_output/
 *.log

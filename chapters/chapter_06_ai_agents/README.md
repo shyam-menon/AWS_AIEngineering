@@ -65,6 +65,40 @@ This chapter explores the exciting world of AI agents, including design patterns
 
 ### Advanced Tool Integration Examples
 
+#### Customer Support Agent with Intent Classification & Human Handoff ✅ NEW
+**Pattern**: Multi-tool workflow with intelligent escalation and human-in-the-loop
+- **Files**: `customer_support_agent.py` + `CUSTOMER_SUPPORT_AGENT_README.md` + `test_customer_support_agent.py`
+- **Tools Used**: Custom intent classifier + knowledge lookup + escalation check + `handoff_to_user`
+- **Model**: Amazon Nova Lite (amazon.nova-lite-v1:0) for intent classification
+- **Concept**: Sophisticated customer support workflow with automated analysis and smart escalation
+- **Features**:
+  - Intent classification (returns, technical support, billing, etc.)
+  - Emotion detection (happy, neutral, frustrated, angry)
+  - Mock AWS Bedrock Knowledge Base integration
+  - Intelligent escalation based on emotion, urgency, and complexity
+  - Human handoff with comprehensive context packages
+  - Automated response generation for simple queries
+
+**Workflow**:
+```
+Customer Query → Intent Classification → Knowledge Lookup + Escalation Check → Human Handoff OR Response Generation
+```
+
+**Example Scenarios**:
+```python
+# Angry customer - automatic escalation to management
+"This product is complete garbage! I want my money back RIGHT NOW!"
+# → Escalated with high priority + empathy guidance
+
+# Polite inquiry - automated response  
+"Hi, could you help me understand your return policy please?"
+# → Automated friendly response with policy details
+
+# Technical urgency - escalated to specialists
+"My device stopped working and I need it for presentation tomorrow!"
+# → Escalated to technical team with urgency context
+```
+
 #### AWS Cost Monitoring with Human-in-the-Loop ✅ IMPLEMENTED
 **Pattern**: Community tools integration with production workflows
 - **Files**: `aws_cost_monitor_hitl_example.py` + `AWS_COST_MONITOR_HITL_README.md` + `test_aws_cost_hitl.py`
