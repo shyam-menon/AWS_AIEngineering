@@ -130,8 +130,32 @@ class CustomerSupportUI:
             # If still no response found, extract from full conversation
             if not agent_response:
                 full_text = str(result)
-                # Look for customer response patterns
-                if "I sincerely apologize" in full_text:
+                
+                # Try to extract the actual agent response from the conversation
+                agent_response = self._extract_customer_response_from_conversation(full_text)
+                
+                # If that didn't work, look for other response patterns
+                if not agent_response:
+                    # Look for responses that start after the last </thinking> tag
+                    thinking_end = full_text.rfind('</thinking>')
+                    if thinking_end != -1:
+                        # Get text after the last thinking section
+                        after_thinking = full_text[thinking_end + len('</thinking>'):].strip()
+                        # Split by lines and look for the actual response content
+                        lines = after_thinking.split('\n')
+                        response_lines = []
+                        for line in lines:
+                            line = line.strip()
+                            # Skip tool outputs, system messages, etc.
+                            if line and not line.startswith('Tool #') and not line.startswith('📝') and not line.startswith('👤') and not line.startswith('✅'):
+                                # This looks like actual response content
+                                response_lines.append(line)
+                        
+                        if response_lines:
+                            agent_response = '\n'.join(response_lines)
+                
+                # Look for customer response patterns as fallback
+                if not agent_response and "I sincerely apologize" in full_text:
                     # Extract the apology and resolution text
                     start = full_text.find("I sincerely apologize")
                     if start != -1:
