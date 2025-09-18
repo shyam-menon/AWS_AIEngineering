@@ -87,37 +87,8 @@ class CustomerSupportUI:
             # For now, we'll detect handoff by the agent's behavior and simulate the response
             conversation_text = str(result)
             
-            # Check if handoff occurred by looking for our custom handoff signals
-            handoff_detected = (
-                "HANDOFF_INITIATED" in conversation_text or
-                "prepare_human_handoff" in conversation_text or
-                "handoff package prepared" in conversation_text.lower() or
-                "management team" in conversation_text.lower() or
-                "escalation required" in conversation_text.lower()
-            )
-            
-            if handoff_detected:
-                # Extract the initial customer service response from the agent
-                agent_response = self._extract_customer_response_from_conversation(conversation_text)
-                
-                # Check if we already have human feedback for this session
-                if session_id in human_responses:
-                    human_feedback = human_responses[session_id]
-                    print(f"👤 Using stored human feedback: {human_feedback[:100]}...")
-                else:
-                    # Store this handoff for human intervention
-                    pending_handoffs[session_id] = {
-                        "user_query": user_query,
-                        "agent_response": agent_response,
-                        "timestamp": datetime.datetime.now().isoformat(),
-                        "conversation_text": conversation_text
-                    }
-                    print(f"⏳ Handoff pending human feedback for session: {session_id}")
-                    human_feedback = "[PENDING: Awaiting human agent response...]"
-                
-            else:
-                # Extract response from message content for non-handoff scenarios
-                if hasattr(result, 'message') and result.message:
+            # Extract response from message content
+            if hasattr(result, 'message') and result.message:
                     content = result.message.get('content', [])
                     if content and isinstance(content, list):
                         for item in content:
@@ -172,6 +143,57 @@ class CustomerSupportUI:
             if not agent_response:
                 agent_response = "I've analyzed your request and will ensure it gets the appropriate attention."
             
+            # NOW do handoff detection after we have the agent response
+            handoff_detected = False
+            
+            # Debug: Let's see what's in conversation_text
+            print(f"🔍 DEBUG - Conversation text contains HANDOFF INITIATED: {'🔄 HANDOFF INITIATED' in conversation_text}")
+            print(f"🔍 DEBUG - Conversation text contains prepare_human_handoff: {'prepare_human_handoff' in conversation_text}")
+            print(f"🔍 DEBUG - Conversation text contains ESCALATION REQUIRED: {'🚨 ESCALATION REQUIRED' in conversation_text}")
+            
+            # Method 1: Check for the actual handoff initiation message (most reliable)
+            if "🔄 HANDOFF INITIATED" in conversation_text:
+                handoff_detected = True
+                print(f"🔍 DEBUG - Handoff detected via HANDOFF INITIATED signal")
+            
+            # Method 2: Check if prepare_human_handoff tool was executed
+            elif "prepare_human_handoff" in conversation_text:
+                handoff_detected = True  
+                print(f"🔍 DEBUG - Handoff detected via prepare_human_handoff tool execution")
+            
+            # Method 3: Check for escalation required message
+            elif "🚨 ESCALATION REQUIRED" in conversation_text:
+                handoff_detected = True
+                print(f"🔍 DEBUG - Handoff detected via ESCALATION REQUIRED signal")
+            
+            # Method 4: Check if the agent response mentions management/escalation (fallback)
+            elif agent_response and any(keyword in agent_response.lower() for keyword in [
+                "management team", "escalat", "human agent", "follow up", "within 24 hours",
+                "personally handle", "higher authority", "supervisor"
+            ]):
+                handoff_detected = True
+                print(f"🔍 DEBUG - Handoff detected via agent response keywords")
+            
+            print(f"🔍 DEBUG - Final handoff detected: {handoff_detected}")
+            print(f"🔍 DEBUG - Agent response sample: {agent_response[:200] if agent_response else 'None'}...")
+            
+            # Handle handoff storage if detected
+            if handoff_detected:
+                # Check if we already have human feedback for this session
+                if session_id in human_responses:
+                    human_feedback = human_responses[session_id]
+                    print(f"👤 Using stored human feedback: {human_feedback[:100]}...")
+                else:
+                    # Store this handoff for human intervention
+                    pending_handoffs[session_id] = {
+                        "user_query": user_query,
+                        "agent_response": agent_response,
+                        "timestamp": datetime.datetime.now().isoformat(),
+                        "conversation_text": conversation_text
+                    }
+                    print(f"⏳ Handoff pending human feedback for session: {session_id}")
+                    human_feedback = "[PENDING: Awaiting human agent response...]"
+            
             print(f"📝 Agent response: {agent_response[:200]}...")
             if human_feedback:
                 print(f"👤 Human feedback: {human_feedback}")
@@ -201,10 +223,16 @@ class CustomerSupportUI:
             intent_analysis = self._simulate_intent_classification(user_query)
             tone_analysis = self._analyze_tone(user_query)
             
-            # Combine agent response with human feedback if available
-            complete_response = agent_response
-            if human_feedback and handoff_detected:
-                complete_response += f"\n\n**Human Agent Update:** {human_feedback}"
+            # Prepare the response for UI display
+            if escalation_detected and not human_feedback:
+                # Show pending state for handoff without feedback
+                complete_response = "[PENDING...] Your request has been escalated to our management team. Please wait while we connect you with a human agent."
+            elif human_feedback and escalation_detected:
+                # Show human feedback
+                complete_response = f"**Human Agent Response:** {human_feedback}"
+            else:
+                # Show regular agent response
+                complete_response = agent_response
             
             workflow_details = {
                 "timestamp": datetime.datetime.now().isoformat(),
