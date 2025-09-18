@@ -11,7 +11,14 @@ This example demonstrates a sophisticated customer support workflow using Strand
 5. Response Generation - Creates appropriate responses based on context
 
 Workflow:
-Customer Query → Intent Classification → (Knowledge Lookup + Escalation Check) → 
+Customer Query → Intent Classification → (Knowledge Lookup + Escala            tools=[
+                classify_customer_intent, 
+                lookup_knowledge_base, 
+                check_escalation_needed,
+                prepare_human_handoff,
+                generate_customer_response,
+                handoff_to_user  # Re-added for proper HITL flow
+            ],ck) → 
                 → Human Handoff OR Response Generation
 
 Author: AWS AI Engineering Course  
@@ -486,6 +493,10 @@ Requires careful, empathetic handling with focus on immediate resolution."""
             
             print(f"✅ Handoff package prepared for {department} team")
             print(f"📊 Package includes {len(attempted_solutions)} attempted solutions")
+            
+            # Initiate the actual handoff
+            handoff_result = handoff_to_user(handoff_message)
+            handoff_package["handoff_initiated"] = handoff_result
             
             return handoff_package
             
