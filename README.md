@@ -4,7 +4,7 @@ A comprehensive course and collection of practical examples demonstrating how to
 
 ## 📖 Complete Course Documentation
 
-**📚 [Course.md](./Course.md) - Complete Course Guide (9,900+ lines)**
+**📚 [Course.md](./Course.md) - Complete Course Guide (12,000+ lines)**
 
 The comprehensive course documentation covers all theoretical concepts, detailed explanations, and learning objectives. This README focuses on practical implementation and quick start guides.
 
