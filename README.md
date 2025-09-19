@@ -36,13 +36,11 @@ AWS_AIEngineering/
 │   ├── bedrock_with_tracking.py # Integrated Bedrock client with tracking
 │   ├── usage_examples.py       # Usage examples and best practices
 │   └── README.md              # Utilities documentation
-├── examples/                    # Legacy examples (still available)
-│   ├── ec2/                    # EC2 service examples
-│   ├── bedrock/                # AWS Bedrock examples  
-│   └── strands/                # Strands library examples
 ├── docs/                       # Documentation and guides
-│   └── Course.md              # Complete course documentation (9400+ lines)
+│   ├── implementation_prompt.md # AI prompts for development
+|   ├── decision_tree.md # Decision making for AI apps
 ├── requirements.txt            # Python dependencies
+├── Course.md                   # Course material
 └── README.md                  # This file
 ```
 
