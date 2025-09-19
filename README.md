@@ -67,7 +67,6 @@ AWS_AIEngineering/
 
 ### **Key Resources**
 - **💰 [Utils/](./Utils/)** - AI usage monitoring and cost tracking tools
-- **📚 [examples/](./examples/)** - Legacy examples (still available for reference)
 - **📋 [requirements.txt](./requirements.txt)** - Python dependencies
 
 ### How to Use This Course
