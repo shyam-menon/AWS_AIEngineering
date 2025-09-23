@@ -1,0 +1,267 @@
+@startuml
+title AI Engineering Decision Tree Navigation Flowchart
+
+skinparam backgroundColor #FAFAFA
+skinparam handwritten false
+skinparam shadowing false
+
+start
+
+:AI APPLICATION IDEA;
+
+note right
+  Reference: Course.md - Introduction
+  Starting your AI journey with
+  clear objectives and requirements
+end note
+
+:Define Use Case Type - What are you building?;
+
+if (Simple Q&A or Chatbot?) then (yes)
+  :Direct API Pattern
+  Single model calls
+  Prompt engineering focus
+  Minimal infrastructure;
+  
+  note right
+    Chapter 2 Examples
+    bedrock_simple.py
+    bedrock_json_output.py
+    prompt_caching_example.py
+  end note
+  
+elseif (Content Generation?) then (yes)
+  :Generation-Focused Pattern
+  Creative content creation
+  Brand voice consistency
+  Quality control;
+  
+  note right
+    Chapter 3 Examples
+    prompt_engineering_example.py
+    nova_lite_chat.py
+    bedrock_conversation.py
+  end note
+  
+elseif (Document Search/Q&A?) then (yes)
+  :RAG Pattern
+  Knowledge base integration
+  Document retrieval
+  Semantic search;
+  
+  note right
+    Chapter 4 & 5 Examples
+    Chapter 4: Storage setup
+    demo_rag_evaluation_with_knowledge_base.py
+    intelligent_query_router.py
+  end note
+  
+elseif (Complex Workflows?) then (yes)
+  :Multi-Agent Pattern
+  Specialized agents
+  Workflow coordination
+  System integration;
+  
+  note right
+    Chapter 6 Examples
+    comprehensive_strands_concepts_demo.py
+    agentcore_runtime_example/
+    agent_specialization_examples.py
+  end note
+  
+else (Enterprise/Platform)
+  :Platform Pattern
+  Multi-tenant support
+  Governance & compliance
+  Centralized management;
+  
+  note right
+    Chapters 7-9 Examples
+    Chapter 7: Infrastructure
+    Chapter 8: Observability
+    Chapter 9: Security
+  end note
+endif
+
+:Choose Primary Model - Based on task requirements;
+
+if (Creative/Generation Tasks?) then (yes)
+  :Claude 3.5 Sonnet, GPT-4, Titan Text Express;
+elseif (Code & Technical?) then (yes)
+  :Claude 3.5 Sonnet, GPT-4, Llama 3.1 70B;
+elseif (Quick Q&A/High Volume?) then (yes)
+  :Claude 3 Haiku, Titan Text Lite, Cohere Command;
+else (Complex Analysis)
+  :Claude 3 Opus, GPT-4, Llama 3.1 405B;
+endif
+
+note left
+  Chapter 2 References
+  find_working_models.py
+  model_evaluation_example.py
+  bedrock_setup_guide.py
+end note
+
+:Select Architecture - System complexity assessment;
+
+if (Need External Data?) then (yes)
+  if (Real-time Systems?) then (yes)
+    :Agentic RAG
+    Multi-step reasoning
+    Tool integration
+    Dynamic queries;
+    
+    note right
+      Chapter 5 & 6 Integration
+      mcp_rag_agent.py
+      demo_mcp_rag.py
+      strands_tool_use_example.py
+    end note
+    
+  else (Static Knowledge)
+    :Standard RAG
+    Vector database
+    Document retrieval
+    Knowledge bases;
+    
+    note right
+      Chapter 4 & 5 Examples
+      Chapter 4: rag-samples/
+      advanced_rag_evaluation.py
+      intelligent_query_router.py
+    end note
+  endif
+else (Self-contained)
+  :Direct LLM
+  Prompt engineering
+  Context management
+  Response optimization;
+  
+  note right
+    Chapter 2 & 3 Examples
+    bedrock_llm.py
+    prompt_engineering_example.py
+    nova_lite_cli.py
+  end note
+endif
+
+:Storage Decision - Data characteristics assessment;
+
+if (Primarily Text Documents?) then (yes)
+  :Vector Database
+  Pinecone, Chroma
+  OpenSearch Vector
+  Semantic search;
+elseif (Complex Relationships?) then (yes)
+  :Graph Database
+  Neo4j, Neptune
+  Relationship queries
+  Knowledge graphs;
+elseif (Structured + Text?) then (yes)
+  :Hybrid Storage
+  PostgreSQL + pgvector
+  Aurora with vector
+  Relational + search;
+else (Multi-Modal/Scale)
+  :Multi-Storage
+  S3 + DynamoDB + Vector
+  Different storage types
+  Optimized per data type;
+endif
+
+note left
+  Chapter 4 References
+  README.md storage strategies
+  rag-samples/ implementations
+  Vector database setup guides
+end note
+
+:Deployment Strategy - Operational requirements;
+
+if (Development/Prototype?) then (yes)
+  :Serverless
+  Lambda functions
+  API Gateway
+  Pay-per-use;
+  
+elseif (Production/Predictable?) then (yes)
+  :Container-based
+  ECS/EKS deployment
+  Load balancers
+  Predictable costs;
+  
+elseif (High Availability?) then (yes)
+  :Multi-Region
+  Global distribution
+  Disaster recovery
+  Regional failover;
+  
+else (Enterprise/Compliance)
+  :Secure Enterprise
+  VPC deployment
+  Enhanced security
+  Compliance controls;
+endif
+
+:Implementation Phase 1: Setup & Foundation
+Chapter 1-2: Technical Setup
+AWS configuration
+Model integration
+Basic functionality;
+
+:Implementation Phase 2: Core Features
+Chapter 3-4: Feature Development
+Model adaptation
+Storage implementation
+Data processing;
+
+:Implementation Phase 3: Intelligence Layer
+Chapter 5-6: AI Capabilities
+RAG implementation
+Agent development
+Advanced reasoning;
+
+:Implementation Phase 4: Production Ready
+Chapter 7-9: Production Setup
+Infrastructure deployment
+Monitoring & evaluation
+Security & compliance;
+
+:Quality Assurance
+Performance validation
+Security validation
+Business metrics;
+
+if (All Quality Gates Passed?) then (yes)
+  :Deploy to Production
+  Complete Integration
+  Production deployment
+  Operational procedures;
+  
+  :SUCCESS - AI Application Live!;
+  
+  note right
+    Congratulations!
+    Your AI application is now
+    successfully deployed and
+    operational in production.
+  end note
+  
+  stop
+  
+else (Issues Found)
+  :Address Issues;
+  
+  note left
+    Common Issues:
+    Performance problems
+    Security vulnerabilities
+    Integration failures
+    Quality concerns
+  end note
+  
+  :Return to Implementation Phase 1;
+  stop
+endif
+
+@enduml

@@ -13,6 +13,8 @@ When presented with an AI application use case, work through each chapter system
 3. **✅ Check Completion**: Ensure all considerations are addressed
 4. **🔍 Review & Iterate**: Revisit decisions as requirements evolve
 
+> **🔀 Visual Navigation**: For a visual guide to navigate this decision tree, see the [PlantUML Decision Tree Flowchart](decision_tree_flowchart.puml). This interactive flowchart provides a step-by-step visual walkthrough of the decision process, showing the relationships between different chapters and helping you understand the overall workflow from initial idea to production deployment.
+
 ---
 
 ## 📋 Chapter-by-Chapter Decision Framework
