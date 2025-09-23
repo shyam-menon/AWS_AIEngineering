@@ -101,15 +101,6 @@ $env:AWS_DEFAULT_REGION="us-east-1"
 ### 3. Run Examples
 ```powershell
 
-# Interactive AI chat with Nova Lite
-python examples\bedrock\nova_lite_chat.py
-
-# Extract JSON data from text
-python examples\bedrock\bedrock_json_output.py --mode examples
-
-# Specialized AI applications
-python examples\bedrock\nova_lite_apps.py --help
-
 # Strands agent examples
 python chapters\chapter_01_coding_ml_fundamentals\simple_strands_example.py
 python examples\strands\strands_integration.py
