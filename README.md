@@ -100,8 +100,6 @@ $env:AWS_DEFAULT_REGION="us-east-1"
 
 ### 3. Run Examples
 ```powershell
-# List EC2 instances
-python examples\ec2\ec2_list.py
 
 # Interactive AI chat with Nova Lite
 python examples\bedrock\nova_lite_chat.py
