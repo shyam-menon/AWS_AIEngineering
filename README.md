@@ -139,7 +139,6 @@ python Utils\usage_examples.py
 ### 🔗 Strands Library Examples
 - **`simple_strands_example.py`** - Basic Strands agent example from [Chapter 1](./chapters/chapter_01_coding_ml_fundamentals/)
 - **`python_strands_agents.py`** - Comprehensive Strands framework demonstration from [Chapter 1](./chapters/chapter_01_coding_ml_fundamentals/)
-- **`strands_integration.py`** - AWS-Strands integration example from [examples/strands/](./examples/strands/)
 
 ### 💰 AI Usage and Cost Monitoring
 - **`ai_usage_monitor.py`** - Comprehensive monitoring with CloudWatch and Cost Explorer
@@ -175,21 +174,14 @@ python Utils\usage_examples.py
 ## 📖 Documentation
 
 ### 📚 Primary Course Materials
-- **[Course.md](./Course.md)** - **Complete Course Guide (9,400+ lines)**
+- **[Course.md](./Course.md)** - **Complete Course Guide (12,000+ lines)**
   - Comprehensive theoretical content for all 11 chapters
   - Detailed explanations and learning objectives
   - References to official AWS and Strands documentation
   - In-depth concepts and methodologies
 
-### 📁 Chapter-Specific Guides
-- **[Chapter 1 Guide](./chapters/chapter_01_coding_ml_fundamentals/README.md)** - Python, AWS basics, ML fundamentals
-- **[Chapter 2 Guide](./chapters/chapter_02_llm_apis/README.md)** - LLM APIs, Bedrock, caching, evaluation
-- **[Chapter 3 Guide](./chapters/chapter_03_model_adaptation/README.md)** - Prompt engineering, tool use
-- **[All Chapter Guides](./chapters/README.md)** - Complete chapter overview
-
 ### 🛠️ Specialized Documentation
-- **[Nova Lite Guide](./docs/NOVA_LITE_GUIDE.md)** - Complete guide for Amazon Nova Lite
-- **[AWS Configuration](./docs/aws_config_examples.txt)** - AWS credentials setup examples
+- **[AI decision tree](./docs/decision_tree.md)** - Decision tree for AI apps
 - **[Utils Documentation](./Utils/README.md)** - AI usage monitoring and cost tracking guide
 
 ## 🛠️ Requirements
@@ -204,12 +196,6 @@ python Utils\usage_examples.py
 - Additional dependencies as needed for Strands integration
 
 ## 🔧 Development
-
-### Adding New Examples
-
-1. **EC2 Examples**: Add to `examples/ec2/`
-2. **Bedrock Examples**: Add to `examples/bedrock/`
-3. **Strands Examples**: Add to `examples/strands/`
 
 ### Best Practices
 - Include error handling and logging
