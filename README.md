@@ -129,9 +129,6 @@ python Utils\usage_examples.py
 
 ## 📚 Examples Overview
 
-### 🖥️ EC2 Examples
-- **`ec2_list.py`** - List and display EC2 instances across regions
-
 ### 🤖 Bedrock (AI/ML) Examples
 - **`test_nova_lite.py`** - Basic Nova Lite model invocation
 - **`nova_lite_chat.py`** - Interactive chat interface
