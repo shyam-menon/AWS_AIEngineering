@@ -11,7 +11,7 @@ The comprehensive course documentation covers all theoretical concepts, detailed
 ## 🎥 AI Engineering Overview
 
 ### Watch the Video
-[![AI Engineering Overview](https://img.youtube.com/vi/c5Oq_Yq-udA/maxresdefault.jpg)](https://youtu.be/c5Oq_Yq-udA)
+[![AI Engineering Overview](https://img.youtube.com/vi/c5Oq_Yq-udA/0.jpg)](https://youtu.be/c5Oq_Yq-udA)
 
 This video provides an overview of AI engineering on AWS, highlighting key concepts, tools, and workflows covered in this course. Watch it to get a quick introduction to the topics and their practical applications.
 
