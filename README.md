@@ -8,6 +8,16 @@ A comprehensive course and collection of practical examples demonstrating how to
 
 The comprehensive course documentation covers all theoretical concepts, detailed explanations, and learning objectives. This README focuses on practical implementation and quick start guides.
 
+## 🎥 AI Engineering Overview
+
+### Watch the Video
+<video width="640" height="360" controls>
+  <source src="./Video/AI_Engineering_on_AWS.mp4" type="video/mp4">
+  Your browser does not support the video tag. You can download the video <a href="./Video/AI_Engineering_on_AWS.mp4">here</a>.
+</video>
+
+This video provides an overview of AI engineering on AWS, highlighting key concepts, tools, and workflows covered in this course. Watch it to get a quick introduction to the topics and their practical applications.
+
 ## 📚 Course Structure
 
 ![AI Engineering Fundamentals Curriculum (2025 Roadmap)](./Diagrams/AI%20Engineering%20Fundamentals%20Curriculum%20(2025%20Roadmap).png)
