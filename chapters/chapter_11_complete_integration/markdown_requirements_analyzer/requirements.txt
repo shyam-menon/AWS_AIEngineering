@@ -1,0 +1,19 @@
+# Markdown Requirements Analyzer Dependencies
+
+# Core AWS SDK
+boto3>=1.26.0
+botocore>=1.29.0
+
+# Markdown processing
+markdown-to-json>=2.1.0
+
+# Configuration management
+PyYAML>=6.0
+
+# Development and testing (optional)
+pytest>=7.0.0
+black>=22.0.0
+flake8>=5.0.0
+
+# Type hints
+typing-extensions>=4.0.0
