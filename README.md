@@ -71,6 +71,7 @@ AWS_AIEngineering/
 - Chapter 11: **[Complete Integration](./chapters/chapter_11_complete_integration/)** - Production customer support agent | [📖 Theory](./Course.md#chapter-11-complete-integration---building-a-production-customer-support-agent)
 
 ### **Key Resources**
+- **🤖 [AI Engineering Course Assistant](https://ai.studio/apps/drive/14gV57imI7IO_ZcnfM1HMPPvRMZqp9ySV)** - Web application that helps in building AI applications using this course
 - **💰 [Utils/](./Utils/)** - AI usage monitoring and cost tracking tools
 - **📋 [requirements.txt](./requirements.txt)** - Python dependencies
 
