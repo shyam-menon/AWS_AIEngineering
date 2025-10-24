@@ -1,6 +1,6 @@
 # AI Engineering with AWS and Strands Agents
 
-### Shyam Menon - Sept 2025
+### Shyam Menon - Oct 2025
 
 Welcome to the AI Engineering with AWS and Strands Agents guide! This comprehensive course is designed to equip engineers with the knowledge and skills to build, deploy, and manage sophisticated AI applications using a powerful combination of Amazon Web Services (AWS) and the Strands Agents framework.
 
