@@ -5,7 +5,7 @@ botocore>=1.29.0
 # Strands Agents Framework
 strands-agents>=1.0.0
 strands-agents-tools>=0.2.0
-strands-agents-builder>=1.0.0
+strands-agents-builder>=0.1.10
 
 # Development and testing (optional)
 # pytest>=7.0.0
