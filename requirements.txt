@@ -7,6 +7,10 @@ strands-agents>=1.0.0
 strands-agents-tools>=0.2.0
 strands-agents-builder>=0.1.10
 
+# Markdown Requirements Analyzer Dependencies
+markdown-to-json>=2.1.0
+PyYAML>=6.0
+
 # Development and testing (optional)
 # pytest>=7.0.0
 # black>=22.0.0
