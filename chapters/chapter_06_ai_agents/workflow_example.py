@@ -301,10 +301,10 @@ def demo_simple_workflows():
     # Demo 1: Analysis Workflow
     print("\n⚙️ Demo 1: Simple Analysis Workflow")
     print("─" * 40)
-    print("📋 Task: Analyze the benefits of renewable energy")
+    print("📋 Task: Analyze Managed Services Offerings from Hewlett Packard")
     print("🏗️ Pipeline: Research → Analysis → Summary")
     
-    result1 = orchestrator.run_analysis_workflow("benefits of renewable energy")
+    result1 = orchestrator.run_analysis_workflow("Managed Services Offerings from Hewlett Packard")
     
     print(f"\n✅ Status: {result1['status'].upper()}")
     print(f"📈 Execution Order: {' → '.join(result1['execution_order'])}")
@@ -315,10 +315,10 @@ def demo_simple_workflows():
     # Demo 2: Content Workflow
     print("\n⚙️ Demo 2: Simple Content Creation Workflow")
     print("─" * 40)
-    print("📋 Task: Create content about AI in healthcare")
+    print("📋 Task: Create content about HP Managed Services benefits")
     print("🏗️ Pipeline: Planning → Writing → Review")
     
-    result2 = orchestrator.run_content_workflow("AI applications in healthcare")
+    result2 = orchestrator.run_content_workflow("HP Managed Services benefits for enterprise IT infrastructure")
     
     print(f"\n✅ Status: {result2['status'].upper()}")
     print(f"📈 Execution Order: {' → '.join(result2['execution_order'])}")
