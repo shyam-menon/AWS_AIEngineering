@@ -149,30 +149,8 @@ Focus on detecting escalation triggers like:
                 "processing_status": "error"
             }
     
-    # === KNOWLEDGE LOOKUP TOOL ===
-    @tool
-    def lookup_knowledge_base(intent_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Mock implementation of AWS Bedrock Knowledge Base lookup.
-        
-        In production, this would query a real knowledge base with company policies,
-        procedures, and relevant documentation based on the classified intent.
-        
-        Args:
-            intent_data (Dict): Intent classification results
-            
-        Returns:
-            Dict containing relevant knowledge base articles and procedures
-        """
-        try:
-            intent = intent_data.get("intent", "GENERAL_INQUIRY")
-            customer_emotion = intent_data.get("customer_emotion", "neutral")
-            
-            print(f"🔍 Looking up knowledge for intent: {intent}")
-            print(f"🔍 DEBUG - Full intent_data received: {intent_data}")
-            
-            # Mock knowledge base responses based on intent
-            knowledge_base = {
+    # === KNOWLEDGE BASE DATA ===
+    KNOWLEDGE_BASE = {
                 "RETURNS_REFUNDS": {
                     "relevant_articles": [
                         "30-day return policy",
@@ -297,9 +275,32 @@ Focus on detecting escalation triggers like:
                     ]
                 }
             }
+    
+    # === KNOWLEDGE LOOKUP TOOL ===
+    @tool
+    def lookup_knowledge_base(intent_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Mock implementation of AWS Bedrock Knowledge Base lookup.
+        
+        In production, this would query a real knowledge base with company policies,
+        procedures, and relevant documentation based on the classified intent.
+        
+        Args:
+            intent_data (Dict): Intent classification results
             
-            # Get knowledge for specific intent or default
-            knowledge = knowledge_base.get(intent, {
+        Returns:
+            Dict containing relevant knowledge base articles and procedures
+        """
+        try:
+            intent = intent_data.get("intent", "GENERAL_INQUIRY")
+            customer_emotion = intent_data.get("customer_emotion", "neutral")
+            
+            print(f"🔍 TOOL CALLED: lookup_knowledge_base")
+            print(f"🔍 Looking up knowledge for intent: {intent}")
+            print(f"🔍 DEBUG - Full intent_data received: {intent_data}")
+            
+            # Use global KNOWLEDGE_BASE
+            knowledge = KNOWLEDGE_BASE.get(intent, {
                 "relevant_articles": ["General FAQ", "Contact information"],
                 "procedures": ["Listen to customer needs", "Provide appropriate guidance"],
                 "policies": "We're here to help with any questions or concerns.",
