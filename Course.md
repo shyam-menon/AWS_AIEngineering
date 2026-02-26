@@ -1,6 +1,6 @@
 # AI Engineering with AWS and Strands Agents
 
-### Shyam Menon - Oct 2025
+### Shyam Menon - Feb 2026
 
 Welcome to the AI Engineering with AWS and Strands Agents guide! This comprehensive course is designed to equip engineers with the knowledge and skills to build, deploy, and manage sophisticated AI applications using a powerful combination of Amazon Web Services (AWS) and the Strands Agents framework.
 
@@ -109,6 +109,14 @@ Let's get started!
 - [Chapter 7: Infrastructure](#chapter-7-infrastructure) | [📁 Code](./chapters/chapter_07_infrastructure/)
     - [AWS Bedrock](#aws-bedrock)
     - [AWS AgentCore](#aws-agentcore)
+    - [AWS AgentCore Gateway](#aws-agentcore-gateway)
+    - [AWS AgentCore Memory](#aws-agentcore-memory)
+    - [AWS AgentCore Policy](#aws-agentcore-policy)
+    - [AWS AgentCore Observability](#aws-agentcore-observability)
+    - [AWS AgentCore Evaluations](#aws-agentcore-evaluations)
+    - [AWS AgentCore Built-in Tools](#aws-agentcore-built-in-tools)
+    - [AWS AgentCore Code Interpreter](#aws-agentcore-code-interpreter)
+    - [AWS AgentCore Browser](#aws-agentcore-browser)
     - [CI/CD](#cicd)
     - [Model Routing](#model-routing)
     - [LLM Deployment](#llm-deployment)
@@ -6937,52 +6945,4334 @@ AWS Bedrock is a powerful service that can help you to accelerate the developmen
 
 ## AWS AgentCore
 
-**AWS AgentCore** is a serverless runtime environment designed specifically for deploying, managing, and scaling AI agents and their associated tools. It provides a secure and isolated environment for each agent session, ensuring that your agents can run reliably and without interfering with each other. AgentCore is a key component of the AWS AI ecosystem, and it is designed to work seamlessly with AWS Bedrock and other AWS services.
+**AWS AgentCore** is a comprehensive platform for building, deploying, and managing AI agents at scale. The platform consists of multiple integrated services, with **AWS AgentCore Runtime** being the serverless hosting environment specifically designed for deploying and running AI agents and tools. AgentCore provides a complete ecosystem that handles identity, memory, tools, and observability, working seamlessly with AWS Bedrock and other AWS services.
 
-### Key Components of AWS AgentCore
+### Key Features of AWS AgentCore Runtime
 
-*   **Runtime**: The AgentCore Runtime provides a secure and isolated environment for each agent session. It uses microVMs to ensure that each session is completely isolated from the others, which is critical for security and reliability.
-*   **Identity**: AgentCore Identity provides a way to manage the identity of your agents and to control their access to AWS resources. It integrates with AWS IAM to provide fine-grained access control.
-*   **Memory**: AgentCore Memory provides a way to store and manage the memory of your agents. It supports both short-term and long-term memory, and it can be configured to use a variety of different storage backends.
-*   **Code Interpreter**: The Code Interpreter is a built-in tool that allows your agents to execute Python code in a sandboxed environment. This is useful for a wide range of tasks, such as data analysis, scientific computing, and machine learning.
-*   **Browser**: The Browser is a built-in tool that allows your agents to browse the web and to interact with web pages. This is useful for a wide range of tasks, such as gathering information, filling out forms, and clicking buttons.
-*   **Gateway**: The AgentCore Gateway provides a secure and scalable way for your agents to interact with external tools and APIs. It uses the Model Context Protocol (MCP) to provide a standardized way for agents to call tools.
-*   **Observability**: AgentCore provides a number of features for monitoring and debugging your agents. It integrates with Amazon CloudWatch to provide metrics, logs, and traces for your agent sessions.
+AWS AgentCore Runtime provides a secure, serverless, and purpose-built hosting environment with the following capabilities:
 
-### Using AWS AgentCore
+*   **Framework Agnostic**: Transform any local agent code to cloud-native deployments with just a few lines of code. Works seamlessly with popular frameworks like LangGraph, Strands, CrewAI, or custom agents that don't use a specific framework.
+*   **Model Flexibility**: Works with any Large Language Model, including models from Amazon Bedrock, Anthropic Claude, Google Gemini, OpenAI, and others. You're not locked into a single model provider.
+*   **Protocol Support**: Agents can communicate with other agents and tools via Model Context Protocol (MCP) or Agent-to-Agent (A2A) protocols, enabling sophisticated multi-agent systems.
+*   **Session Isolation**: Each user session runs in a dedicated microVM with isolated CPU, memory, and filesystem resources. This creates complete separation between sessions, preventing cross-session data contamination. After session completion, the entire microVM is terminated and memory is sanitized.
+*   **Extended Execution Time**: Supports both real-time interactions and long-running workloads up to 8 hours, enabling complex agent reasoning and asynchronous workflows involving multi-agent collaboration or extended problem-solving sessions.
+*   **Consumption-Based Pricing**: Charges only for resources actually consumed. The service dynamically provisions what's needed without requiring right-sizing. CPU billing aligns with actual active processing, typically eliminating charges during I/O wait periods when agents wait for LLM responses.
+*   **Built-in Authentication**: AgentCore Identity assigns distinct identities to AI agents and integrates with corporate identity providers (Okta, Microsoft Entra ID, Amazon Cognito). Supports OAuth and API key authentication for outbound flows to third-party services like Slack, Zoom, and GitHub.
+*   **Agent-Specific Observability**: Provides specialized built-in tracing that captures agent reasoning steps, tool invocations, and model interactions, giving clear visibility into agent decision-making processes.
+*   **Enhanced Payload Handling**: Processes 100MB payloads, enabling seamless handling of multiple modalities (text, images, audio, video) with rich media content or large datasets.
+*   **Bidirectional Streaming**: Supports both HTTP API calls and persistent WebSocket connections for real-time bidirectional streaming, enabling interactive applications with immediate response feedback.
 
-You can deploy your agents to AWS AgentCore using the AWS Management Console, the AWS CLI, or the AWS SDKs. Here is a conceptual Python code snippet that shows how you might deploy a Strands agent to AWS AgentCore using the Boto3 library:
+### AgentCore Runtime Architecture
+
+The AgentCore Runtime consists of several key components:
+
+*   **Agent Runtime**: The foundational component that hosts your AI agent or tool code as a containerized application. Each runtime is versioned to support controlled deployment and updates.
+*   **Versions**: Each AgentCore Runtime maintains immutable versions that capture a complete snapshot of configuration at a specific point in time. Updates create new versions, providing reliable deployment history and rollback capabilities.
+*   **Endpoints**: Provide addressable access points to specific versions of your runtime. The "DEFAULT" endpoint automatically points to the latest version, but you can create custom endpoints for different environments (dev, test, prod).
+*   **Sessions**: Represent individual interaction contexts between users and your agent. Each session maintains conversation context across multiple invocations and can last up to 8 hours.
+
+### Deployment Options
+
+AWS AgentCore Runtime offers flexible deployment options:
+
+1. **Direct Code Deployment**: Package Python-based agents and dependencies in a .zip file archive (up to 250MB). Ideal for rapid development and testing.
+
+2. **Container Deployment**: Deploy agents as Docker containers for more complex dependencies and custom runtime requirements. Containers are pulled from Amazon ECR.
+
+3. **Starter Toolkit**: Use the Amazon Bedrock AgentCore Starter Toolkit CLI to simplify infrastructure setup for containerizing and deploying agents. Available for Python and TypeScript.
+
+### Using AWS AgentCore Runtime
+
+Here's an example of deploying and invoking an agent using the Python SDK:
 
 ```python
 import boto3
+import json
+from bedrock_agentcore import app
 
-# Create an AgentCore client
-agentcore = boto3.client("bedrock-agentcore-control")
+# Define your agent using the AgentCore Python SDK
+@app.entrypoint
+def my_agent(payload):
+    """Simple agent that processes user requests."""
+    prompt = payload.get("prompt", "")
+    # Your agent logic here
+    return {"response": f"Processed: {prompt}"}
 
-# Define the agent runtime parameters
-agent_runtime_name = "my-strands-agent"
-container_uri = "123456789012.dkr.ecr.us-east-1.amazonaws.com/my-agent:latest"
-role_arn = "arn:aws:iam::123456789012:role/AgentRuntimeRole"
+# Deploy the agent (using direct code deployment)
+agentcore_client = boto3.client("bedrock-agentcore-control")
 
-# Create the agent runtime
-response = agentcore.create_agent_runtime(
-    agentRuntimeName=agent_runtime_name,
+# Create agent runtime with direct code deployment
+response = agentcore_client.create_agent_runtime(
+    agentRuntimeName="my-strands-agent",
     agentRuntimeArtifact={
-        "containerConfiguration": {
-            "containerUri": container_uri
+        "directCodeConfiguration": {
+            "sourceCodeArchiveS3Uri": "s3://my-bucket/agent.zip",
+            "pythonVersion": "3.11"
         }
     },
-    networkConfiguration={"networkMode": "PUBLIC"},
-    roleArn=role_arn
+    observabilityConfiguration={
+        "tracingEnabled": True
+    },
+    roleArn="arn:aws:iam::123456789012:role/AgentRuntimeRole"
 )
 
-# Print the agent runtime ARN
-print(response["agentRuntimeArn"])
+agent_runtime_arn = response["agentRuntimeArn"]
+
+# Invoke the agent
+agentcore_runtime = boto3.client("bedrock-agentcore")
+payload = json.dumps({"prompt": "Hello, agent!"}).encode()
+
+invoke_response = agentcore_runtime.invoke_agent_runtime(
+    agentRuntimeArn=agent_runtime_arn,
+    runtimeSessionId="user-session-123",
+    payload=payload
+)
+
+# Process streaming response
+for chunk in invoke_response["response"]:
+    print(chunk.decode('utf-8'))
 ```
 
-In this example, we first create an AgentCore client and define the parameters for our agent runtime. We then create the agent runtime, which will pull our agent's Docker image from Amazon ECR and deploy it to the AgentCore runtime.
+### Getting Started with AgentCore Runtime
 
-AWS AgentCore is a powerful service that can help you to simplify the deployment and scaling of your AI agents. By providing a secure, scalable, and fully managed runtime environment, it allows you to focus on building your agents, rather than managing infrastructure. In the next section, we will explore the process of automating the testing and deployment of your AI applications using CI/CD.
+The fastest way to get started is using the AgentCore Starter Toolkit:
+
+```bash
+# Install the toolkit
+pip install bedrock-agentcore-starter-toolkit
+
+# Initialize a new agent project
+uv init my-agent --python 3.11
+cd my-agent
+
+# Add dependencies
+uv add bedrock-agentcore strands-agents
+
+# Deploy your agent
+# The toolkit handles containerization and AWS resource creation
+bedrock-agentcore deploy --agent-file agent.py --region us-east-1
+```
+
+AWS AgentCore Runtime is a powerful service that simplifies the deployment and scaling of AI agents while providing enterprise-grade security and reliability. By abstracting away infrastructure complexity, it allows you to focus on building intelligent agent experiences. In the next section, we will explore AWS AgentCore Gateway, which provides secure access to tools and external resources for your agents.
+
+
+
+
+## AWS AgentCore Gateway
+
+**AWS AgentCore Gateway** provides an easy and secure way to build, deploy, discover, and connect tools at scale for AI agents. AI agents need tools to perform real-world tasks—from querying databases to sending messages to analyzing documents. AgentCore Gateway transforms existing APIs, Lambda functions, and services into Model Context Protocol (MCP)-compatible tools, making them available to agents through unified Gateway endpoints. It's the only fully-managed solution that provides both comprehensive inbound authentication (verifying agent identity) and outbound authentication (connecting to external tools with OAuth flows, token refresh, and secure credential storage).
+
+### Key Benefits of AgentCore Gateway
+
+*   **Simplified Tool Development**: Transform existing enterprise resources into agent-ready tools in just a few lines of code. Instead of spending weeks writing custom integration code and managing infrastructure, developers can focus on building differentiated agent capabilities while Gateway handles tool management and security at scale.
+*   **One-Click Integrations**: Gateway provides one-click integration with popular enterprise tools such as Salesforce, Slack, Jira, Asana, and Zendesk, eliminating custom integration work.
+*   **Unified Access**: Enable agents to discover and use tools through a single, secure endpoint. Combine multiple tool sources—APIs, Lambda functions, Smithy models—into one unified interface, allowing developers to build and scale agent workflows faster.
+*   **Intelligent Tool Discovery**: Built-in semantic search helps agents find and use the right tools based on task context. As your tool collection grows, contextual search improves agent performance and reduces development complexity at scale.
+*   **Comprehensive Authentication**: Manage both inbound authentication (verifying agent identity) and outbound authentication (connecting to tools) in a single service. Handle OAuth flows, token refresh, and secure credential storage automatically.
+*   **Framework Compatibility**: Works with popular frameworks including CrewAI, LangGraph, LlamaIndex, Strands Agents, and custom implementations. Integrate with any model while maintaining enterprise-grade security.
+*   **Serverless Infrastructure**: Fully managed service that automatically scales based on demand. Built-in observability and auditing capabilities simplify monitoring and troubleshooting.
+
+### Core Gateway Capabilities
+
+AgentCore Gateway provides six key capabilities:
+
+1. **Security Guard**: Manages OAuth authorization to ensure only valid users and agents can access tools and resources
+2. **Translation**: Converts agent requests using MCP into API requests and Lambda invocations, eliminating protocol integration management
+3. **Composition**: Combines multiple APIs, functions, and tools into a single MCP endpoint for streamlined agent access
+4. **Secure Credential Exchange**: Handles credential injection for each tool, enabling agents to use tools with different authentication requirements seamlessly
+5. **Semantic Tool Selection**: Enables natural language search across available tools to find the most appropriate ones for specific contexts
+6. **Infrastructure Manager**: Provides serverless solution with built-in observability and auditing
+
+### Gateway Core Concepts
+
+**Gateway**: Acts like an MCP server, providing a single access point for agents to interact with tools. A Gateway can have multiple targets, each representing a different tool or set of tools.
+
+**Gateway Target**: Defines the APIs or Lambda functions that a Gateway provides as tools to agents. Targets can be Lambda functions, OpenAPI specifications, Smithy models, or MCP servers.
+
+**Gateway Authorizer**: Each Gateway must have an attached OAuth authorizer (since MCP only supports OAuth). You can use Amazon Cognito to create an OAuth authorization server.
+
+**Credential Provider**: Stores API keys or OAuth credentials that Gateway uses to access external tools. For Smithy or Lambda targets, Gateway uses the execution role; for OpenAPI targets, you must attach a credential provider.
+
+### Supported Tool Types
+
+AgentCore Gateway supports four types of tool integrations:
+
+1. **OpenAPI Specifications**: Transform existing REST APIs by providing an OpenAPI specification. Gateway automatically handles translation between MCP and REST formats.
+
+2. **Lambda Functions**: Connect Lambda functions as tools, implementing custom business logic in any supported language. Gateway invokes the function and translates responses into MCP format.
+
+3. **Smithy Models**: Define API interfaces using Smithy (AWS's service definition language). Gateway generates MCP-compatible tools that interact with AWS services or custom APIs.
+
+4. **MCP Servers**: Connect remote MCP servers directly to your agent runtime. Only MCP tool capabilities are supported.
+
+### Creating a Gateway
+
+Here's how to create and configure an AgentCore Gateway:
+
+```python
+# create_gateway.py
+import boto3
+import json
+
+agentcore_client = boto3.client('bedrock-agentcore-control', region_name='us-east-1')
+
+# Step 1: Create OAuth authorizer (using Cognito)
+cognito_client = boto3.client('cognito-idp', region_name='us-east-1')
+
+# Create Cognito User Pool for OAuth
+user_pool_response = cognito_client.create_user_pool(
+    PoolName='agent-gateway-oauth',
+    Policies={
+        'PasswordPolicy': {
+            'MinimumLength': 8,
+            'RequireUppercase': True,
+            'RequireLowercase': True,
+            'RequireNumbers': True,
+            'RequireSymbols': True
+        }
+    }
+)
+user_pool_id = user_pool_response['UserPool']['Id']
+
+# Create app client for OAuth
+app_client_response = cognito_client.create_user_pool_client(
+    UserPoolId=user_pool_id,
+    ClientName='gateway-client',
+    GenerateSecret=True,
+    AllowedOAuthFlows=['client_credentials'],
+    AllowedOAuthScopes=['openid'],
+    AllowedOAuthFlowsUserPoolClient=True
+)
+
+# Step 2: Create the Gateway
+gateway_response = agentcore_client.create_gateway(
+    gatewayName='enterprise-tools-gateway',
+    protocolConfiguration={
+        'mcpConfiguration': {
+            'protocolVersion': '2025-06-18'
+        }
+    },
+    authorizerConfiguration={
+        'oauthConfiguration': {
+            'clientId': app_client_response['UserPoolClient']['ClientId'],
+            'issuerUrl': f"https://cognito-idp.us-east-1.amazonaws.com/{user_pool_id}",
+            'authorizationEndpoint': f"https://auth-domain.auth.us-east-1.amazoncognito.com/oauth2/authorize",
+            'tokenEndpoint': f"https://auth-domain.auth.us-east-1.amazoncognito.com/oauth2/token"
+        }
+    },
+    roleArn='arn:aws:iam::123456789012:role/GatewayExecutionRole',
+    # Enable semantic search (can only be set during creation)
+    semanticSearchConfiguration={
+        'enabled': True
+    },
+    # Enable debug mode for detailed error messages
+    debugMode=True
+)
+
+gateway_arn = gateway_response['gatewayArn']
+gateway_url = gateway_response['gatewayUrl']
+
+print(f"Gateway created successfully!")
+print(f"Gateway ARN: {gateway_arn}")
+print(f"Gateway URL: {gateway_url}")
+```
+
+### Adding Targets to Gateway
+
+#### Lambda Function Target
+
+```python
+# add_lambda_target.py
+import boto3
+
+agentcore_client = boto3.client('bedrock-agentcore-control', region_name='us-east-1')
+
+# Create a Lambda target
+response = agentcore_client.create_gateway_target(
+    gatewayIdentifier='enterprise-tools-gateway',
+    targetName='get-order-status',
+    targetConfiguration={
+        'lambdaConfiguration': {
+            'lambdaArn': 'arn:aws:lambda:us-east-1:123456789012:function:get-order-status',
+            'description': 'Retrieves the current status of a customer order',
+            'inputSchema': {
+                'type': 'object',
+                'properties': {
+                    'order_id': {
+                        'type': 'string',
+                        'description': 'The unique identifier of the order'
+                    }
+                },
+                'required': ['order_id']
+            }
+        }
+    }
+)
+
+print(f"Lambda target created: {response['targetArn']}")
+```
+
+#### OpenAPI Target
+
+```python
+# add_openapi_target.py
+import boto3
+import json
+
+agentcore_client = boto3.client('bedrock-agentcore-control', region_name='us-east-1')
+
+# Define OpenAPI specification
+openapi_spec = {
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Product Catalog API",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {"url": "https://api.example.com/v1"}
+    ],
+    "paths": {
+        "/products/{productId}": {
+            "get": {
+                "summary": "Get product details",
+                "operationId": "getProduct",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": True,
+                        "schema": {"type": "string"}
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {"type": "string"},
+                                        "name": {"type": "string"},
+                                        "price": {"type": "number"}
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+# Create credential provider for API authentication
+cred_provider_response = agentcore_client.create_credential_provider(
+    credentialProviderName='product-api-credentials',
+    authenticationConfiguration={
+        'apiKeyConfiguration': {
+            'apiKeyValue': 'secret-api-key-value',
+            'headerName': 'X-API-Key'
+        }
+    }
+)
+
+# Create OpenAPI target
+response = agentcore_client.create_gateway_target(
+    gatewayIdentifier='enterprise-tools-gateway',
+    targetName='product-catalog',
+    targetConfiguration={
+        'openApiConfiguration': {
+            'openApiSpecification': json.dumps(openapi_spec),
+            'credentialProviderArn': cred_provider_response['credentialProviderArn']
+        }
+    }
+)
+
+print(f"OpenAPI target created: {response['targetArn']}")
+```
+
+### Using Gateway with Agent Frameworks
+
+#### Strands Agent with Gateway
+
+```python
+# strands_gateway_agent.py
+from strands import Agent
+from strands.models import BedrockModel
+from strands.tools.mcp.mcp_client import MCPClient
+from mcp.client.streamable_http import streamablehttp_client
+
+def create_streamable_http_transport(gateway_url, access_token):
+    """Create authenticated HTTP transport for MCP."""
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    return streamablehttp_client(gateway_url, headers=headers)
+
+def invoke_agent_with_gateway(gateway_url, access_token, prompt):
+    """Create and invoke an agent connected to AgentCore Gateway."""
+    # Create MCP client with Gateway connection
+    transport = create_streamable_http_transport(gateway_url, access_token)
+    mcp_client = MCPClient(transport)
+    
+    # Initialize Bedrock model
+    model = BedrockModel(
+        inference_profile_id="us.anthropic.claude-sonnet-4-0-v1:0",
+        temperature=0.0,
+        streaming=True
+    )
+    
+    # Connect to gateway and get tools
+    with mcp_client:
+        tools = mcp_client.list_tools_sync()
+        
+        # Create agent with gateway tools
+        agent = Agent(
+            model=model,
+            tools=tools,
+            system_prompt="You are a helpful assistant with access to enterprise tools."
+        )
+        
+        # Invoke agent
+        response = agent(prompt)
+        return response
+
+# Usage
+if __name__ == "__main__":
+    gateway_url = "https://gateway-abc123.agentcore.us-east-1.amazonaws.com"
+    access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+    
+    result = invoke_agent_with_gateway(
+        gateway_url=gateway_url,
+        access_token=access_token,
+        prompt="What is the status of order #12345?"
+    )
+    
+    print(result)
+```
+
+#### LangGraph Agent with Gateway
+
+```python
+# langgraph_gateway_agent.py
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+from langgraph.prebuilt import create_react_agent
+from langchain_mcp_adapters.tools import load_mcp_tools
+from langchain_aws import ChatBedrock
+import asyncio
+
+async def create_agent_with_gateway(gateway_url, access_token, user_query):
+    """Create LangGraph agent connected to AgentCore Gateway."""
+    # Initialize Bedrock model
+    model = ChatBedrock(
+        model_id="us.anthropic.claude-sonnet-4-0-v1:0",
+        region_name="us-east-1"
+    )
+    
+    # Connect to Gateway via MCP
+    async with streamablehttp_client(
+        gateway_url, 
+        headers={"Authorization": f"Bearer {access_token}"}
+    ) as (read, write, _):
+        async with ClientSession(read, write) as session:
+            # Initialize connection
+            await session.initialize()
+            
+            # Load tools from Gateway
+            tools = await load_mcp_tools(session)
+            
+            # Create agent with tools
+            agent = create_react_agent(model, tools)
+            
+            # Invoke agent
+            response = await agent.ainvoke({
+                "messages": user_query
+            })
+            
+            return response
+
+# Usage
+if __name__ == "__main__":
+    gateway_url = "https://gateway-abc123.agentcore.us-east-1.amazonaws.com"
+    access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+    
+    result = asyncio.run(create_agent_with_gateway(
+        gateway_url=gateway_url,
+        access_token=access_token,
+        user_query="Check the status of my recent orders"
+    ))
+    
+    print(result)
+```
+
+### Semantic Tool Search
+
+Gateway's semantic search helps agents find relevant tools from large collections:
+
+```python
+# semantic_tool_search.py
+import boto3
+import json
+
+agentcore_client = boto3.client('bedrock-agentcore', region_name='us-east-1')
+
+def search_tools(gateway_arn, search_query, access_token, max_results=5):
+    """Search for tools using natural language query."""
+    # Make request to gateway with search header
+    payload = json.dumps({
+        "method": "tools/list",
+        "params": {}
+    }).encode()
+    
+    response = agentcore_client.invoke_gateway(
+        gatewayArn=gateway_arn,
+        payload=payload,
+        headers={
+            'Authorization': f'Bearer {access_token}',
+            'x-amz-bedrock-agentcore-search': search_query,
+            'x-amz-bedrock-agentcore-search-max-results': str(max_results)
+        }
+    )
+    
+    # Parse response
+    result = json.loads(response['payload'].read())
+    return result.get('tools', [])
+
+# Usage
+gateway_arn = "arn:aws:bedrock-agentcore:us-east-1:123456789012:gateway/enterprise-tools"
+access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+# Natural language search
+relevant_tools = search_tools(
+    gateway_arn=gateway_arn,
+    search_query="I need to check customer order status and shipment tracking",
+    access_token=access_token,
+    max_results=5
+)
+
+print("Relevant tools found:")
+for tool in relevant_tools:
+    print(f"- {tool['name']}: {tool['description']}")
+```
+
+### Gateway Interceptors
+
+Interceptors allow you to run custom code during each Gateway invocation:
+
+```python
+# gateway_interceptor.py
+import json
+
+def lambda_handler(event, context):
+    """
+    Gateway interceptor Lambda function.
+    Runs on each gateway invocation for logging, validation, or transformation.
+    """
+    # Extract invocation details
+    gateway_name = event.get('gatewayName')
+    target_name = event.get('targetName')
+    tool_name = event.get('toolName')
+    request_payload = event.get('payload')
+    
+    # Custom logic: Log invocation
+    print(f"Gateway: {gateway_name}")
+    print(f"Target: {target_name}")
+    print(f"Tool: {tool_name}")
+    print(f"Payload: {json.dumps(request_payload)}")
+    
+    # Custom logic: Validate request
+    if 'required_field' not in request_payload:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+                'error': 'Missing required field'
+            })
+        }
+    
+    # Custom logic: Transform request
+    transformed_payload = {
+        **request_payload,
+        'timestamp': context.aws_request_id,
+        'gateway_metadata': {
+            'gateway': gateway_name,
+            'target': target_name
+        }
+    }
+    
+    # Return modified request to continue processing
+    return {
+        'statusCode': 200,
+        'payload': transformed_payload
+    }
+
+# Attach interceptor to Gateway
+import boto3
+
+agentcore_client = boto3.client('bedrock-agentcore-control', region_name='us-east-1')
+
+response = agentcore_client.update_gateway(
+    gatewayIdentifier='enterprise-tools-gateway',
+    interceptorConfiguration={
+        'lambdaArn': 'arn:aws:lambda:us-east-1:123456789012:function:gateway-interceptor'
+    }
+)
+```
+
+### Gateway Monitoring and Observability
+
+```python
+# gateway_metrics.py
+import boto3
+from datetime import datetime, timedelta
+
+cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')
+
+def get_gateway_metrics(gateway_name, hours=24):
+    """Retrieve CloudWatch metrics for a Gateway."""
+    end_time = datetime.utcnow()
+    start_time = end_time - timedelta(hours=hours)
+    
+    # Get invocation count
+    invocations = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Gateway',
+        MetricName='Invocations',
+        Dimensions=[{'Name': 'GatewayName', 'Value': gateway_name}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,  # 1-hour periods
+        Statistics=['Sum']
+    )
+    
+    # Get latency metrics
+    latency = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Gateway',
+        MetricName='Latency',
+        Dimensions=[{'Name': 'GatewayName', 'Value': gateway_name}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Average', 'p99']
+    )
+    
+    # Get error count
+    errors = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Gateway',
+        MetricName='Errors',
+        Dimensions=[{'Name': 'GatewayName', 'Value': gateway_name}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Sum']
+    )
+    
+    # Get tool usage metrics
+    tool_usage = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Gateway',
+        MetricName='ToolInvocations',
+        Dimensions=[{'Name': 'GatewayName', 'Value': gateway_name}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Sum']
+    )
+    
+    return {
+        'invocations': sum(dp['Sum'] for dp in invocations['Datapoints']),
+        'avg_latency_ms': sum(dp['Average'] for dp in latency['Datapoints']) / len(latency['Datapoints']) if latency['Datapoints'] else 0,
+        'p99_latency_ms': max(dp.get('ExtendedStatistics', {}).get('p99', 0) for dp in latency['Datapoints']) if latency['Datapoints'] else 0,
+        'errors': sum(dp['Sum'] for dp in errors['Datapoints']),
+        'tool_invocations': sum(dp['Sum'] for dp in tool_usage['Datapoints'])
+    }
+
+# Usage
+metrics = get_gateway_metrics('enterprise-tools-gateway', hours=24)
+print(f"Total invocations: {metrics['invocations']}")
+print(f"Average latency: {metrics['avg_latency_ms']:.2f}ms")
+print(f"P99 latency: {metrics['p99_latency_ms']:.2f}ms")
+print(f"Total errors: {metrics['errors']}")
+print(f"Tool invocations: {metrics['tool_invocations']}")
+```
+
+### Best Practices for AgentCore Gateway
+
+1. **Security**: Always use OAuth for authentication. Store credentials in AWS Secrets Manager and rotate them regularly.
+
+2. **Tool Design**: Design tools with clear, descriptive names and comprehensive descriptions. This improves semantic search effectiveness.
+
+3. **Error Handling**: Enable debug mode during development, but disable it in production for security.
+
+4. **Monitoring**: Set up CloudWatch alarms for gateway errors, high latency, and unusual traffic patterns.
+
+5. **Semantic Search**: Enable semantic search if you have more than 10 tools. Use descriptive tool names and documentation.
+
+6. **Interceptors**: Use interceptors for cross-cutting concerns like logging, authentication validation, and request transformation.
+
+7. **Rate Limiting**: Implement rate limiting at the API Gateway or Lambda level to protect backend services.
+
+8. **Testing**: Test each tool individually before adding to Gateway. Use the AWS Console's built-in testing features.
+
+AWS AgentCore Gateway provides a comprehensive, enterprise-ready solution for connecting AI agents to external tools and services. By handling authentication, protocol translation, and tool discovery, it eliminates months of custom development work and allows teams to focus on building innovative agent experiences. In the next section, we will explore AWS AgentCore Memory, which enables agents to maintain context and personalization across conversations.
+
+
+
+
+## AWS AgentCore Memory
+
+**AWS AgentCore Memory** is a fully managed service that gives AI agents the ability to remember past interactions, enabling them to provide more intelligent, context-aware, and personalized conversations. It provides a simple and powerful way to handle both short-term context and long-term knowledge retention without the need to build or manage complex infrastructure.
+
+AgentCore Memory addresses a fundamental challenge in agentic AI: statelessness. Without memory capabilities, AI agents treat each interaction as a new instance with no knowledge of previous conversations. AgentCore Memory provides this critical capability, allowing your agent to build a coherent understanding of users over time.
+
+### Memory Types
+
+AgentCore Memory offers two complementary types of memory that work together to create intelligent, context-aware AI agents:
+
+#### Short-Term Memory
+
+Short-term memory captures turn-by-turn interactions within a single session. This lets agents maintain immediate context without requiring users to repeat information.
+
+**Example**: When a user asks, "What's the weather like in Seattle?" and follows up with "What about tomorrow?", the agent relies on recent conversation history to understand that "tomorrow" refers to the weather in Seattle.
+
+**Key Characteristics**:
+- Stores raw conversation messages (user prompts and agent responses)
+- Preserved within a session (typically up to 8 hours)
+- Enables context awareness and reference resolution
+- Automatically managed per session ID
+
+#### Long-Term Memory
+
+Long-term memory automatically extracts and stores key insights from conversations across multiple sessions, including user preferences, important facts, and session summaries—for persistent knowledge retention across sessions.
+
+**Example**: If a customer mentions they prefer window seats during flight booking, the agent stores this preference in long-term memory. In future interactions, the agent can proactively offer window seats, creating a personalized experience.
+
+**Key Characteristics**:
+- Extracts insights using configurable memory strategies
+- Persists across sessions indefinitely
+- Stores user preferences, facts, and summaries
+- Searchable and retrievable for personalization
+
+### Key Benefits of AgentCore Memory
+
+*   **Natural Conversations**: By remembering previous turns in a conversation, agents can understand context, resolve ambiguous statements, and interact in a way that feels more human.
+*   **Personalized Experiences**: Retain user preferences, historical data, and key facts across sessions to tailor responses and actions to individual users.
+*   **Reduced Development Complexity**: Offload the undifferentiated heavy lifting of managing conversational state and memory, allowing you to focus on building your agent's core business logic.
+*   **Multi-Session Continuity**: Maintain context across days, weeks, or months, enabling truly continuous relationships between users and agents.
+
+### Common Use Cases
+
+*   **Conversational Agents**: A customer support chatbot remembers a user's previous issues and preferences, enabling it to provide more relevant assistance in future interactions.
+*   **Task-Oriented Agents**: An AI agent orchestrating a multi-step business process, such as invoice approval, uses memory to track the status of each step and maintain workflow progress.
+*   **Multi-Agent Systems**: A team of AI agents managing a supply chain shares memory to synchronize inventory levels, anticipate demand, and optimize logistics.
+*   **Autonomous Agents**: An autonomous system uses memory to learn from past experiences, track long-running goals, and improve future decision-making.
+
+### Memory Strategies
+
+Memory strategies determine what types of information to extract from raw conversations and how to store them as long-term memories. AgentCore Memory supports three types of strategies:
+
+#### 1. Built-In Strategies
+
+AgentCore handles all memory extraction and consolidation automatically with predefined algorithms optimized for common use cases.
+
+**Summary Memory Strategy**: Automatically generates summaries of conversations, capturing key points and outcomes.
+
+**User Preference Memory Strategy**: Extracts and stores user preferences mentioned during interactions.
+
+**Advantages**:
+- No configuration required beyond basic settings
+- Optimized and benchmarked algorithms
+- Suitable for standard conversational AI applications
+
+#### 2. Built-In Overrides
+
+Extends built-in strategies with targeted customization while using AgentCore's managed extraction pipeline.
+
+**Advantages**:
+- Modify prompts used for extraction
+- Use specific Bedrock models (invoked in your account)
+- Lower storage costs than pure built-in strategies
+- Balance between convenience and control
+
+#### 3. Self-Managed Strategies
+
+Complete ownership of the memory processing pipeline with custom extraction and consolidation algorithms.
+
+**Advantages**:
+- Full control over extraction algorithms
+- Custom memory record schemas and namespaces
+- Integration with external systems
+- Lowest storage costs
+
+### Creating and Using AgentCore Memory
+
+#### Step 1: Create a Memory Resource
+
+```python
+# create_memory.py
+import boto3
+import time
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+data_client = boto3.client('bedrock-agentcore', region_name='us-west-2')
+
+# Create memory resource with strategies
+response = control_client.create_memory(
+    name='CustomerSupportMemory',
+    description='Memory for customer support agent with preferences and summaries',
+    memoryStrategies=[
+        {
+            'summaryMemoryStrategy': {
+                'name': 'SessionSummarizer',
+                'namespaces': ['/summaries/{actorId}/{sessionId}/']
+            }
+        },
+        {
+            'userPreferenceMemoryStrategy': {
+                'name': 'PreferenceLearner',
+                'namespaces': ['/users/{actorId}/preferences/']
+            }
+        }
+    ]
+)
+
+memory_id = response['memory']['id']
+print(f"Memory created with ID: {memory_id}")
+
+# Wait for memory to become ACTIVE
+while True:
+    status_response = control_client.get_memory(memoryId=memory_id)
+    status = status_response['memory']['status']
+    
+    if status == 'ACTIVE':
+        print("Memory is now ACTIVE")
+        break
+    elif status == 'FAILED':
+        raise Exception("Memory creation failed")
+    
+    print(f"Status: {status}, waiting...")
+    time.sleep(2)
+```
+
+#### Step 2: Create Events (Store Conversations)
+
+```python
+# store_conversation.py
+import boto3
+import json
+from datetime import datetime
+
+data_client = boto3.client('bedrock-agentcore', region_name='us-west-2')
+
+memory_id = "mem-abc123"
+actor_id = "user-12345"
+session_id = "session-67890"
+
+# Store user message
+user_event = data_client.create_event(
+    memoryId=memory_id,
+    actorId=actor_id,
+    sessionId=session_id,
+    event={
+        'conversationalMessage': {
+            'role': 'user',
+            'content': [
+                {
+                    'text': 'I prefer window seats when I fly. Can you help me book a flight to Seattle?'
+                }
+            ]
+        }
+    }
+)
+
+print(f"User event created: {user_event['eventId']}")
+
+# Store agent response
+agent_event = data_client.create_event(
+    memoryId=memory_id,
+    actorId=actor_id,
+    sessionId=session_id,
+    event={
+        'conversationalMessage': {
+            'role': 'assistant',
+            'content': [
+                {
+                    'text': "I've noted your preference for window seats. I found several flights to Seattle. Would you like to see options with window seats?"
+                }
+            ]
+        }
+    }
+)
+
+print(f"Agent event created: {agent_event['eventId']}")
+```
+
+#### Step 3: Retrieve Short-Term Memory
+
+```python
+# retrieve_short_term_memory.py
+import boto3
+
+data_client = boto3.client('bedrock-agentcore', region_name='us-west-2')
+
+memory_id = "mem-abc123"
+actor_id = "user-12345"
+session_id = "session-67890"
+
+# List recent conversation history
+response = data_client.list_events(
+    memoryId=memory_id,
+    actorId=actor_id,
+    sessionId=session_id,
+    maxResults=20
+)
+
+print("Conversation history:")
+for event in response['events']:
+    if 'conversationalMessage' in event['event']:
+        msg = event['event']['conversationalMessage']
+        role = msg['role']
+        text = msg['content'][0].get('text', '')
+        timestamp = event['createdAt']
+        print(f"[{timestamp}] {role}: {text}")
+```
+
+#### Step 4: Retrieve Long-Term Memory
+
+```python
+# retrieve_long_term_memory.py
+import boto3
+
+data_client = boto3.client('bedrock-agentcore', region_name='us-west-2')
+
+memory_id = "mem-abc123"
+actor_id = "user-12345"
+
+# Search for user preferences
+response = data_client.retrieve_memories(
+    memoryId=memory_id,
+    actorId=actor_id,
+    searchQuery='user preferences about flights and seating',
+    maxResults=5
+)
+
+print("Retrieved long-term memories:")
+for memory in response['memories']:
+    print(f"- {memory['content']}")
+    print(f"  Namespace: {memory['namespace']}")
+    print(f"  Created: {memory['createdAt']}")
+    print()
+```
+
+### Integrating Memory with Agent Frameworks
+
+#### Strands Agent with Memory
+
+```python
+# strands_with_memory.py
+from strands import Agent
+from strands.models import BedrockModel
+import boto3
+import json
+
+data_client = boto3.client('bedrock-agentcore', region_name='us-west-2')
+
+memory_id = "mem-abc123"
+actor_id = "user-12345"
+session_id = "session-67890"
+
+def get_conversation_history(memory_id, actor_id, session_id):
+    """Retrieve recent conversation history."""
+    response = data_client.list_events(
+        memoryId=memory_id,
+        actorId=actor_id,
+        sessionId=session_id,
+        maxResults=10
+    )
+    
+    history = []
+    for event in response['events']:
+        if 'conversationalMessage' in event['event']:
+            msg = event['event']['conversationalMessage']
+            history.append({
+                'role': msg['role'],
+                'content': msg['content'][0].get('text', '')
+            })
+    
+    return history
+
+def get_long_term_context(memory_id, actor_id, query):
+    """Retrieve relevant long-term memories."""
+    response = data_client.retrieve_memories(
+        memoryId=memory_id,
+        actorId=actor_id,
+        searchQuery=query,
+        maxResults=3
+    )
+    
+    context = []
+    for memory in response['memories']:
+        context.append(memory['content'])
+    
+    return context
+
+def save_message(memory_id, actor_id, session_id, role, content):
+    """Save a message to memory."""
+    data_client.create_event(
+        memoryId=memory_id,
+        actorId=actor_id,
+        sessionId=session_id,
+        event={
+            'conversationalMessage': {
+                'role': role,
+                'content': [{'text': content}]
+            }
+        }
+    )
+
+def invoke_agent_with_memory(user_prompt):
+    """Invoke agent with both short-term and long-term memory."""
+    # Get conversation history
+    history = get_conversation_history(memory_id, actor_id, session_id)
+    
+    # Get relevant long-term context
+    long_term_context = get_long_term_context(memory_id, actor_id, user_prompt)
+    
+    # Build context-aware system prompt
+    system_prompt = "You are a helpful customer service agent."
+    if long_term_context:
+        system_prompt += f"\n\nKnown about this user:\n" + "\n".join(f"- {ctx}" for ctx in long_term_context)
+    
+    # Create agent
+    model = BedrockModel(
+        inference_profile_id="us.anthropic.claude-sonnet-4-0-v1:0",
+        temperature=0.7
+    )
+    
+    agent = Agent(
+        model=model,
+        system_prompt=system_prompt
+    )
+    
+    # Build conversation with history
+    conversation = []
+    for msg in history:
+        conversation.append(msg)
+    conversation.append({'role': 'user', 'content': user_prompt})
+    
+    # Invoke agent
+    response = agent.run(conversation)
+    
+    # Save to memory
+    save_message(memory_id, actor_id, session_id, 'user', user_prompt)
+    save_message(memory_id, actor_id, session_id, 'assistant', response.text)
+    
+    return response.text
+
+# Usage
+result = invoke_agent_with_memory("I'd like to book another flight, same preferences as last time")
+print(result)
+```
+
+#### LangGraph with AgentCore Memory
+
+```python
+# langgraph_with_memory.py
+from langchain_aws import ChatBedrock
+from langgraph.prebuilt import create_react_agent
+from langgraph_checkpoint_aws import AgentCoreMemorySaver, AgentCoreMemoryStore
+
+REGION = "us-west-2"
+MEMORY_ID = "mem-abc123"
+MODEL_ID = "us.anthropic.claude-sonnet-4-0-v1:0"
+
+# Initialize model
+model = ChatBedrock(
+    model_id=MODEL_ID,
+    region_name=REGION
+)
+
+# Initialize checkpointer for short-term memory persistence
+checkpointer = AgentCoreMemorySaver(MEMORY_ID, region_name=REGION)
+
+# Initialize store for long-term memory
+store = AgentCoreMemoryStore(MEMORY_ID, region_name=REGION)
+
+# Create agent with memory
+agent = create_react_agent(
+    model=model,
+    tools=[],  # Add your tools here
+    checkpointer=checkpointer,
+    store=store
+)
+
+# Invoke agent with actor and thread IDs
+config = {
+    "configurable": {
+        "actor_id": "user-12345",
+        "thread_id": "session-67890"
+    }
+}
+
+# First message
+response1 = agent.invoke(
+    {"messages": "I prefer window seats when flying"},
+    config=config
+)
+
+print(response1['messages'][-1].content)
+
+# Later conversation (same actor, different session)
+config2 = {
+    "configurable": {
+        "actor_id": "user-12345",
+        "thread_id": "session-new-999"
+    }
+}
+
+response2 = agent.invoke(
+    {"messages": "Book me a flight to Boston"},
+    config=config2
+)
+
+# Agent will retrieve the window seat preference from long-term memory
+print(response2['messages'][-1].content)
+```
+
+### Memory vs RAG: Complementary Approaches
+
+AgentCore Memory and Retrieval-Augmented Generation (RAG) serve complementary roles:
+
+**Long-Term Memory**:
+- Stores personal context and session continuity
+- Answers: "Who is the user and what happened before?"
+- Use for: User preferences, past decisions, behavioral patterns
+- Data: Session-specific, personal, evolving
+
+**RAG (e.g., Bedrock Knowledge Bases)**:
+- Provides current factual knowledge and domain expertise
+- Answers: "What do trusted sources say currently?"
+- Use for: Documentation, policies, technical specifications
+- Data: Authoritative, current, broad knowledge
+
+**Together**: By combining long-term memory and RAG, your agent delivers both personalized experiences through remembered context and reliable information through real-time knowledge retrieval. To your customers, your agents are both familiar and factually grounded.
+
+### Memory Organization and Namespaces
+
+AgentCore Memory uses namespaces to organize memories hierarchically:
+
+```python
+# Example namespace patterns
+namespaces = {
+    'user_preferences': '/users/{actorId}/preferences/',
+    'session_summaries': '/summaries/{actorId}/{sessionId}/',
+    'team_context': '/teams/{teamId}/context/',
+    'project_state': '/projects/{projectId}/state/'
+}
+
+# Create memory with custom namespaces
+response = control_client.create_memory(
+    name='MultiTenantMemory',
+    memoryStrategies=[
+        {
+            'userPreferenceMemoryStrategy': {
+                'name': 'UserPrefs',
+                'namespaces': ['/users/{actorId}/preferences/']
+            }
+        },
+        {
+            'summaryMemoryStrategy': {
+                'name': 'TeamSummaries',
+                'namespaces': ['/teams/{teamId}/summaries/']
+            }
+        }
+    ]
+)
+```
+
+### Monitoring Memory Usage
+
+```python
+# memory_metrics.py
+import boto3
+from datetime import datetime, timedelta
+
+cloudwatch = boto3.client('cloudwatch', region_name='us-west-2')
+
+def get_memory_metrics(memory_id, hours=24):
+    """Retrieve CloudWatch metrics for AgentCore Memory."""
+    end_time = datetime.utcnow()
+    start_time = end_time - timedelta(hours=hours)
+    
+    # Get event creation count
+    events_created = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Memory',
+        MetricName='EventsCreated',
+        Dimensions=[{'Name': 'MemoryId', 'Value': memory_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Sum']
+    )
+    
+    # Get memory retrieval count
+    retrievals = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Memory',
+        MetricName='MemoryRetrievals',
+        Dimensions=[{'Name': 'MemoryId', 'Value': memory_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Sum']
+    )
+    
+    # Get storage usage
+    storage = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Memory',
+        MetricName='StorageUsed',
+        Dimensions=[{'Name': 'MemoryId', 'Value': memory_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Average']
+    )
+    
+    return {
+        'events_created': sum(dp['Sum'] for dp in events_created['Datapoints']),
+        'retrievals': sum(dp['Sum'] for dp in retrievals['Datapoints']),
+        'storage_mb': max((dp['Average'] for dp in storage['Datapoints']), default=0)
+    }
+
+# Usage
+metrics = get_memory_metrics('mem-abc123')
+print(f"Events created: {metrics['events_created']}")
+print(f"Memory retrievals: {metrics['retrievals']}")
+print(f"Storage used: {metrics['storage_mb']:.2f} MB")
+```
+
+### Best Practices for AgentCore Memory
+
+1. **Actor ID Design**: Use meaningful, consistent actor IDs (e.g., `user-{userId}` or `customer-{customerId}`) for proper memory isolation and retrieval.
+
+2. **Session Management**: Create new session IDs for distinct conversations. Reuse session IDs only for continuing the same conversation context.
+
+3. **Strategy Selection**: Start with built-in strategies for common use cases. Move to custom strategies only when you have specific requirements.
+
+4. **Namespace Organization**: Design namespace hierarchies that reflect your application's data model and access patterns.
+
+5. **Search Queries**: When retrieving long-term memories, use specific, descriptive queries that capture the context of what you're looking for.
+
+6. **Memory Lifecycle**: Implement retention policies using TTL or periodic cleanup for memories that are no longer needed.
+
+7. **Cost Optimization**: Use self-managed strategies for high-volume applications to reduce storage costs.
+
+8. **Testing**: Test memory retrieval with various actor IDs and session IDs to ensure proper isolation and recall.
+
+AWS AgentCore Memory provides a powerful, fully managed solution for adding conversational context and personalization to AI agents. By handling both short-term and long-term memory automatically, it enables agents to maintain coherent, personalized relationships with users across sessions without requiring custom infrastructure. In the next section, we will explore AWS AgentCore Policy, which provides fine-grained access control for agent-to-tool interactions.
+
+
+
+
+## AWS AgentCore Policy
+
+**AWS AgentCore Policy** enables developers to define and enforce security controls for AI agent interactions with tools by creating a protective boundary around agent operations. AI agents can dynamically adapt to solve complex problems—from processing customer inquiries to automating workflows across multiple tools and systems. However, this flexibility introduces new security challenges, as agents may inadvertently misinterpret business rules or act outside their intended authority.
+
+With Policy in AgentCore, developers can create policy engines, define deterministic policies, and associate them with gateways. AgentCore Policy intercepts all agent traffic through Amazon Bedrock AgentCore Gateways and evaluates each request against defined policies before allowing tool access. This approach moves security controls outside of agent code, eliminating the risk of policy bypass through agent manipulation.
+
+### Key Benefits of AgentCore Policy
+
+*   **Fine-Grained Control**: Define precisely what actions an agent is allowed to perform—including which tools it can call and the exact conditions under which those actions are permitted.
+*   **Deterministic Enforcement**: Every agent action through AgentCore Gateway is intercepted and evaluated at the boundary outside of the agent's code—ensuring consistent, deterministic enforcement that remains reliable regardless of how the agent is implemented.
+*   **Accessible Authoring**: Write policies using natural language prompts or directly in Cedar (AWS's open-source policy language for fine-grained permissions), making it easy for builders with varying expertise to define rules for their agents.
+*   **Organization-Wide Consistency**: Teams can set boundaries once and have them applied consistently across all agents and tools, with every enforcement decision logged through CloudWatch metrics and logs for audit and validation.
+
+### Key Features
+
+*   **Policy Enforcement**: Intercepts and evaluates all agent requests against defined policies before allowing tool access
+*   **Access Controls**: Enables fine-grained authorization based on user identity and tool input parameters
+*   **Policy Authoring**: Supports Cedar policy language and natural language authoring with automated translation and validation
+*   **Policy Monitoring**: Offers CloudWatch integration for monitoring policy evaluations and decisions
+*   **Infrastructure Integration**: Integrates with VPC security groups and other AWS security infrastructure
+*   **Audit Logging**: Maintains detailed logs of policy decisions for compliance and troubleshooting
+
+### Understanding Cedar Policies
+
+AgentCore Policy uses Cedar as its authorization language. Cedar is an open-source policy language that provides precise, verifiable access control. 
+
+#### Cedar Policy Structure
+
+Cedar policies consist of three main components:
+
+1. **Effect**: Determines whether to allow or deny access (`permit` or `forbid`)
+2. **Scope**: Specifies the principal, action, and resource the policy applies to
+3. **Condition**: Defines additional logic that must be satisfied (`when` or `unless`)
+
+#### Basic Policy Example
+
+Consider a refund processing tool with these requirements:
+- Only the user "John" can process refunds
+- Refunds are limited to $500 or less
+
+```cedar
+permit(
+  principal is AgentCore::OAuthUser,
+  action == AgentCore::Action::"RefundTool__process_refund",
+  resource == AgentCore::Gateway::"arn:aws:bedrock-agentcore:us-east-1:123456789012:gateway/refund-gateway"
+)
+when {
+  principal.hasTag("username") &&
+  principal.getTag("username") == "John" &&
+  context.input.amount < 500
+};
+```
+
+This policy allows refund processing only when the user is "John" and the refund amount is less than $500.
+
+#### Policy Evaluation Model
+
+Cedar uses a **forbid-overrides-permit** evaluation model with **default deny**:
+
+1. If any `forbid` policy matches, the result is **DENY**
+2. If at least one `permit` policy matches and no `forbid` policies match, the result is **ALLOW**
+3. If no policies match, the result is **DENY** (default deny)
+
+Each policy evaluates independently based on the scope, context, and tags.
+
+### Creating a Policy Engine
+
+#### Step 1: Create Policy Engine
+
+```python
+# create_policy_engine.py
+import boto3
+import json
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# Create a policy engine
+response = control_client.create_policy_engine(
+    policyEngineName='CustomerSupportPolicyEngine',
+    description='Policy engine for customer support agent authorization',
+    enforcementMode='ENFORCING'  # or 'LOGGING' for testing
+)
+
+policy_engine_id = response['policyEngine']['id']
+policy_engine_arn = response['policyEngine']['arn']
+
+print(f"Policy Engine created with ID: {policy_engine_id}")
+print(f"ARN: {policy_engine_arn}")
+```
+
+#### Step 2: Create Policies Using Natural Language
+
+```python
+# create_policies_natural_language.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+policy_engine_id = "pe-abc123"
+
+# Create policy from natural language description
+response = control_client.create_policy_from_natural_language(
+    policyEngineId=policy_engine_id,
+    naturalLanguageDescription="""
+    Allow customer service agents with the role 'agent' or 'supervisor' 
+    to retrieve customer information and view order history.
+    Block all agents from issuing refunds greater than $1000.
+    Allow supervisors to approve refunds up to $5000.
+    """,
+    targetSchema={
+        'gatewayArn': 'arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/customer-support',
+        'tools': [
+            {
+                'name': 'CustomerDB__get_customer_info',
+                'parameters': {
+                    'customerId': {'type': 'string'}
+                }
+            },
+            {
+                'name': 'OrderDB__get_order_history',
+                'parameters': {
+                    'customerId': {'type': 'string'}
+                }
+            },
+            {
+                'name': 'RefundTool__process_refund',
+                'parameters': {
+                    'orderId': {'type': 'string'},
+                    'amount': {'type': 'number'}
+                }
+            }
+        ]
+    }
+)
+
+# Review generated Cedar policies
+for policy in response['policies']:
+    print(f"Policy ID: {policy['policyId']}")
+    print(f"Cedar Code:\n{policy['cedarCode']}\n")
+```
+
+#### Step 3: Create Policies Directly in Cedar
+
+```python
+# create_cedar_policy.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+policy_engine_id = "pe-abc123"
+
+# Multi-action permit policy
+allow_read_operations = """
+permit(
+  principal is AgentCore::OAuthUser,
+  action in [
+    AgentCore::Action::"CustomerDB__get_customer_info",
+    AgentCore::Action::"OrderDB__get_order_history"
+  ],
+  resource == AgentCore::Gateway::"arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/customer-support"
+)
+when {
+  principal.hasTag("role") &&
+  (principal.getTag("role") == "agent" || principal.getTag("role") == "supervisor")
+};
+"""
+
+# Create the policy
+response = control_client.create_policy(
+    policyEngineId=policy_engine_id,
+    policyName='AllowReadOperations',
+    cedarCode=allow_read_operations
+)
+
+print(f"Policy created: {response['policyId']}")
+
+# Scope-based authorization policy
+refund_with_scope = """
+permit(
+  principal is AgentCore::OAuthUser,
+  action == AgentCore::Action::"RefundTool__process_refund",
+  resource == AgentCore::Gateway::"arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/customer-support"
+)
+when {
+  principal.hasTag("scope") &&
+  principal.getTag("scope") like "*refund:write*" &&
+  context.input.amount <= 1000
+};
+"""
+
+response = control_client.create_policy(
+    policyEngineId=policy_engine_id,
+    policyName='AllowRefundsWithScope',
+    cedarCode=refund_with_scope
+)
+
+print(f"Policy created: {response['policyId']}")
+
+# Supervisor override policy
+supervisor_refunds = """
+permit(
+  principal is AgentCore::OAuthUser,
+  action == AgentCore::Action::"RefundTool__process_refund",
+  resource == AgentCore::Gateway::"arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/customer-support"
+)
+when {
+  principal.hasTag("role") &&
+  principal.getTag("role") == "supervisor" &&
+  context.input.amount <= 5000
+};
+"""
+
+response = control_client.create_policy(
+    policyEngineId=policy_engine_id,
+    policyName='SupervisorRefunds',
+    cedarCode=supervisor_refunds
+)
+
+print(f"Policy created: {response['policyId']}")
+```
+
+### Common Policy Patterns
+
+#### Pattern 1: Role-Based Access Control (RBAC)
+
+```cedar
+# Allow managers to access all tools
+permit(
+  principal is AgentCore::OAuthUser,
+  action,
+  resource == AgentCore::Gateway::"arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/my-gateway"
+)
+when {
+  principal.hasTag("role") &&
+  principal.getTag("role") == "manager"
+};
+```
+
+#### Pattern 2: Parameter-Based Authorization
+
+```cedar
+# Allow users to only access their own data
+permit(
+  principal is AgentCore::OAuthUser,
+  action == AgentCore::Action::"UserDB__get_user_profile",
+  resource == AgentCore::Gateway::"arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/my-gateway"
+)
+when {
+  principal.hasTag("userId") &&
+  context.input.userId == principal.getTag("userId")
+};
+```
+
+#### Pattern 3: Time-Based Restrictions
+
+```cedar
+# Allow operations only during business hours
+permit(
+  principal is AgentCore::OAuthUser,
+  action == AgentCore::Action::"FinanceTool__transfer_funds",
+  resource == AgentCore::Gateway::"arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/my-gateway"
+)
+when {
+  context.time.hour >= 9 &&
+  context.time.hour <= 17 &&
+  context.time.dayOfWeek >= 1 &&
+  context.time.dayOfWeek <= 5
+};
+```
+
+#### Pattern 4: Forbid with Exceptions
+
+```cedar
+# Block high-value transactions except for finance team
+forbid(
+  principal is AgentCore::OAuthUser,
+  action == AgentCore::Action::"PaymentTool__process_payment",
+  resource == AgentCore::Gateway::"arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/my-gateway"
+)
+unless {
+  principal.hasTag("department") &&
+  principal.getTag("department") == "finance" &&
+  context.input.amount > 10000
+};
+```
+
+#### Pattern 5: Combining Multiple Conditions
+
+```cedar
+# Complex authorization: region, role, and amount checks
+permit(
+  principal is AgentCore::OAuthUser,
+  action == AgentCore::Action::"DiscountTool__apply_discount",
+  resource == AgentCore::Gateway::"arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/my-gateway"
+)
+when {
+  principal.hasTag("region") &&
+  principal.getTag("region") == "US-WEST" &&
+  principal.hasTag("role") &&
+  principal.getTag("role") == "sales-rep" &&
+  context.input.discountPercent <= 20 &&
+  context.input.orderValue >= 100
+};
+```
+
+### Attaching Policy Engine to Gateway
+
+```python
+# attach_policy_to_gateway.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# Attach policy engine to gateway
+response = control_client.update_gateway(
+    gatewayIdentifier='customer-support-gateway',
+    policyEngineConfiguration={
+        'policyEngineArn': 'arn:aws:bedrock-agentcore:us-west-2:123456789012:policy-engine/pe-abc123',
+        'enforcementMode': 'ENFORCING'  # ENFORCING or LOGGING
+    }
+)
+
+print(f"Policy engine attached to gateway")
+print(f"Enforcement mode: {response['gateway']['policyEngineConfiguration']['enforcementMode']}")
+```
+
+### Testing Policies
+
+#### Test Policy Evaluation
+
+```python
+# test_policy.py
+import boto3
+import json
+
+data_client = boto3.client('bedrock-agentcore', region_name='us-west-2')
+
+# Simulate a policy evaluation
+response = data_client.evaluate_policy(
+    policyEngineId='pe-abc123',
+    principal={
+        'type': 'OAuthUser',
+        'tags': {
+            'username': 'john.doe',
+            'role': 'agent',
+            'scope': 'customer:read order:read'
+        }
+    },
+    action='CustomerDB__get_customer_info',
+    resource='arn:aws:bedrock-agentcore:us-west-2:123456789012:gateway/customer-support',
+    context={
+        'input': {
+            'customerId': 'cust-12345'
+        }
+    }
+)
+
+print(f"Authorization Decision: {response['decision']}")  # ALLOW or DENY
+print(f"Determining Policies: {response['determiningPolicies']}")
+print(f"Evaluation Time: {response['evaluationTimeMs']}ms")
+```
+
+### Using Gateway with Policy
+
+#### List Tools (Policy-Filtered)
+
+```python
+# list_tools_with_policy.py
+import requests
+import json
+
+gateway_url = "https://mygateway-abc123.gateway.bedrock-agentcore.us-west-2.amazonaws.com/mcp"
+access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+def list_tools_with_policy(gateway_url, access_token):
+    """List tools - only shows tools allowed by policy."""
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}"
+    }
+    
+    payload = {
+        "jsonrpc": "2.0",
+        "id": "list-tools-request",
+        "method": "tools/list"
+    }
+    
+    response = requests.post(gateway_url, headers=headers, json=payload)
+    return response.json()
+
+# List tools - policy filters what the user can see
+tools = list_tools_with_policy(gateway_url, access_token)
+print("Tools available to this user:")
+for tool in tools.get('result', {}).get('tools', []):
+    print(f"- {tool['name']}")
+```
+
+#### Call Tool with Policy Enforcement
+
+```python
+# call_tool_with_policy.py
+import requests
+import json
+
+def call_tool_with_policy(gateway_url, access_token, tool_name, arguments):
+    """Call a tool - policy enforces authorization."""
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}"
+    }
+    
+    payload = {
+        "jsonrpc": "2.0",
+        "id": "tool-call",
+        "method": "tools/call",
+        "params": {
+            "name": tool_name,
+            "arguments": arguments
+        }
+    }
+    
+    response = requests.post(gateway_url, headers=headers, json=payload)
+    result = response.json()
+    
+    if result.get('result', {}).get('isError'):
+        print("Authorization DENIED")
+        print(f"Reason: {result['result']['content'][0]['text']}")
+    else:
+        print("Authorization ALLOWED")
+        print(f"Result: {result['result']}")
+    
+    return result
+
+# Example: Try to process a refund
+gateway_url = "https://mygateway-abc123.gateway.bedrock-agentcore.us-west-2.amazonaws.com/mcp"
+access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+# This will be evaluated by policy
+result = call_tool_with_policy(
+    gateway_url,
+    access_token,
+    "RefundTool__process_refund",
+    {
+        "orderId": "12345",
+        "amount": 450,
+        "reason": "Defective product"
+    }
+)
+```
+
+### Monitoring Policy Decisions
+
+```python
+# monitor_policy_decisions.py
+import boto3
+from datetime import datetime, timedelta
+
+cloudwatch = boto3.client('cloudwatch', region_name='us-west-2')
+logs_client = boto3.client('logs', region_name='us-west-2')
+
+def get_policy_metrics(policy_engine_id, hours=24):
+    """Get CloudWatch metrics for policy evaluations."""
+    end_time = datetime.utcnow()
+    start_time = end_time - timedelta(hours=hours)
+    
+    # Get total evaluations
+    evaluations = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Policy',
+        MetricName='PolicyEvaluations',
+        Dimensions=[{'Name': 'PolicyEngineId', 'Value': policy_engine_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Sum']
+    )
+    
+    # Get allowed count
+    allowed = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Policy',
+        MetricName='AllowedRequests',
+        Dimensions=[{'Name': 'PolicyEngineId', 'Value': policy_engine_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Sum']
+    )
+    
+    # Get denied count
+    denied = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Policy',
+        MetricName='DeniedRequests',
+        Dimensions=[{'Name': 'PolicyEngineId', 'Value': policy_engine_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Sum']
+    )
+    
+    # Get evaluation latency
+    latency = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore/Policy',
+        MetricName='EvaluationLatency',
+        Dimensions=[{'Name': 'PolicyEngineId', 'Value': policy_engine_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=3600,
+        Statistics=['Average', 'Maximum']
+    )
+    
+    return {
+        'total_evaluations': sum(dp['Sum'] for dp in evaluations['Datapoints']),
+        'allowed': sum(dp['Sum'] for dp in allowed['Datapoints']),
+        'denied': sum(dp['Sum'] for dp in denied['Datapoints']),
+        'avg_latency_ms': sum(dp['Average'] for dp in latency['Datapoints']) / len(latency['Datapoints']) if latency['Datapoints'] else 0
+    }
+
+def get_policy_logs(policy_engine_id, hours=1):
+    """Get recent policy decision logs."""
+    log_group_name = f'/aws/bedrock-agentcore/policy/{policy_engine_id}'
+    
+    start_time = int((datetime.utcnow() - timedelta(hours=hours)).timestamp() * 1000)
+    
+    response = logs_client.filter_log_events(
+        logGroupName=log_group_name,
+        startTime=start_time,
+        limit=100
+    )
+    
+    decisions = []
+    for event in response['events']:
+        message = json.loads(event['message'])
+        decisions.append({
+            'timestamp': datetime.fromtimestamp(event['timestamp'] / 1000),
+            'decision': message.get('decision'),
+            'principal': message.get('principal'),
+            'action': message.get('action'),
+            'policies': message.get('determiningPolicies', [])
+        })
+    
+    return decisions
+
+# Usage
+metrics = get_policy_metrics('pe-abc123', hours=24)
+print(f"Total evaluations: {metrics['total_evaluations']}")
+print(f"Allowed: {metrics['allowed']}")
+print(f"Denied: {metrics['denied']}")
+print(f"Approval rate: {(metrics['allowed'] / metrics['total_evaluations'] * 100):.2f}%")
+print(f"Average latency: {metrics['avg_latency_ms']:.2f}ms")
+
+# Get recent decision logs
+logs = get_policy_logs('pe-abc123', hours=1)
+print(f"\nRecent policy decisions ({len(logs)}):")
+for log in logs[:5]:
+    print(f"[{log['timestamp']}] {log['decision']}: {log['action']}")
+```
+
+### Best Practices for AgentCore Policy
+
+1. **Start with Logging Mode**: Use `LOGGING` enforcement mode during development to test policies without blocking requests. Switch to `ENFORCING` for production.
+
+2. **Default Deny Posture**: Always rely on Cedar's default deny. Explicitly permit only the actions that should be allowed.
+
+3. **Principle of Least Privilege**: Grant only the minimum permissions necessary for each role or user.
+
+4. **Use Forbid Sparingly**: Prefer explicit permits over forbid policies. Use forbid only for specific exceptions or overrides.
+
+5. **Test Thoroughly**: Test policies with various user roles, input parameters, and edge cases before deploying to production.
+
+6. **Policy Organization**: Group related policies logically. Use descriptive policy names that indicate their purpose.
+
+7. **Monitor Continuously**: Set up CloudWatch alarms for denied requests and unusual patterns in policy evaluations.
+
+8. **Document Policies**: Maintain clear documentation of what each policy does and why it exists, especially for complex conditions.
+
+9. **Version Control**: Store Cedar policies in version control alongside your application code.
+
+10. **Regular Audits**: Periodically review policies to ensure they still align with business requirements and security standards.
+
+### Integration with Agent Frameworks
+
+#### Strands Agent with Policy-Protected Gateway
+
+```python
+# strands_with_policy.py
+from strands import Agent
+from strands.models import BedrockModel
+from strands.tools.mcp.mcp_client import MCPClient
+from mcp.client.streamable_http import streamablehttp_client
+
+def create_agent_with_policy_protected_tools(gateway_url, access_token):
+    """Create agent with tools protected by AgentCore Policy."""
+    
+    # Create authenticated transport
+    headers = {"Authorization": f"Bearer {access_token}"}
+    transport = streamablehttp_client(gateway_url, headers=headers)
+    
+    # Create MCP client
+    mcp_client = MCPClient(transport)
+    
+    # Create model
+    model = BedrockModel(
+        inference_profile_id="us.anthropic.claude-sonnet-4-0-v1:0",
+        temperature=0.7
+    )
+    
+    with mcp_client:
+        # List tools - policy filters what's available
+        tools = mcp_client.list_tools_sync()
+        
+        print(f"Tools available (after policy filtering): {len(tools)}")
+        
+        # Create agent with policy-protected tools
+        agent = Agent(
+            model=model,
+            tools=tools,
+            system_prompt="""
+            You are a customer support agent with access to company tools.
+            Your actions are governed by security policies.
+            If you encounter authorization errors, inform the user politely.
+            """
+        )
+        
+        # When agent calls tools, policy engine evaluates each call
+        response = agent("Process a refund of $450 for order #12345")
+        
+        return response
+
+# Usage
+gateway_url = "https://mygateway-abc123.gateway.bedrock-agentcore.us-west-2.amazonaws.com"
+access_token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+result = create_agent_with_policy_protected_tools(gateway_url, access_token)
+print(result)
+```
+
+AWS AgentCore Policy provides enterprise-grade access control for AI agents, enabling secure deployment at scale. By enforcing deterministic policies at the gateway boundary, organizations can confidently deploy autonomous agents while maintaining strong security guarantees and compliance requirements. In the next section, we will explore AgentCore Observability, which provides comprehensive monitoring, tracing, and diagnostics for AI agents in production.
+
+
+
+
+## AWS AgentCore Observability
+
+**AWS AgentCore Observability** provides comprehensive monitoring, tracing, and diagnostic capabilities for AI agents running on Amazon Bedrock AgentCore. By integrating with Amazon CloudWatch and AWS X-Ray, AgentCore Observability enables developers to understand agent behavior, troubleshoot issues, optimize performance, and ensure reliable operation at scale.
+
+Observability is critical for production AI systems because agents can exhibit unpredictable behavior, make complex tool interactions, and produce non-deterministic outputs. AgentCore Observability addresses these challenges by providing visibility into every layer of agent execution—from high-level sessions to individual tool calls and model invocations.
+
+### Why AgentCore Observability Matters
+
+AI agents present unique observability challenges compared to traditional applications:
+
+*   **Non-Deterministic Behavior**: LLM responses vary based on model temperature and prompt context, making reproducibility difficult
+*   **Multi-Step Reasoning**: Agents make complex chains of decisions that require detailed tracing to understand
+*   **Tool Orchestration**: Agents interact with multiple external tools and services, creating distributed traces
+*   **Cost Management**: Model invocations incur costs that need tracking and optimization
+*   **Quality Monitoring**: Agent responses need continuous evaluation for quality, safety, and coherence
+*   **Performance Optimization**: Identifying bottlenecks in multi-agent systems and tool integrations
+
+AgentCore Observability provides three interconnected views of agent behavior: **sessions** (complete user interactions), **traces** (individual request-response cycles), and **spans** (discrete operations within traces).
+
+### Core Observability Concepts
+
+#### Sessions
+
+A **session** represents a complete interaction context between a user and an agent. Sessions encapsulate the entire conversation or interaction flow, maintaining state and context across multiple exchanges.
+
+**Session Capabilities:**
+*   Context persistence across multiple interactions within the same conversation
+*   State management for maintaining user-specific information
+*   Conversation history tracking for contextual understanding
+*   Resource allocation and management for the duration of the interaction
+*   Isolation between different user interactions with the same agent
+
+**Session Metrics:**
+*   Total session count across all agents
+*   Session duration and time-to-first-response
+*   Sessions per agent and per user
+*   Session error rates and completion rates
+
+Sessions provide a high-level view of user engagement patterns, allowing you to monitor agent performance and understand how users interact with your agents over time.
+
+#### Traces
+
+A **trace** represents a detailed record of a single request-response cycle beginning with an agent invocation and including all subsequent operations. Traces capture the complete execution path of a request, including internal processing steps, external service calls, decision points, and resource utilization.
+
+**Trace Components:**
+*   Request details including timestamps, input parameters, and context
+*   Processing steps showing the sequence of operations performed
+*   Tool invocations with input/output parameters and execution times
+*   Resource utilization metrics such as processing time and token usage
+*   Error information including exception details and recovery attempts
+*   Response generation details and final output
+
+**Trace Use Cases:**
+*   Troubleshooting specific failed requests
+*   Understanding agent decision-making paths
+*   Identifying performance bottlenecks
+*   Analyzing tool usage patterns
+*   Debugging multi-agent interactions
+
+#### Spans
+
+A **span** represents a discrete, measurable unit of work within an agent's execution flow. Spans capture fine-grained operations that occur during request processing, providing detailed visibility into the internal components and steps that make up a complete trace.
+
+**Span Attributes:**
+*   **Operation name**: Identifies the specific function or process being executed
+*   **Timestamps**: Marks exact start and end times of the operation
+*   **Parent-child relationships**: Shows how operations nest within larger processes
+*   **Tags and attributes**: Provides contextual metadata about the operation
+*   **Events**: Marks significant occurrences within the span's lifetime
+*   **Status information**: Indicates success, failure, or other outcome states
+
+**Common Span Types in AgentCore:**
+*   Model invocation spans (LLM calls with prompt and completion details)
+*   Tool execution spans (external API calls and function executions)
+*   Memory retrieval and storage spans
+*   Gateway authorization spans
+*   Policy evaluation spans
+*   Agent-to-agent communication spans
+
+#### Relationship Between Sessions, Traces, and Spans
+
+The hierarchical relationship can be visualized as:
+
+```
+Session (Conversation)
+├── Trace (Request 1)
+│   ├── Span: Receive user input
+│   ├── Span: Model invocation
+│   ├── Span: Tool call - get_weather
+│   └── Span: Generate response
+├── Trace (Request 2)
+│   ├── Span: Receive user input
+│   ├── Span: Memory retrieval
+│   ├── Span: Model invocation
+│   ├── Span: Tool call - search_database
+│   │   ├── Span: Database query
+│   │   └── Span: Parse results
+│   └── Span: Generate response
+└── Trace (Request 3)
+    └── ...
+```
+
+This hierarchy allows you to:
+*   Navigate from high-level session patterns to specific problematic traces
+*   Drill down from slow traces to identify bottleneck spans
+*   Correlate user behavior across sessions with technical performance
+*   Track resources and costs at multiple granularities
+
+### Enabling AgentCore Observability
+
+#### Step 1: Enable CloudWatch Transaction Search (One-Time Setup)
+
+CloudWatch Transaction Search is required to view traces and spans. This is a one-time setup per AWS account and region.
+
+```python
+# enable_transaction_search.py
+import boto3
+import json
+
+logs_client = boto3.client('logs', region_name='us-west-2')
+xray_client = boto3.client('xray', region_name='us-west-2')
+
+# Step 1: Create resource policy for X-Ray to write to CloudWatch Logs
+policy_document = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "TransactionSearchXRayAccess",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "xray.amazonaws.com"
+            },
+            "Action": "logs:PutLogEvents",
+            "Resource": [
+                "arn:aws:logs:us-west-2:123456789012:log-group:aws/spans:*",
+                "arn:aws:logs:us-west-2:123456789012:log-group:/aws/application-signals/data:*"
+            ],
+            "Condition": {
+                "ArnLike": {
+                    "aws:SourceArn": "arn:aws:xray:us-west-2:123456789012:*"
+                },
+                "StringEquals": {
+                    "aws:SourceAccount": "123456789012"
+                }
+            }
+        }
+    ]
+}
+
+response = logs_client.put_resource_policy(
+    policyName='TransactionSearchXRayPolicy',
+    policyDocument=json.dumps(policy_document)
+)
+
+print("Resource policy created for X-Ray access to CloudWatch Logs")
+
+# Step 2: Configure X-Ray to send traces to CloudWatch Logs
+response = xray_client.update_trace_segment_destination(
+    Destination='CloudWatchLogs'
+)
+
+print(f"X-Ray destination configured: {response['Destination']}")
+
+# Step 3: (Optional) Configure sampling percentage
+response = xray_client.update_indexing_rule(
+    Name='Default',
+    Rule={
+        'Probabilistic': {
+            'DesiredSamplingPercentage': 10  # 10% sampling
+        }
+    }
+)
+
+print(f"Sampling configured: {response['Rule']['Probabilistic']['DesiredSamplingPercentage']}%")
+```
+
+#### Step 2: Enable Observability on Agent Runtime
+
+```python
+# create_agent_with_observability.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# Create agent runtime with observability enabled
+response = control_client.create_agent_runtime(
+    agentRuntimeName='customer-support-agent',
+    runtimeConfig={
+        'runtimeResourceConfig': {
+            'cpuUnits': 2048,
+            'memoryInMB': 4096
+        }
+    },
+    observabilityConfig={
+        'tracingEnabled': True,  # Enable span generation
+        'metricsEnabled': True,  # Enable CloudWatch metrics
+        'loggingConfig': {
+            'logTypes': ['APPLICATION_LOGS', 'USAGE_LOGS'],  # Enable structured logs
+            'logLevel': 'INFO'
+        }
+    }
+)
+
+agent_runtime_id = response['agentRuntime']['id']
+print(f"Agent runtime created with observability enabled: {agent_runtime_id}")
+```
+
+#### Step 3: Instrument Agent Code with ADOT
+
+To capture custom spans, metrics, and logs from your agent code, instrument it using the AWS Distro for OpenTelemetry (ADOT).
+
+**Install Dependencies:**
+
+```txt
+# requirements.txt
+aws-opentelemetry-distro>=0.10.0
+boto3
+strands-agents>=0.5.0
+```
+
+**Instrument Strands Agent:**
+
+```python
+# strands_agent_with_observability.py
+import os
+from strands import Agent
+from strands.models import BedrockModel
+from strands.tools import tool
+from opentelemetry import trace
+from opentelemetry.trace import Status, StatusCode
+
+# Configure ADOT environment variables
+os.environ['OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED'] = 'true'
+os.environ['OTEL_LOGS_EXPORTER'] = 'otlp'
+os.environ['OTEL_METRICS_EXPORTER'] = 'otlp'
+os.environ['OTEL_TRACES_EXPORTER'] = 'otlp'
+os.environ['OTEL_EXPORTER_OTLP_PROTOCOL'] = 'http/protobuf'
+os.environ['OTEL_AWS_APPLICATION_SIGNALS_ENABLED'] = 'true'
+os.environ['OTEL_RESOURCE_ATTRIBUTES'] = 'service.name=customer-support-agent'
+
+# Get tracer for custom instrumentation
+tracer = trace.get_tracer(__name__)
+
+@tool
+def get_customer_info(customer_id: str) -> dict:
+    """Retrieve customer information from the database."""
+    # Create custom span for detailed tracking
+    with tracer.start_as_current_span("get_customer_info") as span:
+        span.set_attribute("customer.id", customer_id)
+        span.set_attribute("tool.name", "get_customer_info")
+        
+        try:
+            # Simulate database lookup
+            customer_data = {
+                "id": customer_id,
+                "name": "Jane Doe",
+                "tier": "premium",
+                "account_balance": 5420.50
+            }
+            
+            span.set_attribute("customer.tier", customer_data["tier"])
+            span.set_status(Status(StatusCode.OK))
+            return customer_data
+            
+        except Exception as e:
+            span.set_status(Status(StatusCode.ERROR, str(e)))
+            span.record_exception(e)
+            raise
+
+@tool
+def calculate_discount(amount: float, tier: str) -> float:
+    """Calculate discount based on customer tier."""
+    with tracer.start_as_current_span("calculate_discount") as span:
+        span.set_attribute("input.amount", amount)
+        span.set_attribute("input.tier", tier)
+        
+        discount_rates = {"basic": 0.05, "premium": 0.15, "vip": 0.25}
+        discount = amount * discount_rates.get(tier, 0.0)
+        
+        span.set_attribute("output.discount", discount)
+        span.set_status(Status(StatusCode.OK))
+        return discount
+
+# Create instrumented agent
+model = BedrockModel(
+    inference_profile_id="us.anthropic.claude-sonnet-4-0-v1:0",
+    temperature=0.7
+)
+
+agent = Agent(
+    model=model,
+    tools=[get_customer_info, calculate_discount],
+    system_prompt="You are a customer support agent. Use the available tools to help customers."
+)
+
+# Agent invocations will be automatically traced
+if __name__ == "__main__":
+    # Run with opentelemetry-instrument wrapper
+    # opentelemetry-instrument python strands_agent_with_observability.py
+    
+    response = agent("What discount can I get for customer ID cust-12345?")
+    print(response)
+```
+
+**Run with ADOT Auto-Instrumentation:**
+
+```bash
+# Run agent with automatic OpenTelemetry instrumentation
+opentelemetry-instrument \
+    --traces_exporter otlp \
+    --metrics_exporter otlp \
+    --logs_exporter otlp \
+    python strands_agent_with_observability.py
+```
+
+### Runtime Observability Metrics
+
+AgentCore automatically provides comprehensive runtime metrics at one-minute intervals. These metrics are available in the CloudWatch console on the GenAI Observability page.
+
+#### Core Runtime Metrics
+
+| Metric | Description | Use Case |
+|--------|-------------|----------|
+| **Invocations** | Total number of requests made to the agent runtime API | Monitor agent usage and traffic patterns |
+| **Invocations (aggregated)** | Total invocations across all agents in the account | Account-level capacity planning |
+| **Throttles** | Number of requests throttled due to TPS limits (HTTP 429) | Identify when to request quota increases |
+| **System Errors** | Server-side errors during request processing | Detect infrastructure or service issues |
+| **User Errors** | Client-side errors from invalid requests | Identify integration problems |
+| **Total Errors** | Sum of system and user errors | Overall error rate monitoring |
+| **Latency** | End-to-end processing time from request to final response | Performance optimization |
+| **Session Count** | Total number of agent sessions | User engagement tracking |
+| **Sessions (aggregated)** | Total sessions across all agents | Platform usage monitoring |
+
+#### WebSocket-Specific Metrics
+
+| Metric | Description |
+|--------|-------------|
+| **ActiveStreamingConnections** | Current number of active WebSocket connections | Real-time connection monitoring |
+| **InboundStreamingBytesProcessed** | Total bytes received from clients via WebSocket | Inbound data throughput |
+| **OutboundStreamingBytesProcessed** | Total bytes sent to clients via WebSocket | Outbound data throughput |
+
+#### Resource Usage Metrics
+
+AgentCore provides detailed resource consumption metrics for cost tracking and optimization (published at 1-minute resolution):
+
+| Metric | Dimensions | Description |
+|--------|------------|-------------|
+| **CPUUsed-vCPUHours** | Service, Resource, Name | Virtual CPU consumed in vCPU-Hours |
+| **MemoryUsed-GBHours** | Service, Resource, Name | Memory consumed in GB-Hours |
+
+**Note**: Telemetry data is provided for monitoring purposes. Actual billing is calculated based on metered usage data and may differ from telemetry values. Refer to your AWS billing statement for authoritative charges.
+
+#### Error Types
+
+AgentCore categorizes errors to help with troubleshooting:
+
+**System Errors (5xx):**
+*   `InternalServerException` - Internal service error
+*   `ServiceUnavailableException` - Service temporarily unavailable
+*   `DependencyFailedException` - Downstream dependency failure
+
+**User Errors (4xx):**
+*   `ValidationException` - Invalid request parameters
+*   `ThrottlingException` - Rate limit exceeded (HTTP 429)
+*   `AccessDeniedException` - Insufficient permissions
+*   `ResourceNotFoundException` - Requested resource not found
+*   `ConflictException` - Resource state conflict
+
+### Viewing Observability Data in CloudWatch
+
+#### GenAI Observability Dashboard
+
+The CloudWatch GenAI Observability dashboard provides curated views specifically designed for AI agent monitoring.
+
+**Access the Dashboard:**
+
+1. Open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch)
+2. Navigate to **GenAI Observability** → **Agents View**
+
+**Agent View Features:**
+
+*   **Overview Metrics**: Agent count, session count, trace count, error rate, throttle rate
+*   **Runtime Metrics**: Invocations, sessions, errors, throttles, latency
+*   **Time-Series Graphs**: Visualize trends over time with configurable time ranges
+*   **Agent List**: Sortable table of all agents with key statistics
+*   **Drill-Down**: Click any agent to view detailed metrics, sessions, and traces
+
+**Sessions View:**
+
+*   Browse all sessions across agents
+*   Filter by agent, time range, or session ID
+*   View session duration and message count
+*   Jump to traces within a session
+
+**Traces View:**
+
+*   Search and filter traces by various criteria
+*   View trace duration, span count, and status
+*   Visualize trace topology and timeline
+*   Identify slow or failing operations
+
+#### Viewing Logs
+
+AgentCore provides structured logs in CloudWatch Logs with multiple log types:
+
+**Log Groups:**
+
+*   **Application Logs** (stdout/stderr): `/aws/bedrock-agentcore/runtimes/<agent_id>-<endpoint_name>/[runtime-logs]`
+*   **OTEL Structured Logs**: `/aws/bedrock-agentcore/runtimes/<agent_id>-<endpoint_name>/runtime-logs`
+*   **Usage Logs**: Session-level resource consumption metrics
+
+**Querying Logs:**
+
+```python
+# query_agent_logs.py
+import boto3
+from datetime import datetime, timedelta
+
+logs_client = boto3.client('logs', region_name='us-west-2')
+
+agent_id = 'agent-abc123'
+endpoint_name = 'production'
+log_group = f'/aws/bedrock-agentcore/runtimes/{agent_id}-{endpoint_name}/runtime-logs'
+
+# Query logs from the last hour
+start_time = int((datetime.utcnow() - timedelta(hours=1)).timestamp() * 1000)
+end_time = int(datetime.utcnow().timestamp() * 1000)
+
+# CloudWatch Insights query
+query = """
+fields @timestamp, @message, session.id, latency_ms
+| filter error_type exists
+| sort @timestamp desc
+| limit 20
+"""
+
+response = logs_client.start_query(
+    logGroupName=log_group,
+    startTime=start_time,
+    endTime=end_time,
+    queryString=query
+)
+
+query_id = response['queryId']
+
+# Wait for query to complete and retrieve results
+import time
+while True:
+    result = logs_client.get_query_results(queryId=query_id)
+    if result['status'] == 'Complete':
+        break
+    time.sleep(1)
+
+# Display results
+print(f"Found {len(result['results'])} error logs:")
+for record in result['results']:
+    fields = {field['field']: field['value'] for field in record}
+    print(f"[{fields.get('@timestamp')}] Session: {fields.get('session.id')} - {fields.get('@message')}")
+```
+
+#### Viewing Traces and Spans
+
+**Transaction Search:**
+
+1. Open CloudWatch console → **Transaction Search**
+2. Navigate to `/aws/spans/default` log group
+3. Use filters to find specific traces:
+   - Service name: `customer-support-agent`
+   - Operation: `InvokeAgentRuntime`
+   - Session ID, error type, latency range
+
+**Trace Visualization:**
+
+```python
+# get_trace_details.py
+import boto3
+
+xray_client = boto3.client('xray', region_name='us-west-2')
+
+# Get trace by ID
+trace_id = '1-67890abc-def12345678901234567890'
+
+response = xray_client.batch_get_traces(
+    TraceIds=[trace_id]
+)
+
+trace = response['Traces'][0]
+
+print(f"Trace ID: {trace_id}")
+print(f"Duration: {trace['Duration']}s")
+print(f"Segments: {len(trace['Segments'])}")
+
+# Analyze spans in the trace
+for segment in trace['Segments']:
+    doc = segment['Document']
+    print(f"\nSegment: {doc.get('name')}")
+    print(f"  Start: {doc.get('start_time')}")
+    print(f"  End: {doc.get('end_time')}")
+    
+    # Display subsegments (spans)
+    for subsegment in doc.get('subsegments', []):
+        print(f"  - {subsegment['name']}: {subsegment.get('end_time', 0) - subsegment.get('start_time', 0)}s")
+```
+
+### Custom Metrics and Dashboards
+
+#### Creating Custom CloudWatch Metrics
+
+```python
+# custom_metrics.py
+import boto3
+from datetime import datetime
+
+cloudwatch = boto3.client('cloudwatch', region_name='us-west-2')
+
+def publish_custom_metric(agent_id, metric_name, value, unit='None'):
+    """Publish custom metric to CloudWatch."""
+    cloudwatch.put_metric_data(
+        Namespace='CustomAgents',
+        MetricData=[
+            {
+                'MetricName': metric_name,
+                'Dimensions': [
+                    {'Name': 'AgentId', 'Value': agent_id}
+                ],
+                'Value': value,
+                'Unit': unit,
+                'Timestamp': datetime.utcnow()
+            }
+        ]
+    )
+
+# Example: Track tool usage
+publish_custom_metric(
+    agent_id='agent-abc123',
+    metric_name='ToolInvocationCount',
+    value=1,
+    unit='Count'
+)
+
+# Example: Track customer satisfaction scores
+publish_custom_metric(
+    agent_id='agent-abc123',
+    metric_name='CustomerSatisfactionScore',
+    value=4.5,
+    unit='None'
+)
+
+# Example: Track business-specific metrics
+publish_custom_metric(
+    agent_id='agent-abc123',
+    metric_name='RefundsProcessed',
+    value=15,
+    unit='Count'
+)
+```
+
+#### Creating Custom CloudWatch Dashboards
+
+```python
+# create_custom_dashboard.py
+import boto3
+import json
+
+cloudwatch = boto3.client('cloudwatch', region_name='us-west-2')
+
+dashboard_body = {
+    "widgets": [
+        {
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    ["AWS/BedrockAgentCore", "Invocations", {"stat": "Sum"}],
+                    [".", "Errors", {"stat": "Sum"}],
+                    [".", "Throttles", {"stat": "Sum"}]
+                ],
+                "period": 300,
+                "stat": "Sum",
+                "region": "us-west-2",
+                "title": "Agent Runtime Metrics",
+                "yAxis": {"left": {"label": "Count"}}
+            }
+        },
+        {
+            "type": "metric",
+            "properties": {
+                "metrics": [
+                    ["AWS/BedrockAgentCore", "Latency", {"stat": "Average"}],
+                    ["...", {"stat": "p99"}]
+                ],
+                "period": 300,
+                "stat": "Average",
+                "region": "us-west-2",
+                "title": "Agent Latency",
+                "yAxis": {"left": {"label": "Milliseconds"}}
+            }
+        },
+        {
+            "type": "log",
+            "properties": {
+                "query": "SOURCE '/aws/bedrock-agentcore/runtimes/agent-abc123/runtime-logs'\n| fields @timestamp, session.id, latency_ms\n| sort @timestamp desc\n| limit 20",
+                "region": "us-west-2",
+                "title": "Recent Sessions"
+            }
+        }
+    ]
+}
+
+response = cloudwatch.put_dashboard(
+    DashboardName='AgentCoreObservability',
+    DashboardBody=json.dumps(dashboard_body)
+)
+
+print(f"Dashboard created: {response['DashboardValidationMessages']}")
+```
+
+### CloudWatch Alarms for Proactive Monitoring
+
+```python
+# create_alarms.py
+import boto3
+
+cloudwatch = boto3.client('cloudwatch', region_name='us-west-2')
+sns_client = boto3.client('sns', region_name='us-west-2')
+
+# Create SNS topic for alerts
+sns_topic = sns_client.create_topic(Name='AgentCoreAlerts')
+topic_arn = sns_topic['TopicArn']
+
+# Subscribe email to topic
+sns_client.subscribe(
+    TopicArn=topic_arn,
+    Protocol='email',
+    Endpoint='ops-team@example.com'
+)
+
+# Alarm: High error rate
+cloudwatch.put_metric_alarm(
+    AlarmName='AgentCore-HighErrorRate',
+    AlarmDescription='Triggers when agent error rate exceeds 5%',
+    MetricName='Errors',
+    Namespace='AWS/BedrockAgentCore',
+    Statistic='Sum',
+    Period=300,  # 5 minutes
+    EvaluationPeriods=2,
+    Threshold=5.0,
+    ComparisonOperator='GreaterThanThreshold',
+    TreatMissingData='notBreaching',
+    AlarmActions=[topic_arn],
+    Dimensions=[
+        {'Name': 'AgentId', 'Value': 'agent-abc123'}
+    ]
+)
+
+# Alarm: High latency
+cloudwatch.put_metric_alarm(
+    AlarmName='AgentCore-HighLatency',
+    AlarmDescription='Triggers when p99 latency exceeds 5 seconds',
+    MetricName='Latency',
+    Namespace='AWS/BedrockAgentCore',
+    ExtendedStatistic='p99',
+    Period=300,
+    EvaluationPeriods=2,
+    Threshold=5000,  # milliseconds
+    ComparisonOperator='GreaterThanThreshold',
+    AlarmActions=[topic_arn],
+    Dimensions=[
+        {'Name': 'AgentId', 'Value': 'agent-abc123'}
+    ]
+)
+
+# Alarm: Throttling
+cloudwatch.put_metric_alarm(
+    AlarmName='AgentCore-Throttling',
+    AlarmDescription='Triggers when throttles are detected',
+    MetricName='Throttles',
+    Namespace='AWS/BedrockAgentCore',
+    Statistic='Sum',
+    Period=60,
+    EvaluationPeriods=1,
+    Threshold=1,
+    ComparisonOperator='GreaterThanOrEqualToThreshold',
+    AlarmActions=[topic_arn],
+    Dimensions=[
+        {'Name': 'AgentId', 'Value': 'agent-abc123'}
+    ]
+)
+
+# Alarm: Resource usage
+cloudwatch.put_metric_alarm(
+    AlarmName='AgentCore-HighCPUUsage',
+    AlarmDescription='Triggers when CPU usage is abnormally high',
+    MetricName='CPUUsed-vCPUHours',
+    Namespace='AWS/BedrockAgentCore',
+    Statistic='Sum',
+    Period=3600,  # 1 hour
+    EvaluationPeriods=1,
+    Threshold=5.0,  # 5 vCPU-hours per hour
+    ComparisonOperator='GreaterThanThreshold',
+    AlarmActions=[topic_arn],
+    Dimensions=[
+        {'Name': 'AgentId', 'Value': 'agent-abc123'}
+    ]
+)
+
+print("CloudWatch alarms created successfully")
+```
+
+### Observability Best Practices
+
+1. **Enable Tracing from Day One**: Configure observability during development to establish baseline performance metrics before production deployment.
+
+2. **Use Structured Logging**: Emit structured logs with consistent field names (JSON format) to enable powerful CloudWatch Insights queries.
+
+3. **Set Appropriate Sampling Rates**: Use 100% sampling during development and testing. For high-volume production workloads, use 10-20% sampling to balance cost and visibility.
+
+4. **Create Custom Spans for Business Logic**: Instrument critical business operations with custom spans to track business-specific metrics beyond technical telemetry.
+
+5. **Tag Spans Richly**: Add contextual attributes to spans (user IDs, customer tiers, tool names) to enable powerful filtering and analysis.
+
+6. **Monitor Cost Metrics**: Track `CPUUsed-vCPUHours` and `MemoryUsed-GBHours` metrics to understand resource consumption and optimize costs.
+
+7. **Set Up Proactive Alerts**: Create CloudWatch alarms for error rates, latency, and throttling to detect issues before users report them.
+
+8. **Correlate Sessions to Users**: Use consistent session IDs and user identifiers across your application to correlate agent behavior with user journeys.
+
+9. **Use CloudWatch Insights for Troubleshooting**: Write parameterized CloudWatch Insights queries to quickly identify patterns in errors and performance issues.
+
+10. **Integrate with X-Ray**: For distributed multi-service architectures, ensure X-Ray context propagation across service boundaries using the `X-Amzn-Trace-Id` header.
+
+11. **Monitor Gateway and Memory**: Enable observability on all AgentCore resources (Runtime, Gateway, Memory) for complete visibility.
+
+12. **Test Observability Configuration**: Verify that traces, spans, and metrics appear in CloudWatch before deploying to production.
+
+### Integration with Third-Party Observability Platforms
+
+AgentCore's OpenTelemetry-based architecture enables integration with third-party observability platforms:
+
+**Supported Platforms:**
+*   **Datadog**: Full-stack monitoring with AI-specific features
+*   **New Relic**: Application performance monitoring and distributed tracing
+*   **Dynatrace**: Automatic instrumentation and AI-powered analytics
+*   **Honeycomb**: Query-driven observability for complex debugging
+*   **Grafana**: Visualization with Prometheus and Loki backends
+
+**Export to Datadog Example:**
+
+```python
+# Configure OTEL exporter for Datadog
+os.environ['OTEL_EXPORTER_OTLP_ENDPOINT'] = 'https://api.datadoghq.com'
+os.environ['OTEL_EXPORTER_OTLP_HEADERS'] = f'DD-API-KEY={datadog_api_key}'
+os.environ['DD_SERVICE'] = 'customer-support-agent'
+os.environ['DD_ENV'] = 'production'
+os.environ['DD_VERSION'] = '1.2.3'
+```
+
+AWS AgentCore Observability provides enterprise-grade monitoring capabilities that are essential for operating AI agents reliably at scale. By combining automatic service metrics with custom instrumentation, developers gain complete visibility into agent behavior—from high-level business metrics to low-level execution traces. This comprehensive observability foundation enables rapid troubleshooting, performance optimization, and confident production operations. In the next section, we will explore AgentCore Evaluations, which provides automated quality assessment for AI agents.
+
+
+
+
+## AWS AgentCore Evaluations
+
+**AWS AgentCore Evaluations** provides automated assessment tools to measure how well your AI agents perform specific tasks, handle edge cases, and maintain consistency across different inputs and contexts. The service enables data-driven optimization and ensures your agents meet quality standards before and after deployment.
+
+Unlike traditional software testing, AI agent evaluation requires assessing subjective qualities like helpfulness, accuracy, and correctness—dimensions that cannot be validated through simple unit tests. AgentCore Evaluations addresses this challenge using **LLM-as-a-Judge** techniques, where sophisticated language models assess agent performance based on carefully designed evaluation criteria.
+
+### Why AgentCore Evaluations Matter
+
+AI agents introduce unique testing challenges:
+
+*   **Non-Deterministic Outputs**: The same input can produce different but equally valid responses
+*   **Subjective Quality Dimensions**: Evaluating helpfulness, politeness, and tone requires human-like judgment
+*   **Complex Multi-Step Reasoning**: Agents make chains of decisions that need holistic assessment
+*   **Tool Usage Correctness**: Verifying agents call the right tools with appropriate parameters
+*   **Goal Completion**: Determining whether agents successfully accomplished user objectives
+*   **Consistency**: Ensuring agents maintain quality across diverse inputs and edge cases
+*   **Safety and Compliance**: Detecting harmful, biased, or off-policy responses
+
+AgentCore Evaluations provides both **built-in evaluators** for common assessment criteria and **custom evaluators** for domain-specific quality standards. Evaluations can run **online** (continuously monitoring production traffic) or **on-demand** (analyzing specific interactions).
+
+### Core Evaluation Concepts
+
+#### Evaluators
+
+**Evaluators** are the core components that assess agent performance across different dimensions. They analyze agent traces and provide quantitative scores based on specific criteria. Each evaluator uses an LLM as a judge to make nuanced assessments that mirror human evaluation.
+
+**Evaluator Components:**
+*   **Evaluation Instructions**: The prompt that guides the judge model on what to assess and how
+*   **Judge Model**: The LLM that performs the evaluation (e.g., Claude Sonnet 4.5)
+*   **Rating Scale**: Numerical (0-1) or categorical (Excellent/Good/Poor) scoring schema
+*   **Evaluation Level**: Scope of assessment (session, trace, or tool call)
+*   **Placeholders**: Variables in instructions replaced with actual trace data
+
+**Built-in Evaluators:**
+AgentCore provides pre-configured evaluators optimized for common scenarios:
+*   **Builtin.Helpfulness**: Assesses how helpful and useful the agent's response is to the user
+*   **Builtin.GoalSuccessRate**: Determines whether the agent successfully accomplished the user's goal
+*   **Builtin.Accuracy**: Evaluates factual correctness and precision of information
+*   **Builtin.Relevance**: Measures how relevant the response is to the user's query
+*   **Builtin.Coherence**: Assesses logical flow and consistency of the response
+*   **Builtin.Completeness**: Evaluates whether the response fully addresses all aspects of the query
+
+Built-in evaluator ARNs follow this format:
+```
+arn:aws:bedrock-agentcore:::evaluator/Builtin.Helpfulness
+```
+
+**Custom Evaluators:**
+Custom evaluators provide complete control over evaluation criteria, allowing you to:
+*   Define domain-specific quality standards (e.g., medical accuracy, financial compliance)
+*   Select your preferred judge model and inference parameters
+*   Design custom scoring schemas that align with business metrics
+*   Implement specialized evaluation logic for unique use cases
+
+Custom evaluator ARNs follow this format:
+```
+arn:aws:bedrock-agentcore:region:account:evaluator/my-evaluator-id
+```
+
+#### Evaluation Levels
+
+Evaluators can assess agent behavior at three different granularities:
+
+**1. Session-Level Evaluation**
+*   Assesses the complete conversation across all turns
+*   Evaluates overall goal achievement and user satisfaction
+*   Considers the full interaction context and history
+*   Use for: End-to-end task completion, overall helpfulness, conversation quality
+
+**2. Trace-Level Evaluation**
+*   Assesses individual request-response cycles within a session
+*   Evaluates single-turn quality and correctness
+*   Considers prior conversation context
+*   Use for: Response accuracy, relevance, coherence for specific queries
+
+**3. Tool-Level Evaluation**
+*   Assesses individual tool invocations
+*   Evaluates whether the agent selected the right tool with appropriate parameters
+*   Use for: Tool selection accuracy, parameter correctness, tool usage patterns
+
+#### Evaluation Types
+
+**Online Evaluation**
+Continuously monitors agent quality using live production traffic. Online evaluations run automatically on sampled interactions, providing persistent quality monitoring.
+
+**Key Features:**
+*   Percentage-based sampling (e.g., evaluate 10% of sessions)
+*   Conditional filtering (evaluate only specific scenarios)
+*   Multiple simultaneous evaluators (up to 10 per configuration)
+*   Real-time scoring visible in CloudWatch
+*   Automatic result aggregation and trend analysis
+
+**Use Cases:**
+*   Production quality monitoring
+*   Detecting quality regressions after deployments
+*   A/B testing different agent versions
+*   Continuous compliance monitoring
+*   Performance baseline establishment
+
+**On-Demand Evaluation**
+Analyzes specific interactions by directly evaluating chosen spans or traces. On-demand evaluations provide targeted assessment for development, testing, and investigation.
+
+**Key Features:**
+*   Evaluate by trace ID or span ID
+*   Apply multiple evaluators to the same interaction
+*   Immediate results for rapid iteration
+*   No sampling configuration needed
+*   Useful for debugging and validation
+
+**Use Cases:**
+*   Development and testing
+*   Investigating customer complaints
+*   Validating bug fixes
+*   Comparing agent variants
+*   Historical data analysis
+
+### Creating Custom Evaluators
+
+#### Step 1: Define Evaluator Configuration
+
+```python
+# custom_evaluator_config.py
+import boto3
+import json
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# Define custom evaluator configuration
+evaluator_config = {
+    "llmAsAJudge": {
+        "modelConfig": {
+            "bedrockEvaluatorModelConfig": {
+                "modelId": "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+                "inferenceConfig": {
+                    "maxTokens": 500,
+                    "temperature": 0.0  # Use 0 for consistent evaluation
+                }
+            }
+        },
+        "instructions": """You are evaluating the quality of a customer support agent's response.
+
+Context: {context}
+Agent Response: {assistant_turn}
+
+Evaluate the response on these criteria:
+1. Accuracy: Is the information factually correct?
+2. Completeness: Does it fully address the customer's question?
+3. Tone: Is it professional and empathetic?
+4. Actionability: Does it provide clear next steps?
+
+Rate the overall response quality using the scale provided.""",
+        "ratingScale": {
+            "numerical": [
+                {
+                    "value": 1.0,
+                    "label": "Excellent",
+                    "definition": "Response is accurate, complete, professional, and provides clear actionable guidance. Exceeds expectations."
+                },
+                {
+                    "value": 0.75,
+                    "label": "Good",
+                    "definition": "Response is mostly accurate and helpful with minor areas for improvement. Meets expectations."
+                },
+                {
+                    "value": 0.5,
+                    "label": "Acceptable",
+                    "definition": "Response addresses the question but has notable shortcomings in accuracy, completeness, or tone."
+                },
+                {
+                    "value": 0.25,
+                    "label": "Poor",
+                    "definition": "Response has significant issues with accuracy, completeness, or professionalism."
+                },
+                {
+                    "value": 0.0,
+                    "label": "Unacceptable",
+                    "definition": "Response is incorrect, unhelpful, or inappropriate. Fails to meet minimum standards."
+                }
+            ]
+        }
+    }
+}
+
+# Create the custom evaluator
+response = control_client.create_evaluator(
+    evaluatorName='CustomerSupportQuality',
+    level='TRACE',  # TRACE, SESSION, or TOOL_CALL
+    description='Evaluates customer support agent response quality',
+    evaluatorConfig=evaluator_config
+)
+
+evaluator_id = response['evaluatorId']
+evaluator_arn = response['evaluatorArn']
+
+print(f"Custom evaluator created:")
+print(f"  ID: {evaluator_id}")
+print(f"  ARN: {evaluator_arn}")
+print(f"  Status: {response['status']}")
+```
+
+#### Step 2: Custom Evaluator with Categorical Scale
+
+```python
+# categorical_evaluator.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# Define evaluator with categorical scale
+evaluator_config = {
+    "llmAsAJudge": {
+        "modelConfig": {
+            "bedrockEvaluatorModelConfig": {
+                "modelId": "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+                "inferenceConfig": {
+                    "maxTokens": 300,
+                    "temperature": 0.0
+                }
+            }
+        },
+        "instructions": """Evaluate whether the agent correctly identified and invoked the appropriate tool.
+
+Available Tools: {available_tools}
+Context: {context}
+Tool Invocation: {tool_turn}
+
+Did the agent:
+1. Select the correct tool for the task?
+2. Provide all required parameters?
+3. Use appropriate parameter values?
+
+Classify the tool invocation.""",
+        "ratingScale": {
+            "categorical": [
+                {
+                    "label": "Correct",
+                    "definition": "Agent selected the right tool with all required parameters and appropriate values."
+                },
+                {
+                    "label": "Partially Correct",
+                    "definition": "Agent selected the right tool but had minor parameter issues."
+                },
+                {
+                    "label": "Incorrect Tool",
+                    "definition": "Agent selected the wrong tool for the task."
+                },
+                {
+                    "label": "Missing Parameters",
+                    "definition": "Agent selected the right tool but omitted required parameters."
+                },
+                {
+                    "label": "Invalid Parameters",
+                    "definition": "Agent provided parameters with invalid or inappropriate values."
+                }
+            ]
+        }
+    }
+}
+
+response = control_client.create_evaluator(
+    evaluatorName='ToolInvocationCorrectness',
+    level='TOOL_CALL',
+    description='Evaluates correctness of tool selection and parameter usage',
+    evaluatorConfig=evaluator_config
+)
+
+print(f"Tool-level evaluator created: {response['evaluatorId']}")
+```
+
+#### Step 3: Session-Level Evaluator
+
+```python
+# session_evaluator.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# Session-level evaluator for goal completion
+evaluator_config = {
+    "llmAsAJudge": {
+        "modelConfig": {
+            "bedrockEvaluatorModelConfig": {
+                "modelId": "global.anthropic.claude-sonnet-4-5-20250929-v1:0",
+                "inferenceConfig": {
+                    "maxTokens": 400,
+                    "temperature": 0.0
+                }
+            }
+        },
+        "instructions": """You are evaluating whether the agent successfully completed the user's goal across the entire conversation.
+
+Complete Conversation History: {context}
+Available Tools: {available_tools}
+
+Analyze:
+1. What was the user's primary goal or request?
+2. Did the agent identify and understand this goal?
+3. Did the agent take appropriate actions to fulfill the goal?
+4. Was the goal successfully achieved by the end of the conversation?
+
+Rate the goal completion.""",
+        "ratingScale": {
+            "numerical": [
+                {"value": 1.0, "label": "Fully Achieved", "definition": "User's goal was completely accomplished with no outstanding issues."},
+                {"value": 0.75, "label": "Mostly Achieved", "definition": "User's primary goal was met but with minor limitations."},
+                {"value": 0.5, "label": "Partially Achieved", "definition": "Some progress toward the goal but significant work remains."},
+                {"value": 0.25, "label": "Minimally Achieved", "definition": "Very little progress toward the user's goal."},
+                {"value": 0.0, "label": "Not Achieved", "definition": "User's goal was not accomplished at all."}
+            ]
+        }
+    }
+}
+
+response = control_client.create_evaluator(
+    evaluatorName='GoalCompletionRate',
+    level='SESSION',
+    description='Evaluates whether the agent successfully completed the user goal',
+    evaluatorConfig=evaluator_config
+)
+
+print(f"Session-level evaluator created: {response['evaluatorId']}")
+```
+
+### Creating Online Evaluation Configuration
+
+Online evaluations continuously monitor production agent traffic. Here's how to set up online evaluation:
+
+#### Step 1: Create IAM Execution Role
+
+```python
+# create_evaluation_role.py
+import boto3
+import json
+
+iam_client = boto3.client('iam')
+
+# Trust policy for AgentCore Evaluations service
+trust_policy = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "bedrock-agentcore.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "123456789012"
+                }
+            }
+        }
+    ]
+}
+
+# Policy for evaluation operations
+evaluation_policy = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:GetLogEvents"
+            ],
+            "Resource": "arn:aws:logs:*:*:log-group:/aws/bedrock-agentcore/evaluations/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "bedrock:InvokeModel"
+            ],
+            "Resource": "arn:aws:bedrock:*::foundation-model/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudwatch:PutMetricData"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "cloudwatch:namespace": "AWS/BedrockAgentCore/Evaluations"
+                }
+            }
+        }
+    ]
+}
+
+# Create role
+role_response = iam_client.create_role(
+    RoleName='AgentCoreEvaluationRole',
+    AssumeRolePolicyDocument=json.dumps(trust_policy),
+    Description='Execution role for AgentCore Evaluations'
+)
+
+role_arn = role_response['Role']['Arn']
+
+# Attach policy
+iam_client.put_role_policy(
+    RoleName='AgentCoreEvaluationRole',
+    PolicyName='EvaluationPolicy',
+    PolicyDocument=json.dumps(evaluation_policy)
+)
+
+print(f"Evaluation role created: {role_arn}")
+```
+
+#### Step 2: Create Online Evaluation Configuration
+
+```python
+# create_online_evaluation.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+agent_id = 'agent-abc123'
+role_arn = 'arn:aws:iam::123456789012:role/AgentCoreEvaluationRole'
+
+# Create online evaluation configuration
+response = control_client.create_online_evaluation_config(
+    onlineEvaluationConfigName='production-quality-monitoring',
+    description='Continuous quality monitoring for production agent',
+    rule={
+        'samplingConfig': {
+            'samplingPercentage': 10.0  # Evaluate 10% of sessions
+        }
+    },
+    dataSource={
+        'agentEndpointDataSource': {
+            'agentId': agent_id,
+            'endpointNames': ['production']  # Optional: specific endpoints
+        }
+    },
+    evaluatorConfigs=[
+        {
+            'evaluatorId': 'Builtin.Helpfulness',
+            'evaluatorArn': 'arn:aws:bedrock-agentcore:::evaluator/Builtin.Helpfulness'
+        },
+        {
+            'evaluatorId': 'Builtin.GoalSuccessRate',
+            'evaluatorArn': 'arn:aws:bedrock-agentcore:::evaluator/Builtin.GoalSuccessRate'
+        },
+        {
+            'evaluatorId': 'CustomerSupportQuality',
+            'evaluatorArn': f'arn:aws:bedrock-agentcore:us-west-2:123456789012:evaluator/CustomerSupportQuality'
+        }
+    ],
+    executionRoleArn=role_arn,
+    enableOnCreate=True  # Start evaluation immediately
+)
+
+config_id = response['onlineEvaluationConfigId']
+print(f"Online evaluation configuration created: {config_id}")
+print(f"Status: {response['status']}")
+print(f"Execution Status: {response['executionStatus']}")
+```
+
+#### Step 3: Configure Sampling with Filters
+
+```python
+# filtered_online_evaluation.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# Create evaluation with conditional filtering
+response = control_client.create_online_evaluation_config(
+    onlineEvaluationConfigName='high-value-customer-monitoring',
+    description='Evaluate interactions with high-value customers',
+    rule={
+        'samplingConfig': {
+            'samplingPercentage': 100.0  # Evaluate all matching sessions
+        },
+        'filterConfig': {
+            # Filter by span attributes
+            'attributeFilters': [
+                {
+                    'key': 'customer.tier',
+                    'operator': 'EQUALS',
+                    'values': ['premium', 'vip']
+                }
+            ]
+        }
+    },
+    dataSource={
+        'agentEndpointDataSource': {
+            'agentId': agent_id,
+            'endpointNames': ['production']
+        }
+    },
+    evaluatorConfigs=[
+        {
+            'evaluatorId': 'Builtin.Helpfulness',
+            'evaluatorArn': 'arn:aws:bedrock-agentcore:::evaluator/Builtin.Helpfulness'
+        },
+        {
+            'evaluatorId': 'GoalCompletionRate',
+            'evaluatorArn': f'arn:aws:bedrock-agentcore:us-west-2:123456789012:evaluator/GoalCompletionRate'
+        }
+    ],
+    executionRoleArn=role_arn,
+    enableOnCreate=True
+)
+
+print(f"Filtered evaluation configuration created: {response['onlineEvaluationConfigId']}")
+```
+
+### On-Demand Evaluations
+
+On-demand evaluations analyze specific traces or spans immediately, providing targeted assessment for development and troubleshooting.
+
+```python
+# on_demand_evaluation.py
+import boto3
+import time
+
+data_client = boto3.client('bedrock-agentcore', region_name='us-west-2')
+
+# Evaluate specific trace
+trace_id = '1-67890abc-def12345678901234567890'
+
+# Submit evaluation request
+response = data_client.evaluate_on_demand(
+    evaluationInput={
+        'traceIds': [trace_id]
+    },
+    evaluators=[
+        {
+            'evaluatorId': 'Builtin.Helpfulness',
+            'evaluatorArn': 'arn:aws:bedrock-agentcore:::evaluator/Builtin.Helpfulness'
+        },
+        {
+            'evaluatorId': 'Builtin.Accuracy',
+            'evaluatorArn': 'arn:aws:bedrock-agentcore:::evaluator/Builtin.Accuracy'
+        },
+        {
+            'evaluatorId': 'CustomerSupportQuality',
+            'evaluatorArn': f'arn:aws:bedrock-agentcore:us-west-2:123456789012:evaluator/CustomerSupportQuality'
+        }
+    ]
+)
+
+evaluation_job_id = response['evaluationJobId']
+print(f"Evaluation job submitted: {evaluation_job_id}")
+
+# Poll for results
+while True:
+    status_response = data_client.get_evaluation_job_status(
+        evaluationJobId=evaluation_job_id
+    )
+    
+    status = status_response['status']
+    print(f"Status: {status}")
+    
+    if status == 'COMPLETED':
+        break
+    elif status == 'FAILED':
+        print(f"Evaluation failed: {status_response.get('failureReason')}")
+        break
+    
+    time.sleep(2)
+
+# Retrieve results
+results_response = data_client.get_evaluation_results(
+    evaluationJobId=evaluation_job_id
+)
+
+print("\nEvaluation Results:")
+for result in results_response['results']:
+    evaluator_id = result['evaluatorId']
+    score = result['score']
+    explanation = result.get('explanation', '')
+    
+    print(f"\n{evaluator_id}:")
+    print(f"  Score: {score}")
+    print(f"  Explanation: {explanation}")
+```
+
+### Viewing Evaluation Results in CloudWatch
+
+#### Query Evaluation Scores
+
+```python
+# query_evaluation_results.py
+import boto3
+from datetime import datetime, timedelta
+
+logs_client = boto3.client('logs', region_name='us-west-2')
+
+config_id = 'eval-config-abc123'
+log_group = f'/aws/bedrock-agentcore/evaluations/{config_id}'
+
+# Query evaluation results from last 24 hours
+start_time = int((datetime.utcnow() - timedelta(days=1)).timestamp() * 1000)
+end_time = int(datetime.utcnow().timestamp() * 1000)
+
+query = """
+fields @timestamp, evaluator_id, score, trace_id, session_id
+| filter score < 0.5
+| sort @timestamp desc
+| limit 50
+"""
+
+response = logs_client.start_query(
+    logGroupName=log_group,
+    startTime=start_time,
+    endTime=end_time,
+    queryString=query
+)
+
+query_id = response['queryId']
+
+# Wait for query completion
+import time
+while True:
+    result = logs_client.get_query_results(queryId=query_id)
+    if result['status'] == 'Complete':
+        break
+    time.sleep(1)
+
+# Display low-scoring sessions
+print("Low-scoring interactions (score < 0.5):")
+for record in result['results']:
+    fields = {field['field']: field['value'] for field in record}
+    print(f"\n[{fields.get('@timestamp')}]")
+    print(f"  Evaluator: {fields.get('evaluator_id')}")
+    print(f"  Score: {fields.get('score')}")
+    print(f"  Trace: {fields.get('trace_id')}")
+    print(f"  Session: {fields.get('session_id')}")
+```
+
+#### Monitor Evaluation Metrics
+
+```python
+# monitor_evaluation_metrics.py
+import boto3
+from datetime import datetime, timedelta
+
+cloudwatch = boto3.client('cloudwatch', region_name='us-west-2')
+
+config_id = 'eval-config-abc123'
+evaluator_id = 'Builtin.Helpfulness'
+
+# Get average scores over time
+end_time = datetime.utcnow()
+start_time = end_time - timedelta(days=7)
+
+response = cloudwatch.get_metric_statistics(
+    Namespace='AWS/BedrockAgentCore/Evaluations',
+    MetricName='AverageScore',
+    Dimensions=[
+        {'Name': 'ConfigId', 'Value': config_id},
+        {'Name': 'EvaluatorId', 'Value': evaluator_id}
+    ],
+    StartTime=start_time,
+    EndTime=end_time,
+    Period=3600,  # 1 hour
+    Statistics=['Average', 'Minimum', 'Maximum']
+)
+
+print(f"Evaluation scores for {evaluator_id} (last 7 days):")
+for datapoint in sorted(response['Datapoints'], key=lambda x: x['Timestamp']):
+    print(f"\n{datapoint['Timestamp']}:")
+    print(f"  Average: {datapoint['Average']:.3f}")
+    print(f"  Min: {datapoint['Minimum']:.3f}")
+    print(f"  Max: {datapoint['Maximum']:.3f}")
+```
+
+### Evaluation Best Practices
+
+1. **Start with Built-in Evaluators**: Use built-in evaluators (Helpfulness, GoalSuccessRate) before investing in custom evaluators. They provide well-tested baselines.
+
+2. **Use Appropriate Evaluation Levels**: Choose trace-level for response quality, tool-level for tool usage correctness, and session-level for goal completion.
+
+3. **Write Clear Evaluation Instructions**: Be specific and unambiguous in custom evaluator instructions. Include examples of what constitutes each rating level.
+
+4. **Use Consistent Judge Models**: Use the same judge model (e.g., Claude Sonnet 4.5) across evaluators for consistent scoring. Set temperature to 0 for deterministic evaluation.
+
+5. **Define MECE Rating Scales**: Ensure rating scales are Mutually Exclusive and Collectively Exhaustive. Each possible response should map to exactly one rating.
+
+6. **Sample Appropriately**: Use 100% sampling during development, 10-20% for production monitoring, and 100% with filters for high-value scenarios.
+
+7. **Monitor Evaluation Costs**: Each evaluation invokes an LLM. Track evaluation volume and costs using CloudWatch metrics.
+
+8. **Validate Custom Evaluators**: Test custom evaluators on diverse examples before deploying to production. Compare results with human assessment.
+
+9. **Combine Multiple Evaluators**: Use multiple evaluators to assess different dimensions (e.g., accuracy + helpfulness + tone) for comprehensive quality monitoring.
+
+10. **Set Up Alerts**: Create CloudWatch alarms for evaluation score drops to detect quality regressions quickly.
+
+11. **Investigate Low Scores**: When scores drop, use CloudWatch Insights to filter low-scoring sessions and traces for investigation.
+
+12. **Iterate on Evaluators**: Continuously refine custom evaluator instructions based on cases where automated scores diverge from expected assessments.
+
+### Integration with Development Workflow
+
+#### Local Development Testing
+
+```python
+# local_evaluation_test.py
+from strands import Agent
+from strands.models import BedrockModel
+import boto3
+
+# Create agent
+model = BedrockModel(inference_profile_id="us.anthropic.claude-sonnet-4-0-v1:0")
+agent = Agent(model=model, tools=[...])
+
+# Run agent interaction
+trace_id = None  # Capture from agent execution
+response = agent("What's the weather in Seattle?")
+
+# Evaluate immediately
+data_client = boto3.client('bedrock-agentcore')
+eval_response = data_client.evaluate_on_demand(
+    evaluationInput={'traceIds': [trace_id]},
+    evaluators=[
+        {'evaluatorId': 'Builtin.Helpfulness', 'evaluatorArn': '...'},
+        {'evaluatorId': 'MyCustomEvaluator', 'evaluatorArn': '...'}
+    ]
+)
+
+# Check scores before committing code
+for result in eval_response['results']:
+    if result['score'] < 0.7:
+        print(f"Warning: {result['evaluatorId']} score is {result['score']}")
+```
+
+#### CI/CD Integration
+
+```yaml
+# .github/workflows/agent-evaluation.yml
+name: Agent Quality Evaluation
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Run agent test suite
+        run: |
+          python tests/run_agent_tests.py --capture-traces
+      
+      - name: Evaluate traces
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          python scripts/evaluate_test_traces.py --threshold 0.75
+      
+      - name: Post evaluation results
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('evaluation_results.json'));
+            const comment = `## Agent Evaluation Results\n\n${results.summary}`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+```
+
+### Evaluator Protection and Lifecycle
+
+**Evaluator Locking:**
+When you enable an online evaluation configuration, AgentCore automatically locks any custom evaluators used in that configuration:
+- **No modifications allowed**: You cannot update instructions, models, or rating scales
+- **No deletion allowed**: You cannot delete the evaluator while evaluations are running
+- **Clone to modify**: Create a new version of the evaluator if changes are needed
+
+**Lifecycle Management:**
+
+```python
+# evaluator_lifecycle.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# List all evaluators
+response = control_client.list_evaluators(
+    maxResults=50
+)
+
+for evaluator in response['evaluators']:
+    print(f"Evaluator: {evaluator['evaluatorName']}")
+    print(f"  ID: {evaluator['evaluatorId']}")
+    print(f"  Level: {evaluator['level']}")
+    print(f"  Status: {evaluator['status']}")
+    print(f"  Locked: {evaluator.get('isLocked', False)}")
+    print()
+
+# Update evaluator (only if not locked)
+try:
+    control_client.update_evaluator(
+        evaluatorId='my-evaluator-id',
+        evaluatorConfig={
+            # Updated configuration
+        }
+    )
+    print("Evaluator updated successfully")
+except Exception as e:
+    if 'ResourceInUseException' in str(e):
+        print("Cannot update: Evaluator is locked by active evaluation configuration")
+    else:
+        raise
+
+# Delete evaluator (only if not locked)
+try:
+    control_client.delete_evaluator(
+        evaluatorId='my-evaluator-id'
+    )
+    print("Evaluator deleted successfully")
+except Exception as e:
+    if 'ResourceInUseException' in str(e):
+        print("Cannot delete: Evaluator is locked by active evaluation configuration")
+    else:
+        raise
+```
+
+AWS AgentCore Evaluations provides a comprehensive quality assessment framework that enables data-driven agent development and continuous production monitoring. By combining built-in evaluators for common scenarios with custom evaluators for domain-specific needs, teams can ensure their AI agents meet quality standards before deployment and maintain consistent performance in production. The integration with CloudWatch provides actionable insights through metrics, logs, and dashboards—enabling rapid identification and resolution of quality issues. In the next section, we will explore AgentCore's built-in tools—Code Interpreter and Browser—which extend agent capabilities with secure code execution and web interaction.
+
+
+
+
+## AWS AgentCore Built-in Tools
+
+AWS AgentCore provides two powerful **built-in tools**—**Code Interpreter** and **Browser**—that extend agent capabilities beyond natural language reasoning. These fully managed tools enable agents to execute code, analyze data, navigate websites, and interact with web applications in secure, isolated environments. Unlike custom tools that developers must build and maintain, built-in tools are production-ready, automatically scaled, and integrated with AgentCore's observability and security infrastructure.
+
+### Why Built-in Tools Matter
+
+AI agents excel at language understanding and reasoning, but many real-world tasks require computational execution or web interaction:
+
+*   **Mathematical Calculations**: Precise numerical computations that exceed LLM reasoning capabilities
+*   **Data Analysis**: Processing CSV, Excel, JSON files and generating statistical insights
+*   **Algorithm Validation**: Testing code correctness with actual execution
+*   **Web Research**: Navigating documentation sites and extracting structured information
+*   **Form Automation**: Filling out web forms and submitting data programmatically
+*   **Visual Verification**: Taking screenshots and analyzing web page layouts
+*   **Multi-Step Workflows**: Combining reasoning with computation and web interaction
+
+AgentCore's built-in tools address these needs with enterprise-grade features:
+- **Secure Isolation**: Containerized sandbox environments prevent code or browser actions from affecting infrastructure
+- **Automatic Scaling**: Tools scale elastically based on demand without capacity planning
+- **Session Management**: Time-limited sessions with automatic cleanup
+- **Observability**: CloudWatch integration for monitoring, logging, and troubleshooting
+- **VPC Integration**: Connect to private resources through VPC endpoints
+- **Large File Support**: Process files up to 5GB through S3 integration
+
+
+
+
+## AWS AgentCore Code Interpreter
+
+**AWS AgentCore Code Interpreter** enables AI agents to write and execute code securely in sandbox environments, enhancing their accuracy and expanding their ability to solve complex end-to-end tasks. The Code Interpreter runs in a containerized environment within AgentCore, ensuring that code execution remains isolated and secure.
+
+### Key Features
+
+*   **Secure Code Execution**: Isolated sandbox environments prevent malicious or erroneous code from compromising infrastructure
+*   **Multiple Languages**: Supports Python, JavaScript, and TypeScript with pre-installed common libraries
+*   **Large File Support**: Handle files up to 100MB via inline upload, up to 5GB via S3
+*   **Long Execution Duration**: Default 15-minute timeout, extendable up to 8 hours
+*   **Internet Access**: Configure public network access for API calls and web resources
+*   **VPC Integration**: Connect securely to private resources in your VPC
+*   **CloudTrail Logging**: Comprehensive audit trails for compliance and debugging
+*   **Session Persistence**: Maintain state across multiple code executions within a session
+*   **Streaming Results**: Real-time output as code executes
+*   **Observability**: CloudWatch metrics, logs, and span data for monitoring
+
+### Use Cases
+
+**Data Analysis & Statistics:**
+```python
+# Analyze sales data and compute statistics
+import pandas as pd
+
+data = {
+    'product': ['A', 'B', 'C', 'A', 'B', 'C'],
+    'revenue': [5000, 7500, 3200, 5800, 8100, 3400],
+    'region': ['East', 'East', 'East', 'West', 'West', 'West']
+}
+
+df = pd.DataFrame(data)
+print("Revenue by Product:")
+print(df.groupby('product')['revenue'].agg(['mean', 'sum', 'count']))
+```
+
+**Mathematical Validation:**
+```python
+# Verify mathematical claims with code
+import math
+
+# Check if all solar system planets fit between Earth and Moon
+earth_moon_distance = 384400  # km
+planet_diameters = {
+    'Mercury': 4879, 'Venus': 12104, 'Mars': 6779,
+    'Jupiter': 139820, 'Saturn': 116460, 'Uranus': 50724, 
+    'Neptune': 49244
+}
+
+total_diameter = sum(planet_diameters.values())
+fits = total_diameter < earth_moon_distance
+
+print(f"Total planet diameters: {total_diameter:,} km")
+print(f"Earth-Moon distance: {earth_moon_distance:,} km")
+print(f"All planets fit: {fits}")
+```
+
+**Algorithm Implementation:**
+```python
+# Implement and test algorithms
+def fibonacci_recursive(n):
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n-1) + fibonacci_recursive(n-2)
+
+def fibonacci_iterative(n):
+    if n <= 1:
+        return n
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b
+
+# Test and compare performance
+import time
+
+n = 30
+start = time.time()
+result_recursive = fibonacci_recursive(n)
+recursive_time = time.time() - start
+
+start = time.time()
+result_iterative = fibonacci_iterative(n)
+iterative_time = time.time() - start
+
+print(f"Fibonacci({n}): {result_iterative}")
+print(f"Recursive time: {recursive_time:.4f}s")
+print(f"Iterative time: {iterative_time:.6f}s")
+print(f"Speedup: {recursive_time/iterative_time:.1f}x")
+```
+
+### Creating a Code Interpreter
+
+#### Using AWS Console
+
+1. Open the [AgentCore console](https://console.aws.amazon.com/bedrock-agentcore/home)
+2. Navigate to **Built-in tools** → **Create Code Interpreter tool**
+3. Configure:
+   - **Tool name**: Unique identifier (e.g., `data-analysis-interpreter`)
+   - **Description**: Purpose and use case
+   - **Network settings**: `Sandbox` (limited access) or `Public` (internet access)
+   - **IAM role**: Execution role with permissions for S3, Bedrock, etc.
+4. Click **Create**
+
+#### Using Python SDK
+
+```python
+# create_code_interpreter.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# Create Code Interpreter with public network access
+response = control_client.create_code_interpreter(
+    name='data-analysis-interpreter',
+    description='Code interpreter for data analysis and visualization',
+    networkConfiguration={
+        'networkMode': 'PUBLIC'  # or 'SANDBOX'
+    },
+    executionRoleArn='arn:aws:iam::123456789012:role/AgentCoreCodeInterpreterRole'
+)
+
+code_interpreter_id = response['codeInterpreterId']
+code_interpreter_arn = response['codeInterpreterArn']
+
+print(f"Code Interpreter created:")
+print(f"  ID: {code_interpreter_id}")
+print(f"  ARN: {code_interpreter_arn}")
+print(f"  Status: {response['status']}")
+```
+
+#### IAM Execution Role
+
+```python
+# create_code_interpreter_role.py
+import boto3
+import json
+
+iam_client = boto3.client('iam')
+
+# Trust policy for Code Interpreter
+trust_policy = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "bedrock-agentcore.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+                "StringEquals": {
+                    "aws:SourceAccount": "123456789012"
+                }
+            }
+        }
+    ]
+}
+
+# Permissions for Code Interpreter
+interpreter_policy = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+            ],
+            "Resource": "arn:aws:s3:::my-data-bucket/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "arn:aws:logs:*:*:log-group:/aws/bedrock-agentcore/code-interpreter/*"
+        }
+    ]
+}
+
+# Create role
+role_response = iam_client.create_role(
+    RoleName='AgentCoreCodeInterpreterRole',
+    AssumeRolePolicyDocument=json.dumps(trust_policy),
+    Description='Execution role for AgentCore Code Interpreter'
+)
+
+# Attach policy
+iam_client.put_role_policy(
+    RoleName='AgentCoreCodeInterpreterRole',
+    PolicyName='CodeInterpreterPolicy',
+    PolicyDocument=json.dumps(interpreter_policy)
+)
+
+print(f"IAM role created: {role_response['Role']['Arn']}")
+```
+
+### Using Code Interpreter with Strands
+
+```python
+# strands_code_interpreter_agent.py
+import json
+from strands import Agent
+from strands.models import BedrockModel
+from strands.tools import tool
+from bedrock_agentcore.tools.code_interpreter_client import code_session
+import asyncio
+
+SYSTEM_PROMPT = """You are a data analysis assistant that validates all answers through code execution.
+
+VALIDATION PRINCIPLES:
+1. When making claims about calculations or algorithms - write code to verify them
+2. Use execute_python to test mathematical calculations and logic
+3. Show your work with actual code execution
+4. Document your validation process for transparency
+5. State is maintained between executions, so you can refer to previous results
+
+TOOL AVAILABLE:
+- execute_python: Run Python code and see output (returns JSON with sessionId, content, structuredContent)
+
+Be thorough, accurate, and always validate your answers when possible."""
+
+@tool
+def execute_python(code: str, description: str = "") -> str:
+    """Execute Python code in a secure sandbox environment.
+    
+    Args:
+        code: Python code to execute
+        description: Optional description of what the code does
+    
+    Returns:
+        JSON string with execution results including stdout, stderr, exitCode
+    """
+    if description:
+        code = f"# {description}\n{code}"
+    
+    print(f"\nExecuting code:\n{code}\n")
+    
+    # Execute code in Code Interpreter session
+    with code_session("us-west-2") as code_client:
+        response = code_client.invoke("executeCode", {
+            "code": code,
+            "language": "python",
+            "clearContext": False  # Maintain session state
+        })
+        
+        for event in response["stream"]:
+            return json.dumps(event["result"])
+
+# Configure Strands agent with Code Interpreter tool
+model = BedrockModel(
+    inference_profile_id="us.anthropic.claude-sonnet-4-0-v1:0",
+    temperature=0.7
+)
+
+agent = Agent(
+    model=model,
+    tools=[execute_python],
+    system_prompt=SYSTEM_PROMPT
+)
+
+# Example queries
+async def main():
+    queries = [
+        "Calculate the compound interest on $10,000 at 5% annual rate for 10 years",
+        "Can all the planets in the solar system fit between the Earth and Moon?",
+        "What is the fastest way to compute the 50th Fibonacci number?"
+    ]
+    
+    for query in queries:
+        print(f"\n{'='*80}")
+        print(f"Query: {query}")
+        print(f"{'='*80}\n")
+        
+        response_text = ""
+        async for event in agent.stream_async(query):
+            if "data" in event:
+                chunk = event["data"]
+                response_text += chunk
+                print(chunk, end="", flush=True)
+        
+        print("\n")
+
+asyncio.run(main())
+```
+
+### Using Code Interpreter with LangChain
+
+```python
+# langchain_code_interpreter_agent.py
+import json
+from bedrock_agentcore.tools.code_interpreter_client import code_session
+from langchain.agents import AgentExecutor, create_tool_calling_agent, tool
+from langchain_aws import ChatBedrockConverse
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+@tool
+def execute_python(code: str, description: str = "") -> str:
+    """Execute Python code in a secure sandbox environment."""
+    if description:
+        code = f"# {description}\n{code}"
+    
+    print(f"\nCode:\n{code}\n")
+    
+    with code_session("us-west-2") as code_client:
+        response = code_client.invoke("executeCode", {
+            "code": code,
+            "language": "python",
+            "clearContext": False
+        })
+        
+        for event in response["stream"]:
+            result = event["result"]
+            if result.get("isError"):
+                return f"Error: {result['content'][0]['text']}"
+            else:
+                return result.get("structuredContent", {}).get("stdout", "")
+
+# Create LangChain agent
+llm = ChatBedrockConverse(
+    model="us.anthropic.claude-sonnet-4-0-v1:0",
+    temperature=0.7,
+    region_name="us-west-2"
+)
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant that can execute Python code to validate answers."),
+    MessagesPlaceholder(variable_name="chat_history", optional=True),
+    ("human", "{input}"),
+    MessagesPlaceholder(variable_name="agent_scratchpad")
+])
+
+agent = create_tool_calling_agent(llm, [execute_python], prompt)
+agent_executor = AgentExecutor(agent=agent, tools=[execute_python], verbose=True)
+
+# Run agent
+result = agent_executor.invoke({
+    "input": "Calculate the mean, median, and standard deviation of [12, 15, 18, 22, 25, 28, 32]"
+})
+
+print(f"\nResult: {result['output']}")
+```
+
+### Direct Code Interpreter Usage
+
+For scenarios where you need direct code execution without an agent:
+
+```python
+# direct_code_execution.py
+from bedrock_agentcore.tools.code_interpreter_client import code_session
+
+def execute_data_analysis(csv_data: str):
+    """Execute data analysis code directly."""
+    
+    analysis_code = f"""
+import pandas as pd
+from io import StringIO
+
+# Load data
+csv_data = '''{csv_data}'''
+df = pd.read_csv(StringIO(csv_data))
+
+# Perform analysis
+print("Dataset Summary:")
+print(df.describe())
+
+print("\\nMissing Values:")
+print(df.isnull().sum())
+
+print("\\nCorrelation Matrix:")
+print(df.corr())
+"""
+    
+    with code_session("us-west-2") as code_client:
+        response = code_client.invoke("executeCode", {
+            "code": analysis_code,
+            "language": "python",
+            "clearContext": True
+        })
+        
+        for event in response["stream"]:
+            result = event["result"]
+            if result.get("structuredContent"):
+                stdout = result["structuredContent"].get("stdout", "")
+                stderr = result["structuredContent"].get("stderr", "")
+                
+                if stdout:
+                    print("Output:")
+                    print(stdout)
+                if stderr:
+                    print("Errors:")
+                    print(stderr)
+                
+                print(f"Exit Code: {result['structuredContent'].get('exitCode')}")
+                print(f"Execution Time: {result['structuredContent'].get('executionTime')}ms")
+
+# Example usage
+csv_data = """name,age,salary
+Alice,25,50000
+Bob,30,60000
+Charlie,35,75000
+Diana,28,55000
+"""
+
+execute_data_analysis(csv_data)
+```
+
+### Code Interpreter Best Practices
+
+1. **Keep Code Focused**: Write concise code snippets focused on specific tasks to reduce execution time and debugging complexity.
+
+2. **Handle Errors Gracefully**: Always include try/except blocks to catch and report errors clearly to the agent.
+
+3. **Document Code**: Use comments to explain complex logic, making it easier for agents to understand execution results.
+
+4. **Optimize for Large Data**: For files > 100MB, upload to S3 and reference objects in code rather than inline uploads.
+
+5. **Manage Session State**: Use `clearContext: False` to maintain variables across executions within a session. Set to `True` for fresh starts.
+
+6. **Monitor Execution Time**: Set appropriate timeouts based on workload complexity (default: 15 min, max: 8 hours).
+
+7. **Clean Up Resources**: Explicitly close sessions when done to release resources and avoid unnecessary charges.
+
+8. **Use Streaming**: Process results as streams for real-time feedback rather than waiting for complete execution.
+
+9. **Security First**: Never execute untrusted code without review. Code Interpreter provides sandboxing, but validate inputs.
+
+10. **Test Locally First**: Test complex code locally before deploying to Code Interpreter to catch syntax errors early.
+
+
+
+
+## AWS AgentCore Browser
+
+**AWS AgentCore Browser** provides a secure, isolated browser environment for AI agents to interact with web applications. It runs Chrome in a containerized environment within AgentCore, enabling agents to navigate websites, fill forms, extract information, and interact with dynamic web content—all while maintaining security through session isolation and comprehensive observability.
+
+### Key Features
+
+*   **Managed Chrome Browser**: Fully managed Chrome instance with automatic updates and scaling
+*   **Session Isolation**: Each session runs in an isolated container that resets after completion
+*   **Live View**: Real-time streaming of browser sessions for monitoring and debugging
+*   **Session Recording**: Capture DOM changes, user actions, console logs, and network events (custom browsers only)
+*   **Session Replay**: Play back recorded sessions for detailed analysis and troubleshooting
+*   **WebSocket Streaming**: Low-latency bidirectional communication for browser automation
+*   **CloudWatch Integration**: Metrics, logs, and traces for monitoring browser activity
+*   **CloudTrail Logging**: Comprehensive audit trails for compliance
+*   **VPC Integration**: Connect securely to internal web applications
+*   **Configurable Timeouts**: Default 15 minutes, extendable up to 8 hours
+*   **Multiple Simultaneous Sessions**: Run concurrent browser sessions for parallel operations
+
+### Use Cases
+
+**Web Research & Information Extraction:**
+- Navigate documentation sites and extract structured information
+- Search for specific content across multiple pages
+- Aggregate data from web applications without APIs
+
+**Form Automation:**
+- Fill out registration forms and submit applications
+- Complete multi-step workflows that require web interaction
+- Automate repetitive data entry tasks
+
+**Visual Verification:**
+- Take screenshots of web pages for visual inspection
+- Verify that web applications render correctly
+- Compare visual differences between page versions
+
+**Dynamic Content Interaction:**
+- Interact with JavaScript-heavy single-page applications
+- Wait for elements to load before extraction
+- Handle complex navigation flows
+
+**Testing & Validation:**
+- Verify that web features work correctly across scenarios
+- Test user workflows end-to-end
+- Validate form validation logic
+
+### Creating a Browser Tool
+
+#### Using AWS Console
+
+1. Open the [AgentCore console](https://console.aws.amazon.com/bedrock-agentcore/builtInTools)
+2. Navigate to **Built-in tools** → **Create Browser tool**
+3. Choose browser type:
+   - **AWS Managed Browser** (`aws.browser.v1`): Quick setup with default settings
+   - **Custom Browser**: Advanced features (recording, custom IAM role, VPC)
+4. For custom browsers, configure:
+   - **Tool name**: Unique identifier
+   - **Session recording**: Enable/disable recording to S3
+   - **S3 bucket**: Bucket for storing recordings (if enabled)
+   - **Network settings**: VPC configuration (optional)
+   - **IAM role**: Execution role (optional)
+5. Click **Create**
+
+#### Using Python SDK
+
+```python
+# create_browser_tool.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+
+# Option 1: Create AWS managed browser (simplest)
+response = control_client.create_browser(
+    browserType='aws.browser.v1'
+)
+
+print(f"AWS Managed Browser created:")
+print(f"  ID: {response['browserId']}")
+print(f"  Type: {response['browserType']}")
+
+# Option 2: Create custom browser with recording
+custom_response = control_client.create_browser(
+    name='custom-web-research-browser',
+    description='Browser for automated web research with recording',
+    browserType='custom',
+    recordingConfig={
+        'enabled': True,
+        's3BucketName': 'my-browser-recordings-bucket',
+        's3KeyPrefix': 'recordings/'
+    },
+    executionRoleArn='arn:aws:iam::123456789012:role/AgentCoreBrowserRole'
+)
+
+browser_id = custom_response['browserId']
+print(f"\nCustom Browser created:")
+print(f"  ID: {browser_id}")
+print(f"  ARN: {custom_response['browserArn']}")
+```
+
+### Using Browser with Strands
+
+```python
+# strands_browser_agent.py
+from strands import Agent
+from strands.models import BedrockModel
+from strands.tools import tool
+from bedrock_agentcore.tools.browser_client import browser_session
+from playwright.async_api import async_playwright
+import asyncio
+import json
+
+SYSTEM_PROMPT = """You are a web research assistant that can navigate websites and extract information.
+
+CAPABILITIES:
+1. Navigate to websites using navigate_to_url
+2. Extract text content from pages using get_page_content
+3. Take screenshots using take_screenshot
+4. Search for specific information on pages
+
+APPROACH:
+- Navigate to relevant pages systematically
+- Extract key information accurately
+- Take screenshots for visual verification when helpful
+- Summarize findings clearly
+
+Be thorough and accurate in your web research."""
+
+@tool
+def navigate_to_url(url: str) -> str:
+    """Navigate to a URL and return the page title.
+    
+    Args:
+        url: The URL to navigate to
+    
+    Returns:
+        JSON string with page title and status
+    """
+    async def _navigate():
+        with browser_session("us-west-2") as client:
+            ws_url, headers = client.generate_ws_headers()
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.connect_over_cdp(
+                    ws_url,
+                    headers=headers
+                )
+                page = await browser.new_page()
+                
+                await page.goto(url, wait_until='networkidle')
+                title = await page.title()
+                
+                await browser.close()
+                
+                return json.dumps({
+                    "status": "success",
+                    "title": title,
+                    "url": url
+                })
+    
+    return asyncio.run(_navigate())
+
+@tool
+def get_page_content(selector: str = "body") -> str:
+    """Extract text content from the current page.
+    
+    Args:
+        selector: CSS selector to extract content from (default: body)
+    
+    Returns:
+        Text content from the selected element
+    """
+    async def _get_content():
+        with browser_session("us-west-2") as client:
+            ws_url, headers = client.generate_ws_headers()
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.connect_over_cdp(ws_url, headers=headers)
+                page = (await browser.contexts)[0].pages[0]
+                
+                content = await page.locator(selector).text_content()
+                await browser.close()
+                
+                return content[:2000]  # Limit to first 2000 chars
+    
+    return asyncio.run(_get_content())
+
+@tool
+def take_screenshot(path: str = "screenshot.png") -> str:
+    """Take a screenshot of the current page.
+    
+    Args:
+        path: File path to save screenshot
+    
+    Returns:
+        Confirmation message
+    """
+    async def _screenshot():
+        with browser_session("us-west-2") as client:
+            ws_url, headers = client.generate_ws_headers()
+            
+            async with async_playwright() as p:
+                browser = await p.chromium.connect_over_cdp(ws_url, headers=headers)
+                page = (await browser.contexts)[0].pages[0]
+                
+                await page.screenshot(path=path, full_page=True)
+                await browser.close()
+                
+                return f"Screenshot saved to {path}"
+    
+    return asyncio.run(_screenshot())
+
+# Configure Strands agent with browser tools
+model = BedrockModel(
+    inference_profile_id="us.anthropic.claude-sonnet-4-0-v1:0",
+    temperature=0.7
+)
+
+agent = Agent(
+    model=model,
+    tools=[navigate_to_url, get_page_content, take_screenshot],
+    system_prompt=SYSTEM_PROMPT
+)
+
+# Example usage
+async def main():
+    query = "Go to the AWS AgentCore documentation and summarize what AgentCore is used for"
+    
+    print(f"Query: {query}\n")
+    
+    response_text = ""
+    async for event in agent.stream_async(query):
+        if "data" in event:
+            chunk = event["data"]
+            response_text += chunk
+            print(chunk, end="", flush=True)
+    
+    print("\n")
+
+asyncio.run(main())
+```
+
+### Using Browser with Nova Act
+
+Nova Act provides high-level browser automation capabilities powered by AI:
+
+```python
+# nova_act_browser_agent.py
+from bedrock_agentcore.tools.browser_client import browser_session
+from nova_act import NovaAct
+from rich.console import Console
+import argparse
+
+console = Console()
+
+def browser_with_nova_act(prompt: str, starting_page: str, nova_act_key: str, region: str = "us-west-2"):
+    """Use Nova Act for AI-powered browser automation."""
+    
+    result = None
+    with browser_session(region) as client:
+        ws_url, headers = client.generate_ws_headers()
+        
+        try:
+            with NovaAct(
+                cdp_endpoint_url=ws_url,
+                cdp_headers=headers,
+                nova_act_api_key=nova_act_key,
+                starting_page=starting_page
+            ) as nova_act:
+                result = nova_act.act(prompt)
+                
+        except Exception as e:
+            console.print(f"[red]NovaAct error: {e}[/red]")
+        
+        return result
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Browse web with Nova Act')
+    parser.add_argument('--prompt', required=True, help='Task for the browser to perform')
+    parser.add_argument('--starting-page', required=True, help='Starting URL')
+    parser.add_argument('--nova-act-key', required=True, help='Nova Act API key')
+    parser.add_argument('--region', default='us-west-2', help='AWS region')
+    
+    args = parser.parse_args()
+    
+    result = browser_with_nova_act(
+        args.prompt,
+        args.starting_page,
+        args.nova_act_key,
+        args.region
+    )
+    
+    if result:
+        console.print(f"\n[cyan]Response:[/cyan] {result.response}")
+        console.print(f"\n[bold green]Nova Act Result:[/bold green] {result}")
+
+# Example usage:
+# python nova_act_browser_agent.py \
+#   --prompt "What are the common use cases of Bedrock AgentCore?" \
+#   --starting-page "https://docs.aws.amazon.com/bedrock-agentcore/" \
+#   --nova-act-key "your-api-key"
+```
+
+### Live View and Session Recording
+
+#### Viewing Sessions Live
+
+While your browser script is running, monitor it in real-time:
+
+1. Open the [AgentCore Browser Console](https://console.aws.amazon.com/bedrock-agentcore/builtInTools)
+2. Navigate to **Built-in tools** → Select your browser tool
+3. In **Browser sessions**, find the active session
+4. Click **View live** to stream the browser view in real-time
+5. Optionally interact directly with the live browser
+
+#### Accessing Recorded Sessions
+
+For custom browsers with recording enabled:
+
+```python
+# list_and_replay_recordings.py
+import boto3
+
+control_client = boto3.client('bedrock-agentcore-control', region_name='us-west-2')
+s3_client = boto3.client('s3')
+
+browser_id = 'browser-abc123'
+
+# List browser sessions
+sessions_response = control_client.list_browser_sessions(
+    browserId=browser_id,
+    maxResults=20
+)
+
+print("Browser Sessions:")
+for session in sessions_response['browserSessions']:
+    session_id = session['sessionId']
+    status = session['status']
+    start_time = session['createdAt']
+    
+    print(f"\nSession ID: {session_id}")
+    print(f"  Status: {status}")
+    print(f"  Started: {start_time}")
+    
+    # Get recording location (for completed sessions with recording enabled)
+    if status == 'COMPLETED' and session.get('recordingPath'):
+        recording_path = session['recordingPath']
+        print(f"  Recording: s3://{recording_path}")
+
+# Download recording
+def download_recording(bucket: str, key: str, local_path: str):
+    """Download session recording from S3."""
+    s3_client.download_file(bucket, key, local_path)
+    print(f"Recording downloaded to {local_path}")
+
+# Example: Download a specific recording
+# download_recording('my-browser-recordings-bucket', 'recordings/session-123.json', 'recording.json')
+```
+
+### Browser Best Practices
+
+1. **Session Management**: Always close browser sessions explicitly to avoid resource leaks and unnecessary costs.
+
+2. **Wait for Elements**: Use appropriate wait conditions (`wait_until='networkidle'`, `page.wait_for_selector()`) to ensure elements are loaded before interaction.
+
+3. **Handle Timeouts**: Set reasonable session timeouts based on task complexity. Most tasks complete within the 15-minute default.
+
+4. **Error Handling**: Implement robust error handling for network failures, missing elements, and navigation errors.
+
+5. **Minimize Navigation**: Plan navigation paths to minimize page loads. Extract all needed information from each page before moving to the next.
+
+6. **Use Selectors Wisely**: Prefer stable CSS selectors (IDs, data attributes) over fragile selectors (positional, text-based).
+
+7. **Leverage Live View**: Use live view during development to debug navigation issues and validate element selection.
+
+8. **Enable Recording Selectively**: Enable recording only when needed for debugging or compliance, as it increases storage costs.
+
+9. **Clean Up Screenshots**: Delete screenshots after use if stored locally or in S3 to manage storage costs.
+
+10. **Monitor Performance**: Use CloudWatch metrics to track session duration, error rates, and resource utilization.
+
+### Security Considerations
+
+**Isolation**: Each browser session runs in an isolated container that is destroyed after the session ends, preventing state leakage between sessions.
+
+**Network Controls**: Use VPC integration to access internal web applications securely without exposing them to the public internet.
+
+**IAM Policies**: Restrict browser creation and session management to authorized principals using fine-grained IAM policies.
+
+**Audit Trails**: All browser operations are logged to CloudTrail, providing complete audit trails for compliance and security analysis.
+
+**Content Filtering**: Implement content filtering in your agent logic to prevent access to inappropriate or malicious websites.
+
+**Data Handling**: Be cautious when handling sensitive data in browser sessions. Avoid logging credentials or personal information.
+
+AWS AgentCore's built-in tools—Code Interpreter and Browser—extend agent capabilities beyond natural language reasoning, enabling them to solve computational problems and interact with the web in secure, scalable environments. By combining these tools with agent frameworks like Strands and LangChain, developers can build sophisticated AI applications that bridge the gap between reasoning and execution. In the next section, we will explore CI/CD practices for automating the deployment of AI applications.
 
 
 
@@ -7203,655 +11493,563 @@ By choosing the right deployment option for your needs, you can ensure that your
 
 ## AWS AgentCore Runtime: Comprehensive Guide
 
-AWS AgentCore Runtime is a powerful infrastructure service that provides a complete runtime environment for AI agents. It offers a unified platform for configuring, launching, and invoking agents both locally and in the cloud, with built-in support for memory management, tool execution, observability, and security.
+AWS AgentCore Runtime is a purpose-built serverless hosting environment that transforms local agent code into cloud-native deployments. This comprehensive guide covers deployment strategies, configuration options, and best practices for building production-ready AI agents with AgentCore.
 
-### AgentCore Runtime Architecture
+### Understanding the AgentCore Runtime Service Contract
 
-The AgentCore Runtime consists of several key components that work together to provide a comprehensive agent execution environment:
+AgentCore Runtime requires your agent code to implement a specific service contract. The agent can be deployed in three ways:
 
-#### Core Components
+1. **Using the `@app.entrypoint` decorator** (Python SDK) - Simplest approach for Python agents
+2. **Implementing HTTP REST endpoints** - `/invocations` (POST) and `/ping` (GET)
+3. **Using Model Context Protocol (MCP)** - For tool servers
+4. **Using Agent-to-Agent (A2A) protocol** - For multi-agent systems
 
-1. **Runtime Engine**: The core execution environment that manages agent lifecycles, tool invocations, and conversation flows
-2. **Identity Service**: Handles authentication, authorization, and user context management
-3. **Memory Service**: Provides persistent and ephemeral memory capabilities for agents
-4. **Code Interpreter**: Secure code execution environment for agents that need to run code
-5. **Browser Service**: Managed browser automation capabilities for web-based tasks
-6. **Gateway**: API gateway for external access and routing to agents
-7. **Observability Service**: Comprehensive monitoring, logging, and tracing capabilities
+### Deployment Strategy 1: Direct Code Deployment
 
-#### AgentCore Runtime Configuration
+Direct code deployment is the fastest way to deploy Python agents without containerization.
 
-Let's start with a comprehensive configuration example for AgentCore Runtime:
-
-```yaml
-# agentcore-config.yaml
-apiVersion: agentcore.aws.com/v1
-kind: RuntimeConfiguration
-metadata:
-  name: production-agentcore
-  namespace: default
-spec:
-  runtime:
-    version: "1.0.0"
-    region: us-east-1
-    environment: production
-    
-  # Identity configuration
-  identity:
-    provider: aws-iam
-    roleArn: "arn:aws:iam::123456789012:role/AgentCoreExecutionRole"
-    sessionDuration: 3600
-    
-  # Memory configuration
-  memory:
-    provider: dynamodb
-    tableName: agentcore-memory
-    ttl: 86400  # 24 hours
-    encryption:
-      enabled: true
-      kmsKeyId: "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012"
-      
-  # Code interpreter configuration
-  codeInterpreter:
-    enabled: true
-    runtime: python3.11
-    timeout: 300
-    memoryLimit: 512
-    sandboxed: true
-    allowedPackages:
-      - numpy
-      - pandas
-      - matplotlib
-      - requests
-      - boto3
-      
-  # Browser service configuration
-  browser:
-    enabled: true
-    headless: true
-    timeout: 60
-    viewport:
-      width: 1920
-      height: 1080
-    userAgent: "AgentCore/1.0 (AWS)"
-    
-  # Gateway configuration
-  gateway:
-    enabled: true
-    port: 8080
-    cors:
-      enabled: true
-      allowedOrigins: ["*"]
-    rateLimit:
-      requestsPerMinute: 100
-      burstSize: 20
-      
-  # Observability configuration
-  observability:
-    logging:
-      level: INFO
-      destination: cloudwatch
-      logGroup: /aws/agentcore/runtime
-    metrics:
-      enabled: true
-      namespace: AgentCore/Runtime
-    tracing:
-      enabled: true
-      samplingRate: 0.1
-      
-  # Security configuration
-  security:
-    encryption:
-      inTransit: true
-      atRest: true
-    networkPolicy:
-      allowedOutbound:
-        - "bedrock.us-east-1.amazonaws.com"
-        - "s3.us-east-1.amazonaws.com"
-        - "dynamodb.us-east-1.amazonaws.com"
-```
-
-#### Local AgentCore Setup
-
-Here's how to set up AgentCore Runtime locally for development:
+#### Prerequisites
 
 ```bash
-#!/bin/bash
-# setup-agentcore-local.sh
+# Install required packages
+pip install bedrock-agentcore strands-agents
 
-# Install AgentCore CLI
-curl -L https://github.com/aws/agentcore/releases/latest/download/agentcore-cli-linux-amd64.tar.gz | tar xz
-sudo mv agentcore /usr/local/bin/
-
-# Create local configuration
-mkdir -p ~/.agentcore
-cat > ~/.agentcore/config.yaml << EOF
-runtime:
-  mode: local
-  port: 8080
-  dataDir: ~/.agentcore/data
-  
-identity:
-  provider: local
-  
-memory:
-  provider: sqlite
-  database: ~/.agentcore/memory.db
-  
-codeInterpreter:
-  enabled: true
-  runtime: python3.11
-  
-browser:
-  enabled: true
-  headless: false  # For development
-  
-observability:
-  logging:
-    level: DEBUG
-    destination: console
-EOF
-
-# Initialize AgentCore
-agentcore init --config ~/.agentcore/config.yaml
-
-# Start AgentCore runtime
-agentcore start --daemon
+# For the starter toolkit (optional but recommended)
+pip install bedrock-agentcore-starter-toolkit
 ```
 
-#### Cloud AgentCore Deployment
-
-For production cloud deployment, use the following CloudFormation template:
-
-```yaml
-# agentcore-infrastructure.yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Description: 'AWS AgentCore Runtime Infrastructure'
-
-Parameters:
-  Environment:
-    Type: String
-    Default: production
-    AllowedValues: [development, staging, production]
-  
-  VpcId:
-    Type: AWS::EC2::VPC::Id
-    Description: VPC for AgentCore deployment
-    
-  SubnetIds:
-    Type: List<AWS::EC2::Subnet::Id>
-    Description: Subnets for AgentCore deployment
-
-Resources:
-  # ECS Cluster for AgentCore Runtime
-  AgentCoreCluster:
-    Type: AWS::ECS::Cluster
-    Properties:
-      ClusterName: !Sub 'agentcore-${Environment}'
-      CapacityProviders:
-        - FARGATE
-        - FARGATE_SPOT
-      DefaultCapacityProviderStrategy:
-        - CapacityProvider: FARGATE
-          Weight: 1
-          
-  # Task Definition for AgentCore Runtime
-  AgentCoreTaskDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: !Sub 'agentcore-runtime-${Environment}'
-      NetworkMode: awsvpc
-      RequiresCompatibilities:
-        - FARGATE
-      Cpu: 2048
-      Memory: 4096
-      ExecutionRoleArn: !Ref AgentCoreExecutionRole
-      TaskRoleArn: !Ref AgentCoreTaskRole
-      ContainerDefinitions:
-        - Name: agentcore-runtime
-          Image: public.ecr.aws/aws-agentcore/runtime:latest
-          Essential: true
-          PortMappings:
-            - ContainerPort: 8080
-              Protocol: tcp
-          Environment:
-            - Name: AGENTCORE_ENVIRONMENT
-              Value: !Ref Environment
-            - Name: AGENTCORE_REGION
-              Value: !Ref AWS::Region
-            - Name: AGENTCORE_MEMORY_TABLE
-              Value: !Ref MemoryTable
-          LogConfiguration:
-            LogDriver: awslogs
-            Options:
-              awslogs-group: !Ref LogGroup
-              awslogs-region: !Ref AWS::Region
-              awslogs-stream-prefix: agentcore-runtime
-              
-  # ECS Service
-  AgentCoreService:
-    Type: AWS::ECS::Service
-    Properties:
-      ServiceName: !Sub 'agentcore-runtime-${Environment}'
-      Cluster: !Ref AgentCoreCluster
-      TaskDefinition: !Ref AgentCoreTaskDefinition
-      DesiredCount: 2
-      LaunchType: FARGATE
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          SecurityGroups:
-            - !Ref AgentCoreSecurityGroup
-          Subnets: !Ref SubnetIds
-          AssignPublicIp: DISABLED
-      LoadBalancers:
-        - ContainerName: agentcore-runtime
-          ContainerPort: 8080
-          TargetGroupArn: !Ref AgentCoreTargetGroup
-          
-  # DynamoDB Table for Memory
-  MemoryTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: !Sub 'agentcore-memory-${Environment}'
-      BillingMode: PAY_PER_REQUEST
-      AttributeDefinitions:
-        - AttributeName: session_id
-          AttributeType: S
-        - AttributeName: timestamp
-          AttributeType: N
-      KeySchema:
-        - AttributeName: session_id
-          KeyType: HASH
-        - AttributeName: timestamp
-          KeyType: RANGE
-      TimeToLiveSpecification:
-        AttributeName: ttl
-        Enabled: true
-      PointInTimeRecoverySpecification:
-        PointInTimeRecoveryEnabled: true
-        
-  # IAM Roles
-  AgentCoreExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Sub 'AgentCoreExecutionRole-${Environment}'
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: ecs-tasks.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
-
-Outputs:
-  AgentCoreEndpoint:
-    Description: AgentCore Runtime Endpoint
-    Value: !Sub 'http://${AgentCoreALB.DNSName}'
-    Export:
-      Name: !Sub '${AWS::StackName}-AgentCoreEndpoint'
-```
-
-### Agent Configuration and Deployment
-
-#### Agent Definition Format
-
-AgentCore uses a standardized agent definition format:
-
-```yaml
-# customer-service-agent.yaml
-apiVersion: agentcore.aws.com/v1
-kind: Agent
-metadata:
-  name: customer-service-agent
-  version: "1.0.0"
-  description: "AI agent for customer service inquiries"
-  
-spec:
-  # Agent configuration
-  agent:
-    model:
-      provider: bedrock
-      modelId: anthropic.claude-v2
-      temperature: 0.7
-      maxTokens: 1000
-      
-    systemPrompt: |
-      You are a helpful customer service agent for TechCorp.
-      You can help customers with:
-      - Product information and specifications
-      - Order status and tracking
-      - Technical support issues
-      - Account management
-      
-      Always be polite, professional, and helpful.
-      
-    memory:
-      type: conversation
-      maxTokens: 4000
-      persistAcrossSessions: true
-      
-  # Tools configuration
-  tools:
-    - name: search_knowledge_base
-      type: bedrock-kb
-      config:
-        knowledgeBaseId: kb-customer-support-123
-        maxResults: 5
-        
-    - name: check_order_status
-      type: api
-      config:
-        endpoint: https://api.techcorp.com/orders/{order_id}
-        method: GET
-        headers:
-          Authorization: "Bearer ${API_TOKEN}"
-          
-  # Security configuration
-  security:
-    authentication:
-      required: true
-      methods: ["jwt", "api-key"]
-    authorization:
-      roles: ["customer", "support-agent", "admin"]
-    rateLimiting:
-      requestsPerMinute: 60
-      burstSize: 10
-      
-  # Deployment configuration
-  deployment:
-    replicas: 3
-    resources:
-      cpu: 500m
-      memory: 1Gi
-    autoscaling:
-      enabled: true
-      minReplicas: 2
-      maxReplicas: 10
-      targetCPUUtilization: 70
-```
-
-#### Deploying Agents with AgentCore CLI
-
-Here's how to deploy agents using the AgentCore CLI:
-
-```bash
-#!/bin/bash
-# deploy-agent.sh
-
-# Validate agent configuration
-agentcore validate --file customer-service-agent.yaml
-
-# Deploy agent to local environment
-agentcore deploy --file customer-service-agent.yaml --environment local
-
-# Deploy agent to cloud environment
-agentcore deploy --file customer-service-agent.yaml --environment production --region us-east-1
-
-# List deployed agents
-agentcore list agents
-
-# Get agent status
-agentcore status customer-service-agent
-
-# View agent logs
-agentcore logs customer-service-agent --follow
-
-# Scale agent
-agentcore scale customer-service-agent --replicas 5
-
-# Update agent
-agentcore update --file customer-service-agent-v2.yaml
-
-# Rollback agent
-agentcore rollback customer-service-agent --to-version 1.0.0
-```
-
-#### Programmatic Agent Management
-
-You can also manage agents programmatically using the AgentCore SDK:
+#### Create Your Agent
 
 ```python
-import boto3
-from agentcore import AgentCoreClient
-import yaml
-import json
+# agent.py
+from bedrock_agentcore import app
+from strands import Agent
+import os
 
-class AgentCoreManager:
-    def __init__(self, endpoint=None, region='us-east-1'):
-        if endpoint:
-            self.client = AgentCoreClient(endpoint=endpoint)
-        else:
-            # Use AWS service discovery to find AgentCore endpoint
-            self.client = AgentCoreClient.from_aws_service(region=region)
-    
-    def deploy_agent_from_file(self, agent_file_path, environment='production'):
-        """Deploy an agent from a YAML configuration file."""
-        with open(agent_file_path, 'r') as file:
-            agent_config = yaml.safe_load(file)
-        
-        try:
-            response = self.client.deploy_agent(
-                agent_config=agent_config,
-                environment=environment
-            )
-            
-            return {
-                'success': True,
-                'agent_id': response['agent_id'],
-                'deployment_id': response['deployment_id'],
-                'status': response['status']
-            }
-        except Exception as e:
-            return {
-                'success': False,
-                'error': str(e)
-            }
-    
-    def invoke_agent(self, agent_name, message, session_id=None, context=None):
-        """Invoke an agent with a message."""
-        try:
-            response = self.client.invoke_agent(
-                agent_name=agent_name,
-                message=message,
-                session_id=session_id,
-                context=context or {}
-            )
-            
-            return {
-                'success': True,
-                'response': response['message'],
-                'session_id': response['session_id'],
-                'tokens_used': response.get('tokens_used', 0),
-                'execution_time': response.get('execution_time', 0)
-            }
-        except Exception as e:
-            return {
-                'success': False,
-                'error': str(e)
-            }
-    
-    def get_agent_metrics(self, agent_name, time_range='1h'):
-        """Get metrics for an agent."""
-        try:
-            metrics = self.client.get_agent_metrics(
-                agent_name=agent_name,
-                time_range=time_range
-            )
-            
-            return {
-                'success': True,
-                'metrics': {
-                    'invocations': metrics.get('invocations', 0),
-                    'avg_response_time': metrics.get('avg_response_time', 0),
-                    'error_rate': metrics.get('error_rate', 0),
-                    'tokens_consumed': metrics.get('tokens_consumed', 0)
-                }
-            }
-        except Exception as e:
-            return {
-                'success': False,
-                'error': str(e)
-            }
-
-# Example usage
-manager = AgentCoreManager(region='us-east-1')
-
-# Deploy an agent
-deployment_result = manager.deploy_agent_from_file('customer-service-agent.yaml')
-print(f"Deployment result: {deployment_result}")
-
-# Invoke the agent
-response = manager.invoke_agent(
-    agent_name='customer-service-agent',
-    message='What is the status of order #12345?',
-    session_id='user-session-123'
+# Define your agent using Strands
+agent = Agent(
+    model="us.anthropic.claude-sonnet-4-0-v1:0",
+    system_prompt="You are a helpful assistant specialized in AWS services.",
+    temperature=0.7
 )
-print(f"Agent response: {response}")
 
-# Get agent metrics
-metrics = manager.get_agent_metrics('customer-service-agent', time_range='24h')
-print(f"Agent metrics: {metrics}")
+# Use the @app.entrypoint decorator
+@app.entrypoint
+def handler(payload):
+    """
+    Entry point for AgentCore Runtime.
+    Payload contains the user's prompt and session context.
+    """
+    prompt = payload.get("prompt", "")
+    
+    # Run the agent
+    response = agent.run(prompt)
+    
+    return {
+        "response": response.text,
+        "session_data": payload.get("session_data", {})
+    }
 ```
 
-### Advanced AgentCore Features
-
-#### Multi-Agent Orchestration
-
-AgentCore supports complex multi-agent workflows:
-
-```yaml
-# multi-agent-workflow.yaml
-apiVersion: agentcore.aws.com/v1
-kind: Workflow
-metadata:
-  name: customer-support-workflow
-  version: "1.0.0"
-  
-spec:
-  # Workflow definition
-  workflow:
-    entryPoint: triage-agent
-    
-    steps:
-      - name: triage-agent
-        agent: customer-triage-agent
-        condition: always
-        nextSteps:
-          - name: technical-support
-            condition: "intent == 'technical_issue'"
-          - name: billing-support
-            condition: "intent == 'billing_inquiry'"
-          - name: general-support
-            condition: "intent == 'general_question'"
-            
-      - name: technical-support
-        agent: technical-support-agent
-        timeout: 300
-        escalation:
-          condition: "confidence < 0.7"
-          target: human-technician
-          
-      - name: billing-support
-        agent: billing-support-agent
-        timeout: 180
-        escalation:
-          condition: "requires_account_access"
-          target: human-billing-specialist
-          
-      - name: general-support
-        agent: general-support-agent
-        timeout: 120
-        
-  # Agents used in workflow
-  agents:
-    - customer-triage-agent
-    - technical-support-agent
-    - billing-support-agent
-    - general-support-agent
-    
-  # Workflow configuration
-  config:
-    maxExecutionTime: 600
-    retryPolicy:
-      maxRetries: 3
-      backoffStrategy: exponential
-    logging:
-      enabled: true
-      level: INFO
-```
-
-#### Agent Testing and Validation
-
-AgentCore provides comprehensive testing capabilities:
+#### Deploy to AgentCore Runtime
 
 ```python
-from agentcore.testing import AgentTestSuite, TestCase
-import unittest
+# deploy_agent.py
+import boto3
+import zipfile
+import os
 
-class CustomerServiceAgentTests(AgentTestSuite):
-    def setUp(self):
-        self.agent_name = 'customer-service-agent'
-        self.test_session_id = 'test-session-123'
-    
-    def test_order_status_inquiry(self):
-        """Test agent's ability to handle order status inquiries."""
-        test_case = TestCase(
-            name="order_status_inquiry",
-            input_message="What is the status of my order #12345?",
-            expected_tools=["check_order_status"],
-            expected_response_contains=["order", "status"],
-            max_response_time=5.0
-        )
+def create_deployment_package():
+    """Create a .zip file with agent code and dependencies."""
+    with zipfile.ZipFile('agent_package.zip', 'w') as zipf:
+        # Add your agent code
+        zipf.write('agent.py')
         
-        result = self.run_test_case(test_case)
-        self.assertTrue(result.passed)
-        self.assertIn("check_order_status", result.tools_used)
-    
-    def test_product_information_request(self):
-        """Test agent's ability to provide product information."""
-        test_case = TestCase(
-            name="product_information",
-            input_message="Tell me about the TechCorp Pro laptop specifications",
-            expected_tools=["search_knowledge_base"],
-            expected_response_contains=["laptop", "specifications"],
-            max_response_time=3.0
-        )
+        # Add dependencies (if not using layers)
+        # Note: Large dependencies should use container deployment instead
         
-        result = self.run_test_case(test_case)
-        self.assertTrue(result.passed)
-    
-    def test_conversation_memory(self):
-        """Test agent's conversation memory capabilities."""
-        # First message
-        response1 = self.invoke_agent(
-            "I'm having trouble with my TechCorp Pro laptop",
-            session_id=self.test_session_id
-        )
-        
-        # Second message referencing previous context
-        response2 = self.invoke_agent(
-            "What warranty options do I have for it?",
-            session_id=self.test_session_id
-        )
-        
-        # Agent should remember "TechCorp Pro laptop" from previous message
-        self.assertIn("laptop", response2.response.lower())
-        self.assertIn("warranty", response2.response.lower())
+    print("Created agent_package.zip")
 
-# Run the tests
-if __name__ == '__main__':
-    test_suite = CustomerServiceAgentTests()
-    test_suite.setup_test_environment(
-        agentcore_endpoint='http://localhost:8080',
-        test_data_path='./test_data'
+def upload_to_s3(bucket_name):
+    """Upload the deployment package to S3."""
+    s3_client = boto3.client('s3')
+    s3_client.upload_file('agent_package.zip', bucket_name, 'agent_package.zip')
+    s3_uri = f"s3://{bucket_name}/agent_package.zip"
+    print(f"Uploaded to {s3_uri}")
+    return s3_uri
+
+def deploy_agent(s3_uri, agent_name, role_arn):
+    """Deploy the agent to AgentCore Runtime."""
+    agentcore_client = boto3.client('bedrock-agentcore-control', region_name='us-east-1')
+    
+    response = agentcore_client.create_agent_runtime(
+        agentRuntimeName=agent_name,
+        agentRuntimeArtifact={
+            'directCodeConfiguration': {
+                'sourceCodeArchiveS3Uri': s3_uri,
+                'pythonVersion': '3.11'
+            }
+        },
+        observabilityConfiguration={
+            'tracingEnabled': True
+        },
+        roleArn=role_arn,
+        timeoutInSeconds=300  # 5 minutes per invocation
     )
     
-    unittest.main()
+    print(f"Agent deployed successfully!")
+    print(f"Agent Runtime ARN: {response['agentRuntimeArn']}")
+    return response['agentRuntimeArn']
+
+# Usage
+if __name__ == "__main__":
+    create_deployment_package()
+    s3_uri = upload_to_s3('my-agentcore-bucket')
+    agent_arn = deploy_agent(
+        s3_uri=s3_uri,
+        agent_name='my-aws-assistant',
+        role_arn='arn:aws:iam::123456789012:role/AgentRuntimeRole'
+    )
 ```
 
-This comprehensive expansion of the AgentCore Runtime section provides detailed information about configuring, deploying, and managing AI agents using AWS AgentCore. The examples cover everything from basic setup to advanced monitoring and multi-agent orchestration, giving engineers the practical knowledge they need to implement production-ready agent infrastructure.
+### Deployment Strategy 2: Container Deployment
+
+For agents with complex dependencies or custom runtimes, use container deployment.
+
+#### Create a Dockerfile
+
+```dockerfile
+# Dockerfile
+FROM public.ecr.aws/lambda/python:3.11
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install -r requirements.txt --target "${LAMBDA_TASK_ROOT}"
+
+# Copy agent code
+COPY agent.py ${LAMBDA_TASK_ROOT}
+COPY tools/ ${LAMBDA_TASK_ROOT}/tools/
+
+# Set the working directory
+WORKDIR ${LAMBDA_TASK_ROOT}
+
+# Expose port for health checks
+EXPOSE 8080
+
+# Start the agent server
+CMD ["python", "-m", "bedrock_agentcore.server"]
+```
+
+#### Build and Deploy Container
+
+```bash
+#!/bin/bash
+# build_and_deploy.sh
+
+# Configuration
+AWS_ACCOUNT_ID="123456789012"
+AWS_REGION="us-east-1"
+AGENT_NAME="my-containerized-agent"
+ECR_REPO="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${AGENT_NAME}"
+
+# Authenticate with ECR
+aws ecr get-login-password --region ${AWS_REGION} | \
+    docker login --username AWS --password-stdin ${ECR_REPO}
+
+# Build the Docker image
+docker build -t ${AGENT_NAME}:latest .
+
+# Tag the image
+docker tag ${AGENT_NAME}:latest ${ECR_REPO}:latest
+
+# Push to ECR
+docker push ${ECR_REPO}:latest
+
+# Deploy to AgentCore Runtime
+aws bedrock-agentcore-control create-agent-runtime \
+    --agent-runtime-name ${AGENT_NAME} \
+    --agent-runtime-artifact containerConfiguration={containerUri=${ECR_REPO}:latest} \
+    --role-arn arn:aws:iam::${AWS_ACCOUNT_ID}:role/AgentRuntimeRole \
+    --observability-configuration tracingEnabled=true \
+    --region ${AWS_REGION}
+```
+
+### Deployment Strategy 3: Using the Starter Toolkit
+
+The Amazon Bedrock AgentCore Starter Toolkit simplifies deployment:
+
+```bash
+# Initialize a new agent project
+uv init my-agent --python 3.13
+cd my-agent
+
+# Add dependencies
+uv add bedrock-agentcore strands-agents
+
+# Add the starter toolkit (optional, for development)
+uv add --dev bedrock-agentcore-starter-toolkit
+
+# Create your agent code
+cat > agent.py << 'EOF'
+from bedrock_agentcore import app
+from strands import Agent, tool
+
+@tool
+def get_weather(location: str) -> str:
+    """Get the weather for a location."""
+    return f"The weather in {location} is sunny and 72°F"
+
+agent = Agent(
+    model="us.anthropic.claude-sonnet-4-0-v1:0",
+    system_prompt="You are a helpful assistant.",
+    tools=[get_weather]
+)
+
+@app.entrypoint
+def handler(payload):
+    return {"response": agent.run(payload["prompt"]).text}
+EOF
+
+# Test locally (optional)
+uv run python -m bedrock_agentcore.local_server
+
+# Deploy to AWS
+uv run bedrock-agentcore deploy \
+    --agent-file agent.py \
+    --agent-name my-agent \
+    --region us-east-1
+```
+
+### Invoking Your Agent
+
+Once deployed, invoke your agent using the InvokeAgentRuntime API:
+
+```python
+# invoke_agent.py
+import boto3
+import json
+import uuid
+
+def invoke_agent(agent_arn, prompt, session_id=None):
+    """Invoke an AgentCore Runtime agent."""
+    agentcore_client = boto3.client('bedrock-agentcore', region_name='us-east-1')
+    
+    # Generate session ID if not provided
+    if not session_id:
+        session_id = str(uuid.uuid4())
+    
+    # Prepare payload
+    payload = json.dumps({"prompt": prompt}).encode()
+    
+    # Invoke the agent
+    response = agentcore_client.invoke_agent_runtime(
+        agentRuntimeArn=agent_arn,
+        runtimeSessionId=session_id,
+        payload=payload
+    )
+    
+    # Process streaming response
+    full_response = []
+    for chunk in response['response']:
+        chunk_str = chunk.decode('utf-8')
+        full_response.append(chunk_str)
+        print(chunk_str, end='', flush=True)
+    
+    print()  # New line after streaming
+    return ''.join(full_response), session_id
+
+# Example usage
+if __name__ == "__main__":
+    agent_arn = "arn:aws:bedrock-agentcore:us-east-1:123456789012:agent-runtime/my-agent"
+    
+    # First message - creates new session
+    response1, session_id = invoke_agent(
+        agent_arn, 
+        "What AWS services can help me deploy a web application?"
+    )
+    
+    # Follow-up message - reuses same session
+    response2, _ = invoke_agent(
+        agent_arn,
+        "Tell me more about the first option you mentioned.",
+        session_id=session_id
+    )
+```
+
+### Multi-Modal Agent Example
+
+AgentCore Runtime supports multi-modal payloads up to 100MB:
+
+```python
+# multimodal_agent.py
+import boto3
+import json
+import base64
+
+def invoke_multimodal_agent(agent_arn, prompt, image_path=None):
+    """Invoke an agent with text and optional image."""
+    agentcore_client = boto3.client('bedrock-agentcore', region_name='us-east-1')
+    
+    payload_dict = {"prompt": prompt}
+    
+    # Add image if provided
+    if image_path:
+        with open(image_path, 'rb') as img_file:
+            image_data = base64.b64encode(img_file.read()).decode('utf-8')
+        
+        payload_dict["media"] = {
+            "type": "image",
+            "format": "jpeg",
+            "data": image_data
+        }
+    
+    payload = json.dumps(payload_dict).encode()
+    
+    response = agentcore_client.invoke_agent_runtime(
+        agentRuntimeArn=agent_arn,
+        runtimeSessionId=f"multimodal-{uuid.uuid4()}",
+        payload=payload
+    )
+    
+    # Process response
+    result = []
+    for chunk in response['response']:
+        result.append(chunk.decode('utf-8'))
+    
+    return ''.join(result)
+
+# Usage
+response = invoke_multimodal_agent(
+    agent_arn="arn:aws:bedrock-agentcore:us-east-1:123456789012:agent-runtime/vision-agent",
+    prompt="Describe what you see in this image",
+    image_path="chart.jpg"
+)
+print(response)
+```
+
+### WebSocket Streaming for Real-Time Interactions
+
+For real-time bidirectional streaming, use WebSocket connections:
+
+```python
+# websocket_client.py
+import asyncio
+import websockets
+import json
+import boto3
+from botocore.auth import SigV4Auth
+from botocore.awsrequest import AWSRequest
+
+async def connect_websocket(agent_arn, region='us-east-1'):
+    """Connect to AgentCore Runtime via WebSocket."""
+    # Get AWS credentials
+    session = boto3.Session()
+    credentials = session.get_credentials()
+    
+    # Construct WebSocket URL
+    ws_url = f"wss://bedrock-agentcore.{region}.amazonaws.com/runtime/{agent_arn}/stream"
+    
+    # Sign the request
+    request = AWSRequest(method='GET', url=ws_url)
+    SigV4Auth(credentials, 'bedrock-agentcore', region).add_auth(request)
+    
+    # Connect
+    async with websockets.connect(
+        ws_url,
+        extra_headers=dict(request.headers)
+    ) as websocket:
+        
+        # Send initial message
+        await websocket.send(json.dumps({
+            "action": "invoke",
+            "payload": {"prompt": "Hello, tell me about AWS Lambda"}
+        }))
+        
+        # Receive streaming responses
+        async for message in websocket:
+            data = json.loads(message)
+            if data.get('type') == 'chunk':
+                print(data['content'], end='', flush=True)
+            elif data.get('type') == 'complete':
+                print("\n[Stream complete]")
+                break
+
+# Run the WebSocket client
+asyncio.run(connect_websocket("arn:aws:bedrock-agentcore:us-east-1:123456789012:agent-runtime/my-agent"))
+```
+
+### Session Management and Long-Running Workflows
+
+AgentCore Runtime supports sessions up to 8 hours:
+
+```python
+# long_running_session.py
+import boto3
+import json
+import time
+
+def run_extended_workflow(agent_arn):
+    """Run a multi-step workflow within a single session."""
+    agentcore_client = boto3.client('bedrock-agentcore', region_name='us-east-1')
+    session_id = f"workflow-{int(time.time())}"
+    
+    steps = [
+        "Analyze this dataset and identify key trends",
+        "Create visualizations for the top 3 trends",
+        "Generate a summary report with recommendations",
+        "Save the report and visualizations to S3"
+    ]
+    
+    results = []
+    for step_num, step in enumerate(steps, 1):
+        print(f"\n=== Step {step_num}: {step} ===")
+        
+        payload = json.dumps({
+            "prompt": step,
+            "step": step_num,
+            "total_steps": len(steps)
+        }).encode()
+        
+        response = agentcore_client.invoke_agent_runtime(
+            agentRuntimeArn=agent_arn,
+            runtimeSessionId=session_id,  # Same session across all steps
+            payload=payload
+        )
+        
+        step_result = []
+        for chunk in response['response']:
+            chunk_str = chunk.decode('utf-8')
+            step_result.append(chunk_str)
+            print(chunk_str, end='', flush=True)
+        
+        results.append(''.join(step_result))
+        print()  # New line
+    
+    return results, session_id
+
+# Execute multi-step workflow
+results, session = run_extended_workflow(
+    "arn:aws:bedrock-agentcore:us-east-1:123456789012:agent-runtime/analyst-agent"
+)
+```
+
+### Versioning and Endpoints
+
+AgentCore Runtime provides versioning for controlled deployments:
+
+```python
+# version_management.py
+import boto3
+
+agentcore_client = boto3.client('bedrock-agentcore-control', region_name='us-east-1')
+
+# List all versions of an agent runtime
+response = agentcore_client.list_agent_runtime_versions(
+    agentRuntimeName='my-agent'
+)
+
+for version in response['agentRuntimeVersions']:
+    print(f"Version {version['version']}: {version['status']} - {version['createdAt']}")
+
+# Create a custom endpoint pointing to a specific version
+agentcore_client.create_agent_runtime_endpoint(
+    agentRuntimeName='my-agent',
+    endpointName='production',
+    agentRuntimeVersion='5'  # Pin to version 5
+)
+
+# The DEFAULT endpoint automatically points to the latest version
+# Custom endpoints provide stability for production workloads
+
+# Update an endpoint to point to a different version (blue/green deployment)
+agentcore_client.update_agent_runtime_endpoint(
+    agentRuntimeName='my-agent',
+    endpointName='production',
+    agentRuntimeVersion='6'  # Promote version 6 to production
+)
+```
+
+### Observability and Monitoring
+
+AgentCore Runtime integrates with CloudWatch for comprehensive observability:
+
+```python
+# monitoring.py
+import boto3
+from datetime import datetime, timedelta
+
+cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')
+
+def get_agent_metrics(agent_name, hours=1):
+    """Retrieve CloudWatch metrics for an agent."""
+    end_time = datetime.utcnow()
+    start_time = end_time - timedelta(hours=hours)
+    
+    # Get invocation count
+    invocations = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore',
+        MetricName='Invocations',
+        Dimensions=[{'Name': 'AgentRuntimeName', 'Value': agent_name}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=300,  # 5-minute periods
+        Statistics=['Sum']
+    )
+    
+    # Get average duration
+    duration = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore',
+        MetricName='Duration',
+        Dimensions=[{'Name': 'AgentRuntimeName', 'Value': agent_name}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=300,
+        Statistics=['Average']
+    )
+    
+    # Get error rate
+    errors = cloudwatch.get_metric_statistics(
+        Namespace='AWS/BedrockAgentCore',
+        MetricName='Errors',
+        Dimensions=[{'Name': 'AgentRuntimeName', 'Value': agent_name}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=300,
+        Statistics=['Sum']
+    )
+    
+    return {
+        'invocations': invocations['Datapoints'],
+        'duration': duration['Datapoints'],
+        'errors': errors['Datapoints']
+    }
+
+# Usage
+metrics = get_agent_metrics('my-agent', hours=24)
+print(f"Total invocations: {sum(dp['Sum'] for dp in metrics['invocations'])}")
+print(f"Average duration: {sum(dp['Average'] for dp in metrics['duration']) / len(metrics['duration']):.2f}ms")
+print(f"Total errors: {sum(dp['Sum'] for dp in metrics['errors'])}")
+```
+
+### Best Practices
+
+1. **Session Management**: Use meaningful session IDs with at least 33 characters. Consider formats like `user-{userId}-conversation-{uuid}` for traceability.
+
+2. **Error Handling**: Implement retry logic with exponential backoff for transient errors. AgentCore Runtime may throttle requests if you exceed limits.
+
+3. **Payload Size**: Keep payloads under 100MB. For larger datasets, use S3 pre-signed URLs and have the agent fetch data.
+
+4. **Timeouts**: Set appropriate timeouts based on your use case. Default is 5 minutes per invocation, but you can configure up to 15 minutes.
+
+5. **Cost Optimization**: Use the consumption-based pricing model efficiently by designing agents that minimize idle time during LLM API calls.
+
+6. **Security**: Always use IAM roles with least-privilege permissions. Enable tracing for security audits.
+
+7. **Testing**: Test agents locally using the `bedrock_agentcore.local_server` module before deploying to AWS.
+
+8. **Versioning**: Use custom endpoints for production workloads to pin to specific versions. Use the DEFAULT endpoint for development.
+
+This comprehensive expansion of the AgentCore Runtime section provides detailed, production-ready examples for deploying and managing AI agents using the latest AWS AgentCore capabilities. The examples cover all major deployment strategies, invocation patterns, and operational best practices needed for building enterprise-grade agent infrastructure.
 
 # Chapter 8: Observability & Evaluation
 
